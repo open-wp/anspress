@@ -9,7 +9,7 @@
  * @since      4.2.0
  */
 
-namespace AnsPress\Post;
+namespace AnsPress\Template;
 
 if ( ap_user_can_read_answer() ) :
 ?>

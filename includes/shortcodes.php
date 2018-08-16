@@ -211,7 +211,11 @@ class Shortcodes {
 		// Start output buffer
 		$this->start( 'single-question' );
 
-		include ap_get_theme_location( 'content-single-question.php' );
+		if ( ap_user_can_read_question( $question_id ) ) {
+			ap_get_template_part( 'content-single-question' );
+		} else {
+			ap_get_template_part( 'feedback-question' );
+		}
 
 		/**
 		 * An action triggered after rendering single question page.

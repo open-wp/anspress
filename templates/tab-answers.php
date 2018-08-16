@@ -7,7 +7,7 @@
  * @since 4.2.0
  */
 
-namespace AnsPress\Post;
+namespace AnsPress\Template;
 
 $tab_links = get_answers_tab_links();
 ?>

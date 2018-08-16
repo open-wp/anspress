@@ -96,3 +96,18 @@ function ap_answers_tab( $base = false ) {
 	}
 	echo '</ul>';
 }
+
+/**
+ * Output answers of current question.
+ *
+ * @since 2.1
+ * @since 4.1.0 Removed calling function @see `ap_reset_question_query`.
+ * @deprecated 4.2.0 Replace by `ap_has_answers()`.
+ */
+function ap_answers() {
+	global $answers;
+	$answers = ap_get_answers();
+
+	ap_get_template_part( 'answers' );
+	ap_reset_question_query();
+}

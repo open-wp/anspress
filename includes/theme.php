@@ -735,7 +735,7 @@ function ap_list_filters( $current_url = '' ) {
  *
  * @param mixed $_post Post.
  * @return string
- * @deprecated 4.2.0 Replaced by \AnsPress\Post\select_button.
+ * @deprecated 4.2.0 Replaced by \AnsPress\Template\select_button.
  */
 function ap_select_answer_btn_html( $_post = null ) {
 	if ( ! ap_user_can_select_answer( $_post ) ) {

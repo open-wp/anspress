@@ -706,21 +706,6 @@ function ap_latest_post_activity_html( $post_id = false, $answer_activities = fa
 	return false;
 }
 
-
-/**
- * Output answers of current question.
- *
- * @since 2.1
- * @since 4.1.0 Removed calling function @see `ap_reset_question_query`.
- */
-function ap_answers() {
-	global $answers;
-	$answers = ap_get_answers();
-
-	ap_get_template_part( 'answers' );
-	ap_reset_question_query();
-}
-
 /**
  * The main answer loop.
  *

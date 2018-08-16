@@ -1208,11 +1208,6 @@ function ap_user_can_read_post( $_post = null, $user_id = false, $post_type = fa
 		return false;
 	}
 
-	// Show if post in user's session.
-	if ( ! is_user_logged_in() && '0' === $post_o->post_author && anspress()->session->post_in_session( $post_o ) ) {
-		return true;
-	}
-
 	// Also return true if user have capability to edit others question.
 	if ( user_can( $user_id, 'ap_edit_others_' . $post_type ) ) {
 		return true;
@@ -1220,6 +1215,11 @@ function ap_user_can_read_post( $_post = null, $user_id = false, $post_type = fa
 
 	// Do not allow to read trash post.
 	if ( 'trash' === $post_o->post_status ) {
+		return false;
+	}
+
+	// Bail of future post.
+	if ( 'future' === $post_o->post_status && ! ap_user_can_view_future_post( $post_o ) ) {
 		return false;
 	}
 

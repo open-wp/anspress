@@ -11,7 +11,7 @@
  * @since      4.2.0
  */
 
-namespace AnsPress\Post;
+namespace AnsPress\Template;
 
 ?>
 <div id="ap-single" class="ap-q clearfix">

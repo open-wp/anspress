@@ -1,6 +1,6 @@
 <?php
 /**
- * Functions used inside question and answer loop.
+ * Template and loop related functions.
  *
  * @package   AnsPress
  * @author    Rahul Aryan <support@anspress.io>
@@ -10,7 +10,7 @@
  * @since     4.2.0
  */
 
-namespace AnsPress\Post;
+namespace AnsPress\Template;
 
 // Bail if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
@@ -366,4 +366,100 @@ function get_answers_tab_links( $base = false ) {
 	 * @since 4.2.0
 	 */
 	return apply_filters( 'ap_get_answers_tab_links', $links );
+}
+
+/**
+ * Get status of the question or answer in loop.
+ *
+ * @param integer $post_id Post id.
+ * @return string
+ * @since 4.2.0
+ */
+function get_status( $post_id = 0 ) {
+	$post_id = ap_is_answer() ? ap_get_answer_id( $post_id ) : get_question_id( $post_id );
+	return get_post_field( 'post_status', $post_id );
+}
+
+/**
+ * Check if question or answer is private.
+ *
+ * @param integer $post_id Post id.
+ * @return boolean
+ * @since 4.2.0
+ */
+function is_private( $post_id = 0 ) {
+	$status = get_status( $post_id );
+	$ret    = (bool) ( 'private_post' === $status );
+
+	/**
+	 * Filter for overriding returned value of function `is_private`.
+	 *
+	 * @param bool    $ret     Return value.
+	 * @param integer $post_id Post id.
+	 * @since 4.2.0
+	 */
+	return apply_filters( 'ap_is_private', $ret, $post_id );
+}
+
+/**
+ * Check if question or answer is scheduled.
+ *
+ * @param integer $post_id Post id.
+ * @return boolean
+ * @since 4.2.0
+ */
+function is_scheduled( $post_id = 0 ) {
+	$status = get_status( $post_id );
+	$ret    = (bool) ( 'future' === $status );
+
+	/**
+	 * Filter for overriding returned value of function `is_scheduled`.
+	 *
+	 * @param bool    $ret     Return value.
+	 * @param integer $post_id Post id.
+	 * @since 4.2.0
+	 */
+	return apply_filters( 'ap_is_scheduled', $ret, $post_id );
+}
+
+/**
+ * Check if question or answer is trashed.
+ *
+ * @param integer $post_id Post id.
+ * @return boolean
+ * @since 4.2.0
+ */
+function is_trashed( $post_id = 0 ) {
+	$status = get_status( $post_id );
+	$ret    = (bool) ( 'trash' === $status );
+
+	/**
+	 * Filter for overriding returned value of function `is_trashed`.
+	 *
+	 * @param bool    $ret     Return value.
+	 * @param integer $post_id Post id.
+	 * @since 4.2.0
+	 */
+	return apply_filters( 'ap_is_trashed', $ret, $post_id );
+}
+
+/**
+ * Check if question or answer is moderate.
+ *
+ * @param integer $post_id Post id.
+ * @return boolean
+ * @since 4.2.0
+ */
+function is_moderate( $post_id = 0 ) {
+	$status = get_status( $post_id );
+	$ret    = (bool) ( 'moderate' === $status );
+
+	/**
+	 * Filter for overriding returned value of function `is_moderate`.
+	 *
+	 * @param bool    $ret     Return value.
+	 * @param integer $post_id Post id.
+	 * @since 4.2.0
+	 */
+	return apply_filters( 'ap_is_moderate', $ret, $post_id );
 }

@@ -9,7 +9,7 @@
  * @package Templates
  */
 
-namespace AnsPress\Post;
+namespace AnsPress\Template;
 ?>
 <apanswersw style="<?php echo ! ap_have_answers() ? 'display:none' : ''; ?>">
 

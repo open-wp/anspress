@@ -6,7 +6,7 @@
  * @subpackage Templates
  */
 
-namespace AnsPress\Post;
+namespace AnsPress\Template;
 ?>
 
 <?php

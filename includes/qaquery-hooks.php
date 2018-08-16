@@ -151,15 +151,15 @@ class AP_QA_Query_Hooks {
 				$p->votes_net         = $p->votes_up - $p->votes_down;
 
 				// Unset if user cannot read.
-				if ( ! ap_user_can_read_post( $p, false, $p->post_type ) ) {
-					if ( $instance->is_single() && $instance->is_main_query() ) {
-						$posts[ $k ] = self::imaginary_post( $p );
-					} else {
-						unset( $posts[ $k ] );
-					}
-				} else {
+				// if ( ! ap_user_can_read_post( $p, false, $p->post_type ) ) {
+				// 	if ( $instance->is_single() && $instance->is_main_query() ) {
+				// 		$posts[ $k ] = self::imaginary_post( $p );
+				// 	} else {
+				// 		unset( $posts[ $k ] );
+				// 	}
+				// } else {
 					$posts[ $k ] = $p;
-				}
+				//}
 			}
 		} // End foreach().
 
