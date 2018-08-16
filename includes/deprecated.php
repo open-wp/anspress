@@ -111,3 +111,67 @@ function ap_answers() {
 	ap_get_template_part( 'answers' );
 	ap_reset_question_query();
 }
+
+/**
+ * Get terms of a question.
+ *
+ * @param  boolean|string $taxonomy Taxonomy slug.
+ * @param  mixed          $_post     Post object, ID or null.
+ * @return string
+ * @deprecated 4.2.0
+ */
+function ap_get_terms( $taxonomy = false, $_post = null ) {
+	$_post = ap_get_post( $_post );
+	if ( ! empty( $_post->terms ) ) {
+		return $_post->terms;
+	}
+	return false;
+}
+
+/**
+ * Updates terms of qameta.
+ *
+ * @param  integer $question_id Question ID.
+ * @return integer|false
+ * @since  3.1.0
+ * @deprecated 4.2.0
+ */
+function ap_update_qameta_terms( $question_id ) {
+	$terms = [];
+
+	if ( taxonomy_exists( 'question_category' ) ) {
+		$categories = get_the_terms( $question_id, 'question_category' );
+
+		if ( $categories ) {
+			$terms = $terms + $categories;
+		}
+	}
+
+	if ( taxonomy_exists( 'question_tag' ) ) {
+		$tags = get_the_terms( $question_id, 'question_tag' );
+
+		if ( $tags ) {
+			$terms = $terms + $tags;
+		}
+	}
+
+	if ( taxonomy_exists( 'question_label' ) ) {
+		$labels = get_the_terms( $question_id, 'question_label' );
+
+		if ( $labels ) {
+			$terms = $terms + $labels;
+		}
+	}
+
+	$term_ids = [];
+
+	foreach ( (array) $terms as $term ) {
+		$term_ids[] = $term->term_id;
+	}
+
+	if ( ! empty( $term_ids ) ) {
+		ap_insert_qameta( $question_id, [ 'terms' => $term_ids ] );
+	}
+
+	return $term_ids;
+}

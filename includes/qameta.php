@@ -10,6 +10,7 @@
  * Default qameta table fields with values.
  *
  * @return array
+ * @since 4.2.0 Removed `terms`.
  */
 function ap_qameta_fields() {
 	return array(
@@ -26,7 +27,6 @@ function ap_qameta_fields() {
 		'votes_down'   => 0,
 		'subscribers'  => 0,
 		'flags'        => 0,
-		'terms'        => '',
 		'attach'       => '',
 		'activities'   => '',
 		'fields'       => '',
@@ -79,9 +79,6 @@ function ap_insert_qameta( $post_id, $args, $wp_error = false ) {
 				$formats[] = '%s';
 			} elseif ( 'activities' === $field ) {
 				$value     = maybe_serialize( $value );
-				$formats[] = '%s';
-			} elseif ( 'terms' === $field || 'attach' === $field ) {
-				$value     = is_array( $value ) ? sanitize_comma_delimited( $value ) : (int) $value;
 				$formats[] = '%s';
 			} elseif ( in_array( $field, [ 'selected', 'featured', 'closed' ], true ) ) {
 				$value     = (bool) $value;
@@ -214,7 +211,6 @@ function ap_append_qameta( $post ) {
 			}
 		}
 
-		$post->terms      = maybe_unserialize( $post->terms );
 		$post->activities = maybe_unserialize( $post->activities );
 
 		$post->votes_net = $post->votes_up - $post->votes_down;
@@ -445,54 +441,6 @@ function ap_update_subscribers_count( $post_id, $count = false ) {
 	ap_insert_qameta( $post_id, [ 'subscribers' => $count ] );
 
 	return $count;
-}
-
-
-/**
- * Updates terms of qameta.
- *
- * @param  integer $question_id Question ID.
- * @return integer|false
- * @since  3.1.0
- */
-function ap_update_qameta_terms( $question_id ) {
-	$terms = [];
-
-	if ( taxonomy_exists( 'question_category' ) ) {
-		$categories = get_the_terms( $question_id, 'question_category' );
-
-		if ( $categories ) {
-			$terms = $terms + $categories;
-		}
-	}
-
-	if ( taxonomy_exists( 'question_tag' ) ) {
-		$tags = get_the_terms( $question_id, 'question_tag' );
-
-		if ( $tags ) {
-			$terms = $terms + $tags;
-		}
-	}
-
-	if ( taxonomy_exists( 'question_label' ) ) {
-		$labels = get_the_terms( $question_id, 'question_label' );
-
-		if ( $labels ) {
-			$terms = $terms + $labels;
-		}
-	}
-
-	$term_ids = [];
-
-	foreach ( (array) $terms as $term ) {
-		$term_ids[] = $term->term_id;
-	}
-
-	if ( ! empty( $term_ids ) ) {
-		ap_insert_qameta( $question_id, [ 'terms' => $term_ids ] );
-	}
-
-	return $term_ids;
 }
 
 /**

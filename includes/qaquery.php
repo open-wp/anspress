@@ -589,22 +589,6 @@ function ap_is_featured_question( $question = null ) {
 }
 
 /**
- * Get terms of a question.
- *
- * @param  boolean|string $taxonomy Taxonomy slug.
- * @param  mixed          $_post     Post object, ID or null.
- * @return string
- */
-function ap_get_terms( $taxonomy = false, $_post = null ) {
-	$_post = ap_get_post( $_post );
-	if ( ! empty( $_post->terms ) ) {
-		return $_post->terms;
-	}
-	return false;
-}
-
-
-/**
  * Check if post have terms of a taxonomy.
  *
  * @param  boolean|integer $post_id  Post ID.
@@ -626,7 +610,7 @@ function ap_post_have_terms( $post_id = false, $taxonomy = 'question_category' )
 }
 
 /**
- * Check if question or answer have attachemnts.
+ * Check if question or answer have attachments.
  *
  * @param  mixed $_post Post.
  * @return boolean

@@ -138,7 +138,6 @@ class AnsPress_Upgrader {
 			)
 		);
 
-		ap_update_qameta_terms( $id );
 		ap_update_post_attach_ids( $id );
 
 		$this->migrate_votes( $id );

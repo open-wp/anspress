@@ -132,9 +132,16 @@ class AP_Activate {
 	 * Ap_qameta table.
 	 *
 	 * @since 4.1.8 Added primary key.
+	 * @since 4.2.0 Removed
 	 */
 	public function qameta_table() {
 		global $wpdb;
+
+		// Drop term column if exists.
+		$existing_table = $wpdb->get_row( "SHOW COLUMNS FROM $wpdb->ap_qameta LIKE 'terms'" );
+		if ( ! empty( $existing_table ) && 'terms' === $existing_table->Field ) {
+			$wpdb->query( "ALTER TABLE $wpdb->ap_qameta DROP COLUMN terms" );
+		}
 
 		// @codingStandardsIgnoreLine
 		$this->tables[] = 'CREATE TABLE ' . $wpdb->ap_qameta . ' (
@@ -151,7 +158,6 @@ class AP_Activate {
 			views bigint(20) DEFAULT 0,
 			closed tinyint(1) DEFAULT 0,
 			flags bigint(20) DEFAULT 0,
-			terms LONGTEXT DEFAULT NULL,
 			attach LONGTEXT DEFAULT NULL,
 			activities LONGTEXT DEFAULT NULL,
 			fields LONGTEXT DEFAULT NULL,

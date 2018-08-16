@@ -637,6 +637,7 @@ class AnsPress_Hooks {
 	 * @since 4.1.0
 	 * @since 4.1.2 Do not process if form not submitted. Insert updated to activity table.
 	 * @since 4.1.8 Add `ap_delete_images_not_in_content`.
+	 * @since 4.2.0 Removed function `ap_update_qameta_terms`.
 	 */
 	public static function save_question_hooks( $post_id, $post, $updated ) {
 		if ( wp_is_post_autosave( $post ) || wp_is_post_revision( $post ) ) {
@@ -697,9 +698,6 @@ class AnsPress_Hooks {
 			 */
 			do_action( 'ap_processed_new_question', $post_id, $post );
 		}
-
-		// Update qameta terms.
-		ap_update_qameta_terms( $post_id );
 	}
 
 	/**
@@ -780,9 +778,6 @@ class AnsPress_Hooks {
 			 */
 			do_action( 'ap_processed_new_answer', $post_id, $post );
 		}
-
-		// Update qameta terms.
-		ap_update_qameta_terms( $post_id );
 	}
 
 	/**
