@@ -350,6 +350,17 @@ function ap_answers_the_pagination() {
 }
 
 /**
+ * Echo post status of a answer.
+ *
+ * @param  object|integer|null $_post Post ID, Object or null.
+ * @deprecated 4.2.0 Replaced by \AnsPress\Template\status().
+ */
+function ap_answer_status( $_post = null ) {
+	_deprecated_function( __FUNCTION__, '4.2.0', 'AnsPress\Template\status()' );
+	ap_question_status( $_post );
+}
+
+/**
  * Question
  *
  * This class is for retrieving answers based on $args

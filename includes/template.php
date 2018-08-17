@@ -381,6 +381,17 @@ function get_status( $post_id = 0 ) {
 }
 
 /**
+ * Output question or answer status label.
+ *
+ * @param integer $post_id Question or answer id.
+ * @since 4.2.0
+ */
+function status( $post_id = 0 ) {
+	$obj = get_post_status_object( get_status( $post_id ) );
+	echo esc_attr( $obj->label );
+}
+
+/**
  * Check if question or answer is private.
  *
  * @param integer $post_id Post id.
