@@ -73,7 +73,8 @@ class BuddyPress extends \AnsPress\Singleton {
 		// anspress()->add_action( 'before_delete_post', $this, 'remove_comment_notify' );
 		anspress()->add_action( 'the_post', $this, 'mark_bp_notify_as_read' );
 
-		anspress()->add_action( 'ap_ajax_bp_loadmore', $this, 'bp_loadmore' );
+		anspress()->add_action( 'wp_ajax_bp_loadmore', $this, 'bp_loadmore' );
+		anspress()->add_action( 'wp_ajax_nopriv_bp_loadmore', $this, 'bp_loadmore' );
 	}
 
 	/**
@@ -263,18 +264,17 @@ class BuddyPress extends \AnsPress\Singleton {
 		 *
 		 * @var array
 		 */
-		$args               = apply_filters( 'ap_bp_answers_args', $args );
-		anspress()->answers = $answers = new \Answers_Query( $args );
+		$args = apply_filters( 'ap_bp_answers_args', $args );
+
 
 		if ( false === $only_posts ) {
 			echo '<div class="ap-bp-head clearfix">';
 			echo '<h1>' . esc_attr__( 'Answers', 'anspress-question-answer' ) . '</h1>';
-			ap_answers_tab( get_the_permalink() );
 			echo '</div>';
 			echo '<div id="ap-bp-answers">';
 		}
 
-		if ( ap_have_answers() ) {
+		if ( ap_has_answers( $args ) ) {
 			/* Start the Loop */
 			while ( ap_have_answers() ) :
 				ap_the_answer();
@@ -286,16 +286,15 @@ class BuddyPress extends \AnsPress\Singleton {
 			echo '</div>';
 		}
 
-		if ( $answers->max_num_pages > 1 && false === $only_posts ) {
-			$args = wp_json_encode(
-				[
-					'__nonce'  => wp_create_nonce( 'loadmore-answers' ),
-					'type'     => 'answers',
-					'current'  => 1,
-					'user_id'  => bp_displayed_user_id(),
-					'order_by' => ap_sanitize_unslash( 'order_by', 'r' ),
-				]
-			);
+		if ( anspress()->answer_query->max_num_pages > 1 && false === $only_posts ) {
+			$args = wp_json_encode( array(
+				'__nonce'  => wp_create_nonce( 'loadmore-answers' ),
+				'type'     => 'answers',
+				'current'  => 1,
+				'user_id'  => bp_displayed_user_id(),
+				'order_by' => ap_sanitize_unslash( 'order_by', 'r' ),
+			) );
+
 			echo '<a href="#" class="ap-bp-loadmore ap-btn" ap-loadmore="' . esc_js( $args ) . '">' . esc_attr__( 'Load more answers', 'anspress-question-answer' ) . '</a>';
 		}
 	}
@@ -630,8 +629,7 @@ class BuddyPress extends \AnsPress\Singleton {
 			$this->page_answers( $user_id, $paged, $order_by, true );
 			$html = ob_get_clean();
 
-			global $answers;
-			$paged = $answers->max_num_pages > $paged ? $paged : false;
+			$paged = anspress()->answer_query->max_num_pages > $paged ? $paged : false;
 
 			ap_ajax_json(
 				array(

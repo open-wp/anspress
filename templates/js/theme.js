@@ -31,10 +31,9 @@
         e.preventDefault();
         var self = this;
         var args = JSON.parse($(this).attr('ap-loadmore'));
-        args.action = 'ap_ajax';
 
-        if(typeof args.ap_ajax_action === 'undefined')
-            args.ap_ajax_action = 'bp_loadmore';
+        if(typeof args.action === 'undefined')
+            args.action = 'bp_loadmore';
 
         AnsPress.showLoading(this);
         AnsPress.ajax({

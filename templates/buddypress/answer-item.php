@@ -10,12 +10,14 @@
  * @package  WordPress/AnsPress
  */
 
+namespace AnsPress\Template;
+
 if ( ! ap_user_can_view_post( get_the_ID() ) ) {
 	return;
 }
 
 ?>
-<div id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
+<div id="post-<?php answer_id(); ?>" class="answer<?php echo ap_is_selected() ? ' best-answer' : ''; ?>">
 
 	<div class="ap-answer-single ap-bpsingle">
 		<div class="ap-bpsingle-title entry-title" itemprop="title">
