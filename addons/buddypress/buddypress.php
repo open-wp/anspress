@@ -239,8 +239,9 @@ class BuddyPress extends \AnsPress\Singleton {
 		}
 	}
 
+
 	/**
-	 * Callback for rendering questions page.
+	 * Callback for rendering answers page.
 	 */
 	public function page_answers( $user_id = false, $paged = false, $order_by = false, $only_posts = false ) {
 		global $answers;

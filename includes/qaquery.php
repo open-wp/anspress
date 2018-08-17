@@ -762,3 +762,183 @@ function ap_has_answers( $args = '' ) {
 	// Return object
 	return apply_filters( 'ap_has_answers', $ap->answer_query->have_posts(), $ap->answer_query );
 }
+
+/**
+ * The main question loop.
+ *
+ * @param string|array $args Arguments.
+ * @return \WP_Post
+ * @since 4.2.0
+ */
+function ap_has_questions( $args = '' ) {
+	global $wp_rewrite;
+
+	$paged    = (int) max( 1, get_query_var( 'ap_paged', 1 ) );
+	$order_by = ap_isset_post_value( 'order_by', ap_opt( 'answers_sort' ) );
+
+	// Default query args
+	$default = array(
+		'post_type'              => 'answer', // Only replies
+		'post_parent'            => ( is_question() ? get_question_id(): 'any' ), // Of this topic
+		'paged'                  => $paged, // On this page
+		'ignore_sticky_posts'    => true,
+		'ap_query'               => true,
+		'ap_current_user_ignore' => false,
+		'ap_answers_query'       => true,
+		'posts_per_page'         => ap_opt( 'answers_per_page' ),
+		'only_best_answer'       => false,
+		'ignore_selected_answer' => false,
+		'post_status'            => [ 'publish' ],
+		'ap_order_by'            => $order_by,
+	);
+
+	// Parse arguments against default values
+	$r = wp_parse_args( $args, $default );
+
+	// Set posts_per_page value if replies are threaded
+	$replies_per_page = $r['posts_per_page'];
+
+	$ap = anspress();
+	$ap->answer_query = new WP_Query( $r );
+
+	// Add pagination values to query object
+	$ap->answer_query->posts_per_page = $replies_per_page;
+	$ap->answer_query->paged = $r['paged'];
+	$ap->answer_query->is_home = false;
+
+	// Only add pagination if query returned results
+	if ( (int) $ap->answer_query->found_posts && (int) $ap->answer_query->posts_per_page ) {
+
+		// Make our pagination pretty.
+		if ( $wp_rewrite->using_permalinks() ) {
+			$base = get_permalink( $r['post_parent'] );
+			$base = trailingslashit( $base ) . user_trailingslashit( $wp_rewrite->pagination_base . '/%#%/' );
+		} else {
+			$base = add_query_arg( 'ap_paged', '%#%' );
+		}
+
+		// Figure out total pages
+		$total_pages = ceil( (int) $ap->answer_query->found_posts / (int) $replies_per_page );
+
+		// Add pagination to query object
+		$ap->answer_query->pagination_links = paginate_links( apply_filters( 'ap_answers_pagination', array(
+			'base'      => $base,
+			'format'    => '',
+			'total'     => $total_pages,
+			'current'   => (int) $ap->answer_query->paged,
+			'prev_text' => is_rtl() ? '&raquo;' : '&laquo;',
+			'next_text' => is_rtl() ? '&laquo;' : '&raquo;',
+			'mid_size'  => 1,
+		) ) );
+	}
+
+	// Return object
+	return apply_filters( 'ap_has_answers', $ap->answer_query->have_posts(), $ap->answer_query );
+}
+
+/**
+ * Check if currently post in loop is an answer.
+ *
+ * @return boolean
+ * @since 4.2.0
+ */
+function ap_is_answer() {
+	$ap = anspress();
+
+	if ( ! empty( $ap->answer_query->in_the_loop ) && isset( $ap->answer_query->post->ID ) ) {
+		return true;
+	}
+
+	return false;
+}
+
+
+/**
+ * Get the ID of answer in a loop.
+ *
+ * @param integer $answer_id Answer id.
+ * @return integer
+ * @since 4.2.0
+ */
+function ap_get_answer_id( $answer_id = 0 ) {
+	$ap = anspress();
+
+	if ( ! empty( $answer_id ) && is_numeric( $answer_id ) ) {
+		$id = $answer_id;
+	} elseif ( ! empty( $ap->answer_query->in_the_loop ) && isset( $ap->answer_query->post->ID ) ) {
+		$id = $ap->answer_query->post->ID;
+	}
+
+	return $id;
+}
+
+/**
+ * Get an answer by ID
+ *
+ * @param  integer $answer_id Answers ID.
+ * @return \WP_Post
+ * @since 2.1
+ * @since 4.2.0 Moved from `answer-loop.php` file.
+ */
+function ap_get_answer( $answer_id ) {
+	return get_post( $answer_id );
+}
+
+/**
+ * Check if there are posts in the loop.
+ *
+ * @return boolean
+ * @since 4.2.0 Moved from `answer-loop.php` file.
+ */
+function ap_have_answers() {
+	$have_posts = anspress()->answer_query->have_posts();
+
+	// Reset the post data when finished.
+	if ( empty( $have_posts ) ) {
+		wp_reset_postdata();
+	}
+
+	return $have_posts;
+}
+
+/**
+ * Loads up the current answer in the loop.
+ *
+ * @return void
+ * @since 4.2.0 Moved from `answer-loop.php` file.
+ */
+function ap_the_answer() {
+	return anspress()->answer_query->the_post();
+}
+
+/**
+ * Count total numbers of posts found in a loop.
+ *
+ * @return integer
+ * @since 4.2.0
+ */
+function ap_total_answers_found() {
+	return anspress()->answer_query->found_posts;
+}
+
+/**
+ * Return numbers of published answers.
+ *
+ * @param  integer $question_id Question ID.
+ * @return integer
+ * @since 4.2.0 Moved from `answer-loop.php` file.
+ */
+function ap_count_published_answers( $question_id ) {
+	global $wpdb;
+	$query = $wpdb->prepare( "SELECT COUNT(*) FROM $wpdb->posts where post_parent = %d AND post_status = %s AND post_type = %s", $question_id, 'publish', 'answer' );
+	$key   = md5( $query );
+
+	$cache = wp_cache_get( $key, 'ap_count' );
+	if ( false !== $cache ) {
+		return $cache;
+	}
+
+	$count = $wpdb->get_var( $query );
+	wp_cache_set( $key, $count, 'ap_count' );
+	return $count;
+}

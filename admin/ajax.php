@@ -101,7 +101,10 @@ class AnsPress_Admin_Ajax {
 
 		$question_id = ap_sanitize_unslash( 'question_id', 'p' );
 		$answers_arr = [];
-		$answers     = ap_get_answers( [ 'question_id' => $question_id ] );
+		$answers     = ap_has_answers( array(
+			'post_parent'    => $question_id,
+			'posts_per_page' => -1,
+		) );
 
 		while ( ap_have_answers() ) :
 			ap_the_answer();
