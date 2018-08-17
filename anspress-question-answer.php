@@ -290,7 +290,6 @@ if ( ! class_exists( 'AnsPress' ) ) {
 			require_once ANSPRESS_DIR . 'includes/functions.php';
 			require_once ANSPRESS_DIR . 'includes/hooks.php';
 			require_once ANSPRESS_DIR . 'includes/question-loop.php';
-			require_once ANSPRESS_DIR . 'includes/answer-loop.php';
 			require_once ANSPRESS_DIR . 'includes/qameta.php';
 			require_once ANSPRESS_DIR . 'includes/qaquery.php';
 			require_once ANSPRESS_DIR . 'includes/qaquery-hooks.php';

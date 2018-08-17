@@ -10,6 +10,8 @@
  * @package  WordPress/AnsPress
  */
 
+namespace AnsPress\Template;
+
 if ( ! ap_user_can_view_post( get_the_ID() ) ) {
 	return;
 }
@@ -19,7 +21,7 @@ if ( ! ap_user_can_view_post( get_the_ID() ) ) {
 
 	<div class="ap-answer-single ap-bpsingle">
 		<div class="ap-bpsingle-title entry-title" itemprop="title">
-			<?php ap_answer_status(); ?>
+			<?php status(); ?>
 			<a class="ap-bpsingle-hyperlink" itemprop="url" href="<?php the_permalink(); ?>" title="<?php the_title(); ?>"><?php the_title(); ?></a>
 		</div>
 

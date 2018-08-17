@@ -56,7 +56,8 @@ class Profile extends \AnsPress\Singleton {
 		ap_register_page( 'user', __( 'User profile', 'anspress-question-answer' ), [ $this, 'user_page' ], true, true );
 
 		anspress()->add_action( 'ap_rewrites', $this, 'rewrite_rules', 10, 3 );
-		anspress()->add_action( 'ap_ajax_user_more_answers', $this, 'load_more_answers', 10, 2 );
+		anspress()->add_action( 'wp_ajax_user_more_answers', $this, 'load_more_answers', 10, 2 );
+		anspress()->add_action( 'wp_ajax_nopriv_user_more_answers', $this, 'load_more_answers', 10, 2 );
 		anspress()->add_filter( 'wp_title', $this, 'page_title' );
 		anspress()->add_action( 'the_post', $this, 'filter_page_title' );
 		anspress()->add_filter( 'ap_current_page', $this, 'ap_current_page' );
@@ -308,7 +309,6 @@ class Profile extends \AnsPress\Singleton {
 
 		$args['ap_current_user_ignore'] = true;
 		$args['ignore_selected_answer'] = true;
-		$args['showposts']              = 10;
 		$args['author']                 = $user_id;
 
 		/*
@@ -321,8 +321,9 @@ class Profile extends \AnsPress\Singleton {
 		 *
 		 * @var array
 		 */
-		$args               = apply_filters( 'ap_user_answers_args', $args );
-		anspress()->answers = $answers = new \Answers_Query( $args );
+		$args = apply_filters( 'ap_user_answers_args', $args );
+
+		ap_has_answers( $args );
 
 		ap_get_template_part( 'addons/user/answers' );
 	}
@@ -333,7 +334,6 @@ class Profile extends \AnsPress\Singleton {
 	 * @return void
 	 */
 	public function load_more_answers() {
-		global $answers;
 
 		$user_id = ap_sanitize_unslash( 'user_id', 'r' );
 		$paged   = ap_sanitize_unslash( 'current', 'r', 1 ) + 1;
@@ -352,11 +352,10 @@ class Profile extends \AnsPress\Singleton {
 		 *
 		 * @param array $args WP_Query arguments.
 		 */
-		$args               = apply_filters( 'ap_user_answers_args', $args );
-		anspress()->answers = $answers = new \Answers_Query( $args );
+		$args = apply_filters( 'ap_user_answers_args', $args );
 
 		ob_start();
-		if ( ap_have_answers() ) {
+		if ( ap_has_answers( $args ) ) {
 			/* Start the Loop */
 			while ( ap_have_answers() ) :
 				ap_the_answer();
