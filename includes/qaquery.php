@@ -759,6 +759,23 @@ function ap_has_answers( $args = '' ) {
 		) ) );
 	}
 
+	// Prefetch ids.
+	$ids = [];
+
+	foreach ( $ap->answer_query->posts as $p ) {
+		$ids['post_ids'][] = $p->ID;
+
+		if ( ! empty( $p->post_author ) ) {
+			$ids['user_ids'][] = $p->post_author;
+		}
+	}
+
+	// Prefetch data.
+	if ( ! empty( $ids['post_ids'] ) ) {
+		ap_prefetch_recent_activities( $ids['post_ids'], 'a_id' );
+		ap_user_votes_pre_fetch( $ids['post_ids'] );
+	}
+
 	// Return object
 	return apply_filters( 'ap_has_answers', $ap->answer_query->have_posts(), $ap->answer_query );
 }
