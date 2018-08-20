@@ -145,6 +145,7 @@ function comments( $post_id = 0 ) {
 /**
  * Post actions button.
  *
+ * @param integer $post_id Question or answer id.
  * @since   4.2.0
  */
 function actions_button( $post_id = 0 ) {
@@ -152,7 +153,7 @@ function actions_button( $post_id = 0 ) {
 		return;
 	}
 
-	$post_id = get_question_id( $post_id );
+	$post_id = ap_is_answer() ? ap_get_answer_id( $post_id ) : get_question_id( $post_id );
 
 	$args = wp_json_encode( [
 		'post_id' => $post_id,
@@ -249,10 +250,23 @@ function select_button( $answer_id = 0 ) {
 	echo get_select_button( $answer_id );
 }
 
+/**
+ * Get the count of found answers in loop.
+ *
+ * @return integer
+ * @since 4.2.0
+ */
 function get_answer_count() {
-	return (int) anspress()->answer_query->found_posts;
+	$ap = anspress()->answers_query;
+	return isset( $ap ) ? (int) anspress()->answers_query->found_posts : 0;
 }
 
+/**
+ * Output the count of found answers in loop.
+ *
+ * @return integer
+ * @since 4.2.0
+ */
 function answer_count() {
 	echo (int) get_answer_count();
 }
@@ -264,7 +278,7 @@ function answer_count() {
  * @since 4.2.0
  */
 function get_answer_pagination_count() {
-	$query     = anspress()->answer_query;
+	$query     = anspress()->answers_query;
 	$ret       = '';
 	$start_num = intval( ( $query->paged - 1 ) * $query->posts_per_page ) + 1;
 	$from_num  = number_format_i18n( $start_num );
@@ -297,7 +311,7 @@ function answer_pagination_count() {
  * @since 4.2.0
  */
 function get_answer_pagination_links() {
-	$query = anspress()->answer_query;
+	$query = anspress()->answers_query;
 
 	if ( ! isset( $query->pagination_links ) || empty( $query->pagination_links ) ) {
 		return false;

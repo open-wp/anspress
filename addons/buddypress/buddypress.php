@@ -286,7 +286,7 @@ class BuddyPress extends \AnsPress\Singleton {
 			echo '</div>';
 		}
 
-		if ( anspress()->answer_query->max_num_pages > 1 && false === $only_posts ) {
+		if ( anspress()->answers_query->max_num_pages > 1 && false === $only_posts ) {
 			$args = wp_json_encode( array(
 				'__nonce'  => wp_create_nonce( 'loadmore-answers' ),
 				'type'     => 'answers',
@@ -629,7 +629,7 @@ class BuddyPress extends \AnsPress\Singleton {
 			$this->page_answers( $user_id, $paged, $order_by, true );
 			$html = ob_get_clean();
 
-			$paged = anspress()->answer_query->max_num_pages > $paged ? $paged : false;
+			$paged = anspress()->answers_query->max_num_pages > $paged ? $paged : false;
 
 			ap_ajax_json(
 				array(

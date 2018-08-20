@@ -132,7 +132,7 @@ class AnsPress_Hooks {
 			anspress()->add_action( 'before_delete_post', __CLASS__, 'delete_subscriptions' );
 			anspress()->add_action( 'ap_publish_comment', __CLASS__, 'comment_subscription' );
 			anspress()->add_action( 'deleted_comment', __CLASS__, 'delete_comment_subscriptions', 10, 2 );
-			anspress()->add_action( 'get_comments_number', __CLASS__, 'get_comments_number', 11, 2 );
+			//anspress()->add_action( 'get_comments_number', __CLASS__, 'get_comments_number', 11, 2 );
 	}
 
 	/**

@@ -379,7 +379,7 @@
 				// Clear editor contents
 				$('#ap-form-main').html('');
 				$('#answer-form-c').addClass('ap-minimal-editor');
-
+				console.log(data.html);
 				// Append answer to the list.
 				$('apanswers').append($(data.html).hide());
 				$(data.div_id).slideDown(300);

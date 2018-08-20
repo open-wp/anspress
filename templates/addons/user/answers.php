@@ -24,7 +24,7 @@ namespace AnsPress\Template;
 		?>
 		</div>
 		<?php
-		if ( anspress()->answer_query->max_num_pages > 1 ) {
+		if ( anspress()->answers_query->max_num_pages > 1 ) {
 			$args = wp_json_encode( [
 				'action' => 'user_more_answers',
 				'__nonce'        => wp_create_nonce( 'loadmore-answers' ),

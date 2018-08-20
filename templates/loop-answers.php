@@ -25,18 +25,15 @@ namespace AnsPress\Template;
 
 		<div id="answers">
 			<apanswers>
-				<?php if ( ap_have_answers() ) : ?>
-
-					<?php while ( ap_have_answers() ) : ap_the_answer(); ?>
-						<?php ap_get_template_part( 'loop-answer' ); ?>
-					<?php endwhile; ?>
-
-				<?php endif; ?>
+				<?php while ( ap_have_answers() ) : ap_the_answer(); ?>
+					<?php ap_get_template_part( 'loop-answer' ); ?>
+				<?php endwhile; ?>
 			</apanswers>
-
 		</div>
 
-		<?php ap_get_template_part( 'pagination-answers' ); ?>
+		<?php if ( ap_have_answers() ) : ?>
+			<?php ap_get_template_part( 'pagination-answers' ); ?>
+		<?php endif; ?>
 
 	</div>
 </apanswersw>

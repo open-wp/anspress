@@ -143,7 +143,7 @@ function get_question_id( $question_id = 0 ) {
 	} elseif ( get_query_var( 'edit_q' ) ) {
 		$q_id = get_query_var( 'edit_q' );
 	} elseif ( ap_is_answer() ) {
-		$q_id = $ap->answer_query->post->post_parent;
+		$q_id = $ap->answers_query->post->post_parent;
 	} else {
 		$q_id = 0;
 	}
@@ -2090,25 +2090,28 @@ function ap_answer_post_ajax_response( $question_id, $answer_id ) {
 	// Get existing answer count.
 	$current_ans = ap_count_published_answers( $question_id );
 
-	global $post;
-	$post = ap_get_post( $answer_id );
-	setup_postdata( $post );
+	$has_answer = ap_has_answers( array(
+		'p' => $answer_id,
+	) );
 
 	ob_start();
-	global $withcomments;
-	$withcomments = true;
 
-	ap_get_template_part( 'answer' );
+	if ( $has_answer ) {
+		while ( ap_have_answers() ) : ap_the_answer();
+			ap_get_template_part( 'loop-answer' );
+		endwhile;
+	}
 
-	$html        = ob_get_clean();
+	$html = ob_get_clean();
+
 	$count_label = sprintf( _n( '%d Answer', '%d Answers', $current_ans, 'anspress-question-answer' ), $current_ans );
 
 	$result = array(
 		'success'      => true,
 		'ID'           => $answer_id,
 		'form'         => 'answer',
-		'div_id'       => '#post-' . get_the_ID(),
-		'can_answer'   => ap_user_can_answer( $post->ID ),
+		'div_id'       => '#post-' . $answer_id,
+		'can_answer'   => ap_user_can_answer( $answer_id ),
 		'html'         => $html,
 		'snackbar'     => [ 'message' => __( 'Answer submitted successfully', 'anspress-question-answer' ) ],
 		'answersCount' => [

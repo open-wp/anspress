@@ -208,6 +208,9 @@ class Shortcodes {
 			$ap->question_query->post                    = get_post( $question_id );
 		}
 
+		// Start answers query.
+		ap_has_answers();
+
 		// Start output buffer
 		$this->start( 'single-question' );
 

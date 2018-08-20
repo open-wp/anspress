@@ -726,15 +726,15 @@ function ap_has_answers( $args = '' ) {
 	$replies_per_page = $r['posts_per_page'];
 
 	$ap = anspress();
-	$ap->answer_query = new WP_Query( $r );
+	$ap->answers_query = new WP_Query( $r );
 
 	// Add pagination values to query object
-	$ap->answer_query->posts_per_page = $replies_per_page;
-	$ap->answer_query->paged = $r['paged'];
-	$ap->answer_query->is_home = false;
+	$ap->answers_query->posts_per_page = $replies_per_page;
+	$ap->answers_query->paged = $r['paged'];
+	$ap->answers_query->is_home = false;
 
 	// Only add pagination if query returned results
-	if ( (int) $ap->answer_query->found_posts && (int) $ap->answer_query->posts_per_page ) {
+	if ( (int) $ap->answers_query->found_posts && (int) $ap->answers_query->posts_per_page ) {
 
 		// Make our pagination pretty.
 		if ( $wp_rewrite->using_permalinks() ) {
@@ -745,14 +745,14 @@ function ap_has_answers( $args = '' ) {
 		}
 
 		// Figure out total pages
-		$total_pages = ceil( (int) $ap->answer_query->found_posts / (int) $replies_per_page );
+		$total_pages = ceil( (int) $ap->answers_query->found_posts / (int) $replies_per_page );
 
 		// Add pagination to query object
-		$ap->answer_query->pagination_links = paginate_links( apply_filters( 'ap_answers_pagination', array(
+		$ap->answers_query->pagination_links = paginate_links( apply_filters( 'ap_answers_pagination', array(
 			'base'      => $base,
 			'format'    => '',
 			'total'     => $total_pages,
-			'current'   => (int) $ap->answer_query->paged,
+			'current'   => (int) $ap->answers_query->paged,
 			'prev_text' => is_rtl() ? '&raquo;' : '&laquo;',
 			'next_text' => is_rtl() ? '&laquo;' : '&raquo;',
 			'mid_size'  => 1,
@@ -762,7 +762,7 @@ function ap_has_answers( $args = '' ) {
 	// Prefetch ids.
 	$ids = [];
 
-	foreach ( $ap->answer_query->posts as $p ) {
+	foreach ( $ap->answers_query->posts as $p ) {
 		$ids['post_ids'][] = $p->ID;
 
 		if ( ! empty( $p->post_author ) ) {
@@ -774,10 +774,11 @@ function ap_has_answers( $args = '' ) {
 	if ( ! empty( $ids['post_ids'] ) ) {
 		ap_prefetch_recent_activities( $ids['post_ids'], 'a_id' );
 		ap_user_votes_pre_fetch( $ids['post_ids'] );
+		ap_post_author_pre_fetch( $ids['user_ids'] );
 	}
 
 	// Return object
-	return apply_filters( 'ap_has_answers', $ap->answer_query->have_posts(), $ap->answer_query );
+	return apply_filters( 'ap_has_answers', $ap->answers_query->have_posts(), $ap->answers_query );
 }
 
 /**
@@ -816,15 +817,15 @@ function ap_has_questions( $args = '' ) {
 	$replies_per_page = $r['posts_per_page'];
 
 	$ap = anspress();
-	$ap->answer_query = new WP_Query( $r );
+	$ap->answers_query = new WP_Query( $r );
 
 	// Add pagination values to query object
-	$ap->answer_query->posts_per_page = $replies_per_page;
-	$ap->answer_query->paged = $r['paged'];
-	$ap->answer_query->is_home = false;
+	$ap->answers_query->posts_per_page = $replies_per_page;
+	$ap->answers_query->paged = $r['paged'];
+	$ap->answers_query->is_home = false;
 
 	// Only add pagination if query returned results
-	if ( (int) $ap->answer_query->found_posts && (int) $ap->answer_query->posts_per_page ) {
+	if ( (int) $ap->answers_query->found_posts && (int) $ap->answers_query->posts_per_page ) {
 
 		// Make our pagination pretty.
 		if ( $wp_rewrite->using_permalinks() ) {
@@ -835,14 +836,14 @@ function ap_has_questions( $args = '' ) {
 		}
 
 		// Figure out total pages
-		$total_pages = ceil( (int) $ap->answer_query->found_posts / (int) $replies_per_page );
+		$total_pages = ceil( (int) $ap->answers_query->found_posts / (int) $replies_per_page );
 
 		// Add pagination to query object
-		$ap->answer_query->pagination_links = paginate_links( apply_filters( 'ap_answers_pagination', array(
+		$ap->answers_query->pagination_links = paginate_links( apply_filters( 'ap_answers_pagination', array(
 			'base'      => $base,
 			'format'    => '',
 			'total'     => $total_pages,
-			'current'   => (int) $ap->answer_query->paged,
+			'current'   => (int) $ap->answers_query->paged,
 			'prev_text' => is_rtl() ? '&raquo;' : '&laquo;',
 			'next_text' => is_rtl() ? '&laquo;' : '&raquo;',
 			'mid_size'  => 1,
@@ -850,7 +851,7 @@ function ap_has_questions( $args = '' ) {
 	}
 
 	// Return object
-	return apply_filters( 'ap_has_answers', $ap->answer_query->have_posts(), $ap->answer_query );
+	return apply_filters( 'ap_has_answers', $ap->answers_query->have_posts(), $ap->answers_query );
 }
 
 /**
@@ -862,7 +863,7 @@ function ap_has_questions( $args = '' ) {
 function ap_is_answer() {
 	$ap = anspress();
 
-	if ( ! empty( $ap->answer_query->in_the_loop ) && isset( $ap->answer_query->post->ID ) ) {
+	if ( ! empty( $ap->answers_query->in_the_loop ) && isset( $ap->answers_query->post->ID ) ) {
 		return true;
 	}
 
@@ -882,8 +883,8 @@ function ap_get_answer_id( $answer_id = 0 ) {
 
 	if ( ! empty( $answer_id ) && is_numeric( $answer_id ) ) {
 		$id = $answer_id;
-	} elseif ( ! empty( $ap->answer_query->in_the_loop ) && isset( $ap->answer_query->post->ID ) ) {
-		$id = $ap->answer_query->post->ID;
+	} elseif ( ! empty( $ap->answers_query->in_the_loop ) && isset( $ap->answers_query->post->ID ) ) {
+		$id = $ap->answers_query->post->ID;
 	}
 
 	return $id;
@@ -908,7 +909,12 @@ function ap_get_answer( $answer_id ) {
  * @since 4.2.0 Moved from `answer-loop.php` file.
  */
 function ap_have_answers() {
-	$have_posts = anspress()->answer_query->have_posts();
+	$q = anspress()->answers_query;
+	if ( ! $q instanceof \WP_Query ) {
+		return false;
+	}
+
+	$have_posts = anspress()->answers_query->have_posts();
 
 	// Reset the post data when finished.
 	if ( empty( $have_posts ) ) {
@@ -925,7 +931,7 @@ function ap_have_answers() {
  * @since 4.2.0 Moved from `answer-loop.php` file.
  */
 function ap_the_answer() {
-	return anspress()->answer_query->the_post();
+	return anspress()->answers_query->the_post();
 }
 
 /**
@@ -935,7 +941,7 @@ function ap_the_answer() {
  * @since 4.2.0
  */
 function ap_total_answers_found() {
-	return anspress()->answer_query->found_posts;
+	return anspress()->answers_query->found_posts;
 }
 
 /**

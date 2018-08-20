@@ -21,12 +21,7 @@ namespace AnsPress\Template;
 			<?php
 			ap_get_template_part( 'loop-single-question' );
 
-			if ( ap_has_answers() ) {
-				ap_get_template_part( 'loop-answers' );
-			}
-
-			// Get answers.
-			//ap_answers();
+			ap_get_template_part( 'loop-answers' );
 
 			// Get answer form.
 			ap_get_template_part( 'answer-form' );
