@@ -184,6 +184,15 @@
 	}
 }
 
+.answer:target{
+	animation: apHighlightAnswer 4s ease;
+}
+
+@keyframes apHighlightAnswer {
+	0% { background: $color9; }
+	100% { background: none; }
+}
+
 .ap-content {
 	.ap-question-actions-history {
 		margin-bottom: 20px;

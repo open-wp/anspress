@@ -30,16 +30,6 @@ class AnsPress_Rewrite {
 	 * @since  4.1.0
 	 */
 	public static function alter_the_query( $request ) {
-		// if ( isset( $request['answer_id'] ) ) {
-		// $request['p'] = $request['answer_id'];
-		// $request['post_type'] = 'answer';
-		// if ( isset( $request['question'] ) ) {
-		// unset( $request['question'] );
-		// }
-		// if ( isset( $request['name'] ) ) {
-		// unset( $request['name'] );
-		// }
-		// }
 		if ( isset( $request['post_type'] ) && 'answer' === $request['post_type'] ) {
 			if ( ! empty( $request['feed'] ) ) {
 				unset( $request['question_id'] );
@@ -138,9 +128,9 @@ class AnsPress_Rewrite {
 			$slug . 'search/([^/]+)/?$'                   => 'index.php?s=$matches[#]&post_type=question',
 			$slug . 'edit/?$'                             => 'index.php?pagename=' . $slug_main . '&ap_page=edit',
 			$rule . '/answer/([0-9]+)/(feed|rdf|rss|rss2|atom)/?$' => $answer_rewrite . '&answer_id=$matches[#]&feed=$matches[#]',
-			$rule . '/answer/([0-9]+)/embed/?$'           => $answer_rewrite . '&answer_id=$matches[#]&embed=true',
-			$rule . '/answer/([0-9]+)/?$'                 => $rewrite . '&answer_id=$matches[#]',
-			$rule . '/page/?([0-9]{1,})/?$'               => $rewrite . '&ap_paged=$matches[#]',
+			//$rule . '/answer/([0-9]+)/embed/?$'           => $answer_rewrite . '&answer_id=$matches[#]&embed=true',
+			$rule . '/answer-page-([0-9]{1,})/([^/]+)/?$' => $rewrite . '&ap_paged=$matches[#]&answer_id=$matches[#]',
+			$rule . '/answer-page-([0-9]{1,})/?$'         => $rewrite . '&ap_paged=$matches[#]',
 			$rule . '/(feed|rdf|rss|rss2|atom)/?$'        => $rewrite . '&feed=$matches[#]',
 			$rule . '/embed/?$'                           => $rewrite . '&embed=true',
 			$rule . '/?$'                                 => $rewrite,

@@ -723,13 +723,13 @@ function ap_has_answers( $args = '' ) {
 	$r = wp_parse_args( $args, $default );
 
 	// Set posts_per_page value if replies are threaded
-	$replies_per_page = $r['posts_per_page'];
+	$per_page = $r['posts_per_page'];
 
 	$ap = anspress();
 	$ap->answers_query = new WP_Query( $r );
 
 	// Add pagination values to query object
-	$ap->answers_query->posts_per_page = $replies_per_page;
+	$ap->answers_query->posts_per_page = $per_page;
 	$ap->answers_query->paged = $r['paged'];
 	$ap->answers_query->is_home = false;
 
@@ -739,13 +739,13 @@ function ap_has_answers( $args = '' ) {
 		// Make our pagination pretty.
 		if ( $wp_rewrite->using_permalinks() ) {
 			$base = get_permalink( $r['post_parent'] );
-			$base = trailingslashit( $base ) . user_trailingslashit( $wp_rewrite->pagination_base . '/%#%/' );
+			$base = trailingslashit( $base ) . user_trailingslashit( 'answer-page-%#%/' );
 		} else {
 			$base = add_query_arg( 'ap_paged', '%#%' );
 		}
 
 		// Figure out total pages
-		$total_pages = ceil( (int) $ap->answers_query->found_posts / (int) $replies_per_page );
+		$total_pages = ceil( (int) $ap->answers_query->found_posts / (int) $per_page );
 
 		// Add pagination to query object
 		$ap->answers_query->pagination_links = paginate_links( apply_filters( 'ap_answers_pagination', array(
@@ -885,6 +885,8 @@ function ap_get_answer_id( $answer_id = 0 ) {
 		$id = $answer_id;
 	} elseif ( ! empty( $ap->answers_query->in_the_loop ) && isset( $ap->answers_query->post->ID ) ) {
 		$id = $ap->answers_query->post->ID;
+	} elseif ( is_singular( 'answer' ) ) {
+		$id = get_queried_object_id();
 	}
 
 	return $id;

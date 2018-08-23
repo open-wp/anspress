@@ -2463,3 +2463,90 @@ function ap_is_theme_compat_active() {
 
 	return $ap->theme_compat->active;
 }
+
+function ap_get_page_of_answer( $_post, $args = array() ) {
+	global $wpdb;
+	$page = null;
+
+	if ( ! $_post = ap_get_post( $_post ) ) {
+		return 1;
+	}
+
+	$args = wp_parse_args( $args, array(
+		'page'      => '',
+		'per_page'  => ap_opt( 'answers_per_page' ),
+	) );
+
+	$original_args = $args;
+
+	if ( empty( $args['per_page'] ) ) {
+		$args['per_page'] = 0;
+		$args['page']     = 0;
+	}
+
+	if ( $args['per_page'] < 1 ) {
+		$page = 1;
+	}
+
+	if ( null === $page ) {
+		$field = "count(p.ID)";
+		$where = $wpdb->prepare( " p.post_parent = %d", $_post->post_parent );
+		$post_date = $wpdb->prepare( " AND p.post_date > %s", $_post->post_date );
+		$post_status = $wpdb->prepare( " AND ((p.post_status = 'publish') OR ( p.post_author = %d AND p.post_status IN ('private_post') ) )", get_current_user_id() );
+
+		$order_by = " ORDER BY case when qameta.selected = 1 then 0 else 1 end, ";
+
+		$ap_order_by = ap_opt( 'answers_sort' );
+
+		if ( 'oldest' === $ap_order_by ) {
+			$order_by .= "p.post_date ASC";
+			$post_date = $wpdb->prepare( " AND p.post_date < %s", $_post->post_date );
+		} elseif ( 'newest' === $ap_order_by ) {
+			$order_by .= "p.post_date DESC";
+		} elseif ( 'voted' === $ap_order_by ) {
+			$field = "p.ID";
+			$order_by .= "CASE WHEN IFNULL(votes_net, 0) >= 0 THEN 1 ELSE 2 END ASC, ABS(votes_net) DESC, p.post_date DESC";
+			$post_date = '';
+		} else {
+			$order_by .= 'qameta.last_updated DESC ';
+			$post_date = $wpdb->prepare( " AND qameta.last_updated > %s", $_post->post_date );
+		}
+
+		$sql = "SELECT $field, qameta.votes_up - qameta.votes_down AS votes_net FROM {$wpdb->posts} p LEFT JOIN {$wpdb->ap_qameta} qameta ON qameta.post_id = p.ID WHERE $where $post_date $post_status $order_by";
+
+		$cache_key     = md5( $sql );
+		$older_answers = wp_cache_get( $cache_key, 'count' );
+
+		if ( false === $older_answers ) {
+			if ( 'voted' === $ap_order_by ) {
+				$ids = $wpdb->get_results( $sql );
+
+				if ( $ids ) {
+					$ids = wp_list_pluck( $ids, 'ID' );
+
+					// Get the key for the current value.
+					$key = array_search( $_post->ID, $ids );
+
+					// Get everything before the current post id.
+					$before = array_slice( $ids, 0, $key );
+					$older_answers = count( $before );
+				} else {
+					$older_answers = 0;
+				}
+			} else {
+				$older_answers = (int) $wpdb->get_var( $sql );
+			}
+
+			wp_cache_set( $cache_key, $older_answers, 'count' );
+		}
+
+		// No older comments? Then it's page #1.
+		if ( 0 === $older_answers ) {
+			$page = 1;
+		} else {
+			$page = ceil( ( $older_answers + 1 ) / $args['per_page'] );
+		}
+	}
+
+	return $page;
+}

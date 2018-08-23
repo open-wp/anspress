@@ -44,6 +44,20 @@ class AnsPress_Theme {
 		return apply_filters( 'ap_template_include', $template );
 	}
 
+	public static function redirect_answer( $template = '' ) {
+		if ( is_singular( 'answer' ) ) {
+			$answer        = get_post( ap_get_answer_id() );
+			$question_link = get_permalink( $answer->post_parent );
+			$answer_page   = ap_get_page_of_answer( $answer );
+			$answer_url    = "{$question_link}answer-page-{$answer_page}/{$answer->ID}/#post-{$answer->ID}";
+
+			wp_redirect( $answer_url, 301 );
+			exit();
+		}
+
+		return $template;
+	}
+
    /**
 	* Reset main query vars and filter 'the_content' to output a AnsPress
 	* template part as needed.

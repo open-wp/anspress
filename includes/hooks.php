@@ -67,6 +67,7 @@ class AnsPress_Hooks {
 			anspress()->add_action( 'init', \AnsPress\Shortcodes::get_instance(), 'add_shortcodes' );
 			anspress()->add_filter( 'template_include', 'AnsPress_Theme', 'template_include' );
 			anspress()->add_filter( 'ap_template_include', 'AnsPress_Theme', 'template_include_theme_compat' );
+			anspress()->add_filter( 'template_redirect', 'AnsPress_Theme', 'redirect_answer' );
 			anspress()->add_filter( 'post_class', 'AnsPress_Theme', 'question_answer_post_class' );
 			anspress()->add_filter( 'body_class', 'AnsPress_Theme', 'body_class' );
 			anspress()->add_action( 'after_setup_theme', 'AnsPress_Theme', 'includes_theme' );
