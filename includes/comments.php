@@ -148,14 +148,11 @@ class AnsPress_Comment_Hooks {
 	 * @param array      $args    An array of arguments to override the defaults.
 	 */
 	public static function comment_link( $link, $comment, $args ) {
-		$_post = ap_get_post( $comment->comment_post_ID );
-
-		if ( ! in_array( $_post->post_type, [ 'question', 'answer' ], true ) ) {
+		if ( 'anspress' !== $comment->comment_type ) {
 			return $link;
 		}
 
-		$permalink = get_permalink( $_post );
-		return $permalink . '#/comment/' . $comment->comment_ID;
+		return home_url( '/ap_comment/' . (int) $comment->comment_ID . '/' );
 	}
 
 	/**

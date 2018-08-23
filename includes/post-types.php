@@ -256,6 +256,18 @@ class AnsPress_PostTypes {
 			 * @param object $post Post object.
 			 */
 			return apply_filters( 'ap_question_post_type_link', $link, $post );
+		} elseif ( 'answer' === $post->post_type ) {
+			if ( get_option( 'permalink_structure' ) ) {
+				$link = home_url( '/answer/' . $post->post_name . '/' );
+			}
+
+			/**
+			 * Allow overriding of answer post type permalink
+			 *
+			 * @param string $link Answer link.
+			 * @param object $post Post object.
+			 */
+			return apply_filters( 'ap_answer_post_type_link', $link, $post );
 		}
 
 		return $link;

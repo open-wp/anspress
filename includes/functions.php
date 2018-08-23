@@ -2464,6 +2464,15 @@ function ap_is_theme_compat_active() {
 	return $ap->theme_compat->active;
 }
 
+/**
+ * Calculate what page number a answer will appear on for answer paging.
+ *
+ * @param  \WP_Post $_post Post object
+ * @param  array    $args  Arguments.
+ * @return integer
+ *
+ * @since 4.2.0
+ */
 function ap_get_page_of_answer( $_post, $args = array() ) {
 	global $wpdb;
 	$page = null;
@@ -2549,4 +2558,37 @@ function ap_get_page_of_answer( $_post, $args = array() ) {
 	}
 
 	return $page;
+}
+
+/**
+ * Get permalink of question and answer.
+ *
+ * @param integer|\WP_Post $post_id Post object or id.
+ * @param boolean          $hash    Return hash with div id.
+ * @return string
+ * @since 4.2.0
+ */
+function ap_get_permalink( $post_id, $hash = true ) {
+	$post = get_post( $post_id );
+
+	if ( 'answer' === $post->post_type ) {
+		$permalink   = user_trailingslashit( get_permalink( $post->post_parent ) );
+		$answer_page = ap_get_page_of_answer( $post );
+		$permalink   = "{$permalink}answer-page-{$answer_page}/{$post->ID}/";
+
+		if ( true === $hash ) {
+			$permalink .= "#post-{$post->ID}";
+		}
+	} else {
+		$permalink = get_permalink( $post->ID );
+	}
+
+	/**
+	 * Filter `ap_get_permalink`.
+	 *
+	 * @param string  $permalink Permalink.
+	 * @param boolean $hash      Has has in url.
+	 * @since 4.2.0
+	 */
+	return apply_filters( 'ap_get_permalink', $permalink, $hash );
 }

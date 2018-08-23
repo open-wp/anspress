@@ -44,14 +44,27 @@ class AnsPress_Theme {
 		return apply_filters( 'ap_template_include', $template );
 	}
 
+	/**
+	 * Redirect single answer to question page.
+	 *
+	 * @param  string $template Template.
+	 * @return string
+	 * @since  4.2.0
+	 */
 	public static function redirect_answer( $template = '' ) {
 		if ( is_singular( 'answer' ) ) {
-			$answer        = get_post( ap_get_answer_id() );
-			$question_link = get_permalink( $answer->post_parent );
-			$answer_page   = ap_get_page_of_answer( $answer );
-			$answer_url    = "{$question_link}answer-page-{$answer_page}/{$answer->ID}/#post-{$answer->ID}";
+			wp_redirect( ap_get_permalink( ap_get_answer_id() ), 301 );
+			exit();
+		}
 
-			wp_redirect( $answer_url, 301 );
+		$comment_id = get_query_var( 'ap_comment_id', 0 );
+
+		if ( 0 !== $comment_id ) {
+			$comment       = get_comment( $comment_id );
+			$post_link     = ap_get_permalink( $comment->comment_post_ID, false );
+			$comment_link  = user_trailingslashit( $post_link ) . '#comment-' . $comment_id;
+
+			wp_redirect( $comment_link, 301 );
 			exit();
 		}
 

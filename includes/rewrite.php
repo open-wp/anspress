@@ -51,6 +51,7 @@ class AnsPress_Rewrite {
 	 * @return array
 	 *
 	 * @since 4.1.11 Fixed 'answer_id' is inserted twice.
+	 * @since 4.2.0  Added `ap_comment_id`.
 	 */
 	public static function query_var( $query_vars ) {
 		$query_vars[] = 'edit_post_id';
@@ -69,6 +70,7 @@ class AnsPress_Rewrite {
 		$query_vars[] = 'ap_user';
 		$query_vars[] = 'user_page';
 		$query_vars[] = 'ap_paged';
+		$query_vars[] = 'ap_comment_id';
 
 		return $query_vars;
 	}
@@ -124,17 +126,16 @@ class AnsPress_Rewrite {
 		$answer_rewrite = str_replace( '&p=', '&question_id=', $answer_rewrite );
 
 		$all_rules = array(
-			$slug . 'search/([^/]+)/page/?([0-9]{1,})/?$' => 'index.php?s=$matches[#]&paged=$matches[#]&post_type=question',
+			'answer/([^/]+)/?$'                           => 'index.php?answer=$matches[#]',
+			'ap_comment/([^/]+)/?$'                       => 'index.php?ap_comment_id=$matches[#]',
 			$slug . 'search/([^/]+)/?$'                   => 'index.php?s=$matches[#]&post_type=question',
 			$slug . 'edit/?$'                             => 'index.php?pagename=' . $slug_main . '&ap_page=edit',
 			$rule . '/answer/([0-9]+)/(feed|rdf|rss|rss2|atom)/?$' => $answer_rewrite . '&answer_id=$matches[#]&feed=$matches[#]',
-			//$rule . '/answer/([0-9]+)/embed/?$'           => $answer_rewrite . '&answer_id=$matches[#]&embed=true',
 			$rule . '/answer-page-([0-9]{1,})/([^/]+)/?$' => $rewrite . '&ap_paged=$matches[#]&answer_id=$matches[#]',
 			$rule . '/answer-page-([0-9]{1,})/?$'         => $rewrite . '&ap_paged=$matches[#]',
 			$rule . '/(feed|rdf|rss|rss2|atom)/?$'        => $rewrite . '&feed=$matches[#]',
 			$rule . '/embed/?$'                           => $rewrite . '&embed=true',
 			$rule . '/?$'                                 => $rewrite,
-
 		);
 
 		/**
