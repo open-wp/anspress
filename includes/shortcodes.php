@@ -203,18 +203,24 @@ class Shortcodes {
 		// Reset the queries if not in theme compat
 		if ( ! ap_is_theme_compat_active() ) {
 			// Reset necessary question_query.
-			$ap->question_query->query_vars['post_type'] = 'question';
-			$ap->question_query->in_the_loop             = true;
-			$ap->question_query->post                    = get_post( $question_id );
+			$ap->questions_query->query_vars['post_type'] = 'question';
+			$ap->questions_query->in_the_loop             = true;
+			$ap->questions_query->post                    = get_post( $question_id );
 		}
 
-		// Start answers query.
-		ap_has_answers();
+		$answer_id = get_query_var( 'answer_id', false );
 
 		// Start output buffer
 		$this->start( 'single-question' );
 
-		if ( ap_user_can_read_question( $question_id ) ) {
+		if ( false !== $answer_id && ! ap_user_can_read_answer( $answer_id ) ) {
+			$ap->answers_query->in_the_loop = true;
+			$ap->answers_query->post        = get_post( $answer_id );
+			ap_get_template_part( 'feedback-answer' );
+		} elseif ( ap_user_can_read_question( $question_id ) ) {
+			// Start answers query.
+			ap_has_answers();
+
 			ap_get_template_part( 'content-single-question' );
 		} else {
 			ap_get_template_part( 'feedback-question' );

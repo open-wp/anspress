@@ -45,7 +45,7 @@ class AnsPress_Theme {
 	}
 
 	/**
-	 * Redirect single answer to question page.
+	 * Redirect single answer and comment to question page.
 	 *
 	 * @param  string $template Template.
 	 * @return string
@@ -82,6 +82,16 @@ class AnsPress_Theme {
 	*/
 	public static function template_include_theme_compat( $template = '' ) {
 		if ( ap_current_page( 'question' ) ) {
+			$status_header = 200;
+
+			// Check if user have permission to read and add proper status header code.
+			$answer_id = get_query_var( 'answer_id', false );
+			if ( false !== $answer_id && ! ap_user_can_read_answer( $answer_id ) ) {
+				$status_header = 403;
+			} elseif ( ! ap_user_can_read_question( get_question_id() ) ) {
+				$status_header = 403;
+			}
+
 			ap_theme_compat_reset_post( array(
 				'ID'             => get_question_id(),
 				'post_title'     => get_the_title( get_question_id() ),
@@ -92,6 +102,7 @@ class AnsPress_Theme {
 				'post_status'    => get_post_status( get_question_id() ),
 				'is_single'      => true,
 				'comment_status' => 'closed',
+				'status_header'  => $status_header,
 			) );
 		}
 

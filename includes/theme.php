@@ -1010,6 +1010,7 @@ function ap_theme_compat_reset_post( $args = array() ) {
 			'is_single'             => false,
 			'is_archive'            => false,
 			'is_tax'                => false,
+			'status_header'         => 200,
 		) );
 	} else {
 		$dummy = wp_parse_args( $args, array(
@@ -1043,6 +1044,7 @@ function ap_theme_compat_reset_post( $args = array() ) {
 			'is_single'             => false,
 			'is_archive'            => false,
 			'is_tax'                => false,
+			'status_header'         => 200,
 		) );
 	}
 
@@ -1066,12 +1068,14 @@ function ap_theme_compat_reset_post( $args = array() ) {
 	$wp_query->is_archive = $dummy['is_archive'];
 	$wp_query->is_tax     = $dummy['is_tax'];
 
-	// Clean up the dummy post
-	unset( $dummy );
-
-	if ( ! $wp_query->is_404() ) {
+	if ( ! $wp_query->is_404() && $dummy['status_header'] ) {
+		status_header( $dummy['status_header'] );
+	} elseif ( ! $wp_query->is_404() ) {
 		status_header( 200 );
 	}
+
+	// Clean up the dummy post
+	unset( $dummy );
 
 	// If we are resetting a post, we are in theme compat
 	anspress()->theme_compat->active = true;

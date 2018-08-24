@@ -50,7 +50,7 @@ namespace AnsPress\Template;
 	<?php else : ?>
 
 		<div class="ap-display-flex align-item-center">
-			<i class="ap-feedback-icon apicon-clock ap-text-muted mr-20"></i>
+			<i class="ap-feedback-icon apicon-alert ap-text-muted mr-20"></i>
 			<div>
 				<strong class="ap-feedback-title"><?php esc_attr_e( 'Question not readable', 'anspress-question-answer' ); ?></strong>
 				<p class="mb-0 ap-feedback-msg"><?php esc_attr_e( 'You do not have enough permission to read this question.', 'anspress-question-answer' ); ?></p>

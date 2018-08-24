@@ -2498,12 +2498,22 @@ function ap_get_page_of_answer( $_post, $args = array() ) {
 	}
 
 	if ( null === $page ) {
-		$field = "count(p.ID)";
-		$where = $wpdb->prepare( " p.post_parent = %d", $_post->post_parent );
-		$post_date = $wpdb->prepare( " AND p.post_date > %s", $_post->post_date );
-		$post_status = $wpdb->prepare( " AND ((p.post_status = 'publish') OR ( p.post_author = %d AND p.post_status IN ('private_post') ) )", get_current_user_id() );
+		$field            = "count(p.ID)";
+		$where            = $wpdb->prepare( " p.post_parent = %d", $_post->post_parent );
+		$post_date        = $wpdb->prepare( " AND p.post_date > %s", $_post->post_date );
+		$logged_in_status = '';
 
-		$order_by = " ORDER BY case when qameta.selected = 1 then 0 else 1 end, ";
+		if ( is_user_logged_in() ) {
+			$logged_in_status = $wpdb->prepare( "OR ( p.post_author = %d AND p.post_status IN ('private_post') )", get_current_user_id() );
+		}
+
+		$allowed_status = "'publish'";
+		if ( ap_user_can_view_private_post() ) {
+			$allowed_status .= ",'private_post'";
+		}
+
+		$post_status = " AND (p.post_status IN ($allowed_status) $logged_in_status )";
+		$order_by    = " ORDER BY case when qameta.selected = 1 then 0 else 1 end, ";
 
 		$ap_order_by = ap_opt( 'answers_sort' );
 
@@ -2518,7 +2528,7 @@ function ap_get_page_of_answer( $_post, $args = array() ) {
 			$post_date = '';
 		} else {
 			$order_by .= 'qameta.last_updated DESC ';
-			$post_date = $wpdb->prepare( " AND qameta.last_updated > %s", $_post->post_date );
+			$post_date = $wpdb->prepare( " AND qameta.last_updated > %s", $_post->last_updated );
 		}
 
 		$sql = "SELECT $field, qameta.votes_up - qameta.votes_down AS votes_net FROM {$wpdb->posts} p LEFT JOIN {$wpdb->ap_qameta} qameta ON qameta.post_id = p.ID WHERE $where $post_date $post_status $order_by";

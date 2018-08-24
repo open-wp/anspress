@@ -152,7 +152,21 @@ class AnsPress_Comment_Hooks {
 			return $link;
 		}
 
-		return home_url( '/ap_comment/' . (int) $comment->comment_ID . '/' );
+		if ( get_option( 'permalink_structure' ) ) {
+			$link = home_url( '/ap_comment/' . (int) $comment->comment_ID . '/' );
+		} else {
+			$link = add_query_arg( [ 'ap_comment_id' => (int) $comment->comment_ID ], home_url() );
+		}
+
+		/**
+		 * Filter comment links.
+		 *
+		 * @param string      $link    Comment link.
+		 * @param \WP_Comment $comment Comment object.
+		 *
+		 * @since 4.2.0
+		 */
+		return apply_filters( 'ap_comment_link', $link, $comment );
 	}
 
 	/**

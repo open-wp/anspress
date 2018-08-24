@@ -702,6 +702,17 @@ function ap_has_answers( $args = '' ) {
 
 	$paged    = (int) max( 1, get_query_var( 'ap_paged', 1 ) );
 	$order_by = ap_isset_post_value( 'order_by', ap_opt( 'answers_sort' ) );
+	$status   = [ 'publish' ];
+
+	if ( ap_user_can_view_private_post() ) {
+		$status[] = 'private_post';
+	}
+	if ( ap_user_can_view_moderate_post() ) {
+		$status[] = 'moderate';
+	}
+	if ( ap_user_can_view_future_post() ) {
+		$status[] = 'future';
+	}
 
 	// Default query args
 	$default = array(
@@ -715,7 +726,7 @@ function ap_has_answers( $args = '' ) {
 		'posts_per_page'         => ap_opt( 'answers_per_page' ),
 		'only_best_answer'       => false,
 		'ignore_selected_answer' => false,
-		'post_status'            => [ 'publish' ],
+		'post_status'            => $status,
 		'ap_order_by'            => $order_by,
 	);
 
@@ -724,6 +735,8 @@ function ap_has_answers( $args = '' ) {
 
 	// Set posts_per_page value if replies are threaded
 	$per_page = $r['posts_per_page'];
+
+
 
 	$ap = anspress();
 	$ap->answers_query = new WP_Query( $r );
@@ -887,6 +900,8 @@ function ap_get_answer_id( $answer_id = 0 ) {
 		$id = $ap->answers_query->post->ID;
 	} elseif ( is_singular( 'answer' ) ) {
 		$id = get_queried_object_id();
+	} elseif ( false !== $qv = get_query_var( 'answer_id', false ) ) {
+		$id = $qv;
 	}
 
 	return $id;
