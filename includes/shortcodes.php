@@ -208,7 +208,19 @@ class Shortcodes {
 			$ap->questions_query->post                    = get_post( $question_id );
 		}
 
-		$answer_id = get_query_var( 'answer_id', false );
+		$answer_id    = get_query_var( 'answer_id', false );
+		$answers_args = [];
+		$order_by     = Template\get_answers_active_tab();
+
+		// Show unpublished answers.
+		if ( is_user_logged_in() && 'unpublished' === $order_by ) {
+			// If current user can edit other post then don't limit post of specific user.
+			if ( ! current_user_can( 'ap_edit_others_answer' ) ) {
+				$answers_args['author'] = get_current_user_id();
+			}
+
+			$answers_args['post_status'] = [ 'trash', 'moderate', 'future' ];
+		}
 
 		// Start output buffer
 		$this->start( 'single-question' );
@@ -218,8 +230,9 @@ class Shortcodes {
 			$ap->answers_query->post        = get_post( $answer_id );
 			ap_get_template_part( 'feedback-answer' );
 		} elseif ( ap_user_can_read_question( $question_id ) ) {
+
 			// Start answers query.
-			ap_has_answers();
+			ap_has_answers( $answers_args );
 
 			ap_get_template_part( 'content-single-question' );
 		} else {
@@ -236,4 +249,5 @@ class Shortcodes {
 		// Return contents of output buffer
 		return $this->end();
 	}
+
 }

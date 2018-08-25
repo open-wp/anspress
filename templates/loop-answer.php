@@ -11,9 +11,8 @@
 
 namespace AnsPress\Template;
 
-if ( ap_user_can_read_answer() ) :
 ?>
-<div id="post-<?php answer_id(); ?>" class="answer<?php echo ap_is_selected() ? ' best-answer' : ''; ?>" apid="<?php answer_id(); ?>" ap="answer">
+<div id="post-<?php answer_id(); ?>" class="<?php post_classes(); ?>" apid="<?php answer_id(); ?>" ap="answer">
 	<div class="ap-content" itemprop="suggestedAnswer<?php echo ap_is_selected() ? ' acceptedAnswer' : ''; ?>" itemscope itemtype="https://schema.org/Answer">
 
 		<div class="ap-single-vote">
@@ -71,8 +70,11 @@ if ( ap_user_can_read_answer() ) :
 				</div>
 
 				<div class="ap-post-footer clearfix">
-					<?php select_button(); ?>
-					<?php actions_button(); ?>
+					<?php if ( ap_user_can_read_answer() ) : ?>
+						<?php select_button(); ?>
+						<?php actions_button(); ?>
+					<?php endif; ?>
+
 					<?php do_action( 'ap_answer_footer' ); ?>
 				</div>
 
@@ -82,6 +84,3 @@ if ( ap_user_can_read_answer() ) :
 
 	</div>
 </div>
-
-<?php
-endif;

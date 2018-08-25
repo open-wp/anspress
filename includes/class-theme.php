@@ -60,9 +60,9 @@ class AnsPress_Theme {
 		$comment_id = get_query_var( 'ap_comment_id', 0 );
 
 		if ( 0 !== $comment_id ) {
-			$comment       = get_comment( $comment_id );
-			$post_link     = ap_get_permalink( $comment->comment_post_ID, false );
-			$comment_link  = user_trailingslashit( $post_link ) . '#comment-' . $comment_id;
+			$comment      = get_comment( $comment_id );
+			$post_link    = ap_get_permalink( $comment->comment_post_ID, false );
+			$comment_link = user_trailingslashit( $post_link ) . '#comment-' . $comment_id;
 
 			wp_redirect( $comment_link, 301 );
 			exit();
@@ -355,8 +355,13 @@ class AnsPress_Theme {
 	 *
 	 * @return void
 	 * @since 4.1.2
+	 * @since 4.2.0 Show only if user has permission to read.
 	 */
 	public static function after_question_content() {
+		if ( ! ap_user_can_read_post() ) {
+			return;
+		}
+
 		echo ap_post_status_badge(); // xss safe.
 
 		$_post    = ap_get_post();

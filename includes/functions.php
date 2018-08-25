@@ -9,6 +9,8 @@
  * @copyright 2014 Rahul Aryan
  */
 
+use AnsPress\Template;
+
 /**
  * Get slug of base page.
  *
@@ -2515,7 +2517,7 @@ function ap_get_page_of_answer( $_post, $args = array() ) {
 		$post_status = " AND (p.post_status IN ($allowed_status) $logged_in_status )";
 		$order_by    = " ORDER BY case when qameta.selected = 1 then 0 else 1 end, ";
 
-		$ap_order_by = ap_opt( 'answers_sort' );
+		$ap_order_by = Template\get_answers_active_tab();
 
 		if ( 'oldest' === $ap_order_by ) {
 			$order_by .= "p.post_date ASC";
@@ -2601,4 +2603,64 @@ function ap_get_permalink( $post_id, $hash = true ) {
 	 * @since 4.2.0
 	 */
 	return apply_filters( 'ap_get_permalink', $permalink, $hash );
+}
+
+/**
+ * Return count of unpublished posts for a user.
+ *
+ * Unpublished count contains post with status `future`, `moderate` and `trash`.
+ * If user is admin or moderator then count of all users posts included.
+ *
+ * @param string       $type        Post type.
+ * @param integer|null $user_id     User id.
+ * @param integer|null $post_parent Post parent id.
+ *
+ * @return integer
+ *
+ * @since 4.2.0
+ */
+function ap_get_unpublished_post_count( $type = 'question', $user_id = null, $post_parent = null ) {
+	global $wpdb;
+
+	// Make sure post type is question or answer.
+	$type = 'question' === $type ? 'question' : 'answer';
+
+	if ( null === $user_id ) {
+		$user_id = get_current_user_id();
+	}
+
+	// Do not include post author if moderator or super admin.
+	$user_q = '';
+	if ( ! ( is_super_admin( $user_id ) || user_can( $user_id, 'ap_edit_others_' . $type ) ) ) {
+		$user_q = $wpdb->prepare( 'AND post_author = %d', $user_id );
+	}
+
+	// Add post parent if exists.
+	$post_parent_q = '';
+	if ( is_numeric( $post_parent ) ) {
+		$post_parent_q = $wpdb->prepare( 'AND post_parent=%d', $post_parent );
+	}
+
+	$query = $wpdb->prepare( "SELECT COUNT(*) as count, post_type FROM $wpdb->posts WHERE post_status IN ('moderate', 'trash', 'future') AND post_type = %s $post_parent_q $user_q", $type ); // WPCS: DB ok.
+
+	$key   = md5( $query );
+	$count = wp_cache_get( $key, 'counts' );
+
+	// Fetch from db if cache not exists.
+	if ( false === $count ) {
+		$count = (int) $wpdb->get_var( $query );
+		wp_cache_set( $key, $count, 'counts' );
+	}
+
+	/**
+	 * Filter unpublished post counts of a user.
+	 *
+	 * @param integer      $count       Count of the posts found.
+	 * @param integer      $user_id     User id.
+	 * @param string       $type        Post type.
+	 * @param integer|null $post_parent Post parent id.
+	 *
+	 * @since 4.2.0
+	 */
+	return (int) apply_filters( 'ap_get_unpublished_post_count', $count, $user_id, $type, $post_parent );
 }

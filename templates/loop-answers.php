@@ -11,7 +11,7 @@
 
 namespace AnsPress\Template;
 ?>
-<apanswersw style="<?php echo ! ap_have_answers() ? 'display:none' : ''; ?>">
+<apanswersw>
 
 	<div id="ap-answers-c">
 		<div class="ap-sorting-tab clearfix">
@@ -24,10 +24,23 @@ namespace AnsPress\Template;
 		</div>
 
 		<div id="answers">
+
+			<?php if ( 'unpublished' === get_answers_active_tab() ) : ?>
+				<?php ap_get_template_part( 'feedback-unpublished-answers' ); ?>
+			<?php endif; ?>
+
 			<apanswers>
-				<?php while ( ap_have_answers() ) : ap_the_answer(); ?>
-					<?php ap_get_template_part( 'loop-answer' ); ?>
-				<?php endwhile; ?>
+				<?php if ( ap_have_answers() ) : ?>
+
+					<?php while ( ap_have_answers() ) : ap_the_answer(); ?>
+						<?php ap_get_template_part( 'loop-answer' ); ?>
+					<?php endwhile; ?>
+
+				<?php else : ?>
+
+					<?php ap_get_template_part( 'feedback-answers' ); ?>
+
+				<?php endif; ?>
 			</apanswers>
 		</div>
 

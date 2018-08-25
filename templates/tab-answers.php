@@ -15,11 +15,19 @@ $tab_links = get_answers_tab_links();
 
 	<?php if ( ! empty( $tab_links ) ) : ?>
 		<?php foreach ( (array) $tab_links as $k => $nav ) : ?>
-			<li <?php echo ( ! empty( $nav['active'] ) ? ' class="active"' : '' ); ?>>
+
+			<li class="ap-tab-item ap-tab-<?php echo esc_attr( $k ); ?><?php echo get_answers_active_tab() === $k ? ' active' : ''; ?>">
+
 				<a href="<?php echo esc_url( $nav['link'] . '#answers-order' ); ?>">
 					<?php echo esc_attr( $nav['title'] ); ?>
+
+					<?php if ( ! empty( $nav['count'] ) ) : ?>
+						<span class="ap-tab-count"><?php echo esc_attr( $nav['count'] ); ?></span>
+					<?php endif; ?>
 				</a>
+
 			</li>
+
 		<?php endforeach; ?>
 	<?php endif; ?>
 

@@ -379,9 +379,10 @@
 				// Clear editor contents
 				$('#ap-form-main').html('');
 				$('#answer-form-c').addClass('ap-minimal-editor');
-				console.log(data.html);
+
 				// Append answer to the list.
 				$('apanswers').append($(data.html).hide());
+				$('apanswers .ap-feedback-answers').remove();
 				$(data.div_id).slideDown(300);
 				$(data.div_id).apScrollTo(null, true);
 				this.model.add({'ID': data.ID});

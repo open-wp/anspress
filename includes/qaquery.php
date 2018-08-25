@@ -1,13 +1,15 @@
 <?php
 /**
- * Question query
+ * Question query.
  *
  * @package AnsPress
+ * @subpackage Classes
+ * @author Rahul Aryan <rah12@live.com>
  */
 
-/**
- * Exit if the file is accessed directly over web.
- */
+use AnsPress\Template;
+
+// Exit if the file is accessed directly over web.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -701,18 +703,8 @@ function ap_has_answers( $args = '' ) {
 	global $wp_rewrite;
 
 	$paged    = (int) max( 1, get_query_var( 'ap_paged', 1 ) );
-	$order_by = ap_isset_post_value( 'order_by', ap_opt( 'answers_sort' ) );
-	$status   = [ 'publish' ];
-
-	if ( ap_user_can_view_private_post() ) {
-		$status[] = 'private_post';
-	}
-	if ( ap_user_can_view_moderate_post() ) {
-		$status[] = 'moderate';
-	}
-	if ( ap_user_can_view_future_post() ) {
-		$status[] = 'future';
-	}
+	$order_by = Template\get_answers_active_tab();
+	$status   = [ 'publish', 'private_post' ];
 
 	// Default query args
 	$default = array(
@@ -736,15 +728,13 @@ function ap_has_answers( $args = '' ) {
 	// Set posts_per_page value if replies are threaded
 	$per_page = $r['posts_per_page'];
 
-
-
 	$ap = anspress();
 	$ap->answers_query = new WP_Query( $r );
 
 	// Add pagination values to query object
 	$ap->answers_query->posts_per_page = $per_page;
-	$ap->answers_query->paged = $r['paged'];
-	$ap->answers_query->is_home = false;
+	$ap->answers_query->paged          = $r['paged'];
+	$ap->answers_query->is_home        = false;
 
 	// Only add pagination if query returned results
 	if ( (int) $ap->answers_query->found_posts && (int) $ap->answers_query->posts_per_page ) {

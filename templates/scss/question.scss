@@ -18,13 +18,13 @@
 			border-radius: 3px;
 		}
 	}
-	.status-trash .ap-cell-inner {
+	.ap-status-trash .ap-cell-inner {
 		border-color: #EF9A9A;
 	}
-	.status-private_post .ap-cell-inner {
+	.ap-status-private_post .ap-cell-inner {
 		border-color: #9E9E9E;
 	}
-	.status-moderate .ap-cell-inner {
+	.ap-status-moderate .ap-cell-inner {
 		border-color: #FFCC80;
 	}
 	.ap-content>.ap-avatar {
@@ -341,6 +341,16 @@
 			color: inherit;
 			border: solid 1px #ddd;
 			border-bottom-color: #fff;
+		}
+		.ap-tab-unpublished a{
+			color: $color9;
+		}
+		.ap-tab-count {
+			background: #FFEB3B;
+			padding: 0 4px;
+			display: inline-block;
+			text-align: center;
+			border-radius: 2px;
 		}
 	}
 }

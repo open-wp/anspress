@@ -21,6 +21,7 @@ class AP_QA_Query_Hooks {
 	 * @since 4.1.7  Fixed: Session answers are included in wrong question.
 	 * @since 4.1.8  Fixed: Sorting issue with best answer.
 	 * @since 4.1.13 Do not include session posts to question query.
+	 * @since 4.2.0  Cleaned up mysql query.
 	 */
 	public static function sql_filter( $sql, $wp_query ) {
 		global $wpdb;
@@ -35,38 +36,6 @@ class AP_QA_Query_Hooks {
 			$sql['fields'] = $sql['fields'] . ', qameta.*, qameta.votes_up - qameta.votes_down AS votes_net';
 			$post_status   = '';
 			$query_status  = $wp_query->query['post_status'];
-
-			if ( isset( $wp_query->query['ap_current_user_ignore'] ) && false === $wp_query->query['ap_current_user_ignore'] ) {
-				// Build the post_status mysql query.
-				if ( ! empty( $query_status ) ) {
-					if ( is_array( $query_status ) ) {
-						$i = 1;
-
-						foreach ( get_post_stati() as $status ) {
-
-							if ( in_array( $status, $wp_query->query['post_status'], true ) ) {
-								$post_status .= $wpdb->posts . ".post_status = '" . $status . "'";
-
-								if ( count( $query_status ) != $i ) {
-									$post_status .= ' OR ';
-								} else {
-									$post_status .= ')';
-								}
-								$i++;
-							}
-						}
-					} else {
-						$post_status .= $wpdb->posts . ".post_status = '" . $query_status . "' ";
-					}
-				}
-
-				// Replace post_status query.
-				if ( is_user_logged_in() && false !== ( $pos = strpos( $sql['where'], $post_status ) ) ) {
-					$pos          = $pos + strlen( $post_status );
-					$author_query = $wpdb->prepare( " OR ( {$wpdb->posts}.post_author = %d AND {$wpdb->posts}.post_status IN ('private_post') ) ", get_current_user_id() );
-					$sql['where'] = substr_replace( $sql['where'], $author_query, $pos, 0 );
-				}
-			}
 
 			// Hack to fix WP_Query for fetching anonymous author posts.
 			if ( isset( $wp_query->query['author'] ) && 0 === $wp_query->query['author'] ) {
@@ -150,16 +119,12 @@ class AP_QA_Query_Hooks {
 				$p->ap_qameta_wrapped = true;
 				$p->votes_net         = $p->votes_up - $p->votes_down;
 
-				// Unset if user cannot read.
-				// if ( ! ap_user_can_read_post( $p, false, $p->post_type ) ) {
-				// 	if ( $instance->is_single() && $instance->is_main_query() ) {
-				// 		$posts[ $k ] = self::imaginary_post( $p );
-				// 	} else {
-				// 		unset( $posts[ $k ] );
-				// 	}
-				// } else {
+				// Replace content if user cannot read.
+				if ( ! ap_user_can_read_post( $p, false, $p->post_type ) ) {
+					$p->post_content = __( 'Restricted content', 'anspress-question-answer' );
+				} else {
 					$posts[ $k ] = $p;
-				//}
+				}
 			}
 		} // End foreach().
 

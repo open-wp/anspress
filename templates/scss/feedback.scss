@@ -1,12 +1,27 @@
 .ap-feedback{
-    border: solid 1px #eee;
-    padding: 15px;
+    border: solid 1px #FFE0B2;
+    padding: 10px 20px;
     border-radius: 5px;
+    box-shadow: 1px 2px 1px #eee;
+    background: #fff;
 
     &-title{
 
     }
     &-icon{
         font-size: 30px;
+        line-height: 100%;
+        margin-right: 20px;
+    }
+    &-answer-private{
+        border: none;
+        padding: 0;
+    }
+    &-small{
+        padding: 5px 15px;
+        .ap-feedback-icon {
+            font-size: 16px;
+            margin-right: 10px;
+        }
     }
 }

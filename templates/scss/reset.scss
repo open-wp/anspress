@@ -445,6 +445,9 @@ ul{
 	&.align-item-center{
 		align-items: center;
 	}
+	&.direction-column{
+		flex-direction: column;
+	}
 }
 .ap-block{
 	background-color: #fff;
@@ -456,4 +459,8 @@ ul{
 
 .ap-mb-10{
 	margin-bottom: 10px;
+}
+
+.no-read-permission{
+	opacity: 0.6;
 }

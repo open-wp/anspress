@@ -11,6 +11,7 @@
  */
 
 namespace AnsPress\Template;
+use AnsPress\Shortcodes;
 
 // Bail if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
@@ -73,7 +74,15 @@ function get_content( $post_id = 0 ) {
 		return get_the_password_form();
 	}
 
-	$content = get_post_field( 'post_content', $post_id );
+	if ( ! ap_user_can_read_post( $post_id ) ) {
+
+		ob_start();
+		ap_get_template_part( 'feedback-answer-private' );
+		$content = ob_get_clean();
+
+	} else {
+		$content = get_post_field( 'post_content', $post_id );
+	}
 
 	return $content;
 }
@@ -133,6 +142,11 @@ function comment_number( $post_id = 0 ) {
  */
 function comments( $post_id = 0 ) {
 	$post_id = ap_is_answer() ? ap_get_answer_id( $post_id ) : get_question_id( $post_id );
+
+	// Check if user can read.
+	if ( ! ap_user_can_read_post( $post_id ) ) {
+		return false;
+	}
 
 	echo '<apcomments id="comments-' . esc_attr( $post_id ) . '" class="have-comments">';
 	ap_the_comments( $post_id, [], true );
@@ -337,17 +351,25 @@ function answer_pagination_links() {
  * @since 4.2.0
  */
 function get_answers_tab_links( $base = false ) {
-	$active = ap_sanitize_unslash( 'order_by', 'r', ap_opt( 'answers_sort' ) );
-
 	if ( false === $base ) {
 		$base = get_permalink();
 	}
 
-	$links = array(
-		'active' => array(
-			'link'  => add_query_arg( [ 'order_by' => 'active' ], $base ),
-			'title' => __( 'Active', 'anspress-question-answer' ),
-		),
+	$links = [];
+
+	// Show unpublished answers tab.
+	$unpublished_posts = ap_get_unpublished_post_count( 'answer', get_current_user_id(), get_question_id() );
+	if ( is_user_logged_in() && $unpublished_posts > 0 ) {
+		$links['unpublished'] = array(
+			'link'  => add_query_arg( [ 'order_by' => 'unpublished' ], $base ),
+			'title' => __( 'Unpublished', 'anspress-question-answer' ),
+			'count' => $unpublished_posts,
+		);
+	}
+
+	$links['active'] = array(
+		'link'  => add_query_arg( [ 'order_by' => 'active' ], $base ),
+		'title' => __( 'Active', 'anspress-question-answer' ),
 	);
 
 	if ( ! ap_opt( 'disable_voting_on_answer' ) ) {
@@ -367,12 +389,6 @@ function get_answers_tab_links( $base = false ) {
 		'title' => __( 'Oldest', 'anspress-question-answer' ),
 	);
 
-	foreach ( $links as $slug => $args ) {
-		if ( $slug === $active ) {
-			$links[ $slug ]['active'] = true;
-		}
-	}
-
 	/**
 	 * Answers tabs links.
 	 *
@@ -380,6 +396,29 @@ function get_answers_tab_links( $base = false ) {
 	 * @since 4.2.0
 	 */
 	return apply_filters( 'ap_get_answers_tab_links', $links );
+}
+
+/**
+ * Get active tab slug of answers.
+ *
+ * @return void
+ * @since 4.2.0
+ */
+function get_answers_active_tab() {
+	$active = ap_isset_post_value( 'order_by', ap_opt( 'answers_sort' ) );
+	$tab    = get_answers_tab_links();
+
+	// Check if tab exists.
+	if ( empty( $tab[ $active ] ) ) {
+		$active = ap_opt( 'answers_sort' );
+	}
+
+	/**
+	 * Filter active tab of answers.
+	 *
+	 * @param string $active Currently active tab sub.
+	 */
+	return apply_filters( 'ap_get_answers_active_tab', $active );
 }
 
 /**
@@ -487,4 +526,57 @@ function is_moderate( $post_id = 0 ) {
 	 * @since 4.2.0
 	 */
 	return apply_filters( 'ap_is_moderate', $ret, $post_id );
+}
+
+/**
+ * Get post classes.
+ *
+ * @param integer|\WP_Post $post_id Post id or object.
+ * @return array
+ * @since 4.2.0
+ */
+function get_post_classes( $post_id = 0 ) {
+	$_post = ap_get_post( $post_id );
+
+	if ( ! ap_is_cpt( $_post ) ) {
+		return;
+	}
+
+	$classes = [];
+	$classes[] = $_post->post_type;
+	$classes[] = 'ap-status-' . $_post->post_status;
+
+	// Best answer.
+	if ( 'answer' === $_post->post_type && ap_is_selected( $_post ) ) {
+		$classes[] = 'best-answer';
+	}
+
+	// Have no permission to read.
+	if ( ! ap_user_can_read_question( $_post ) ) {
+		$classes[] = 'no-read-permission';
+	}
+
+	/**
+	 * Filter AnsPress post classes.
+	 *
+	 * @param array    $classes Class list.
+	 * @param \WP_Post $_post   Post object.
+	 * @since 4.2.0
+	 */
+	return apply_filters( 'ap_get_post_status', $classes, $_post );
+}
+
+/**
+ * Output post classes.
+ *
+ * @param integer|\WP_Post $post_id Post id or object.
+ * @return array
+ * @since 4.2.0
+ */
+function post_classes( $post_id = 0 ) {
+	$list = get_post_classes( $post_id );
+
+	if ( is_array( $list ) ) {
+		echo esc_attr( implode( ' ', $list ) );
+	}
 }
