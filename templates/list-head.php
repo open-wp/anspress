@@ -23,18 +23,18 @@
 /**
  * Display an alert showing count for unpublished questions.
  *
- * @since 4.1.13
+ * @since 4.2.13
  */
 
-$questions_count = (int) get_user_meta( get_current_user_id(), '__ap_unpublished_questions', true );
+$unpublished_count = ap_get_unpublished_post_count();
 
-if ( $questions_count > 0 ) {
-	$text = sprintf( _n( '%d question is', '%d questions are', $questions_count, 'anspress-question-answer' ), $questions_count );
+if ( current_user_can( 'ap_edit_others_question' ) && $unpublished_count > 0 ) {
+	$text = sprintf( _n( 'is %d question', 'are %d questions', $unpublished_count, 'anspress-question-answer' ), $unpublished_count );
 
 	echo '<div class="ap-unpublished-alert ap-alert warning"><i class="apicon-pin"></i>';
 	printf(
 		// Translators: Placeholder contain link to unpublished questions.
-		esc_html__( 'Your %s unpublished. ', 'anspress-question-answer' ),
+		esc_html__( 'There %s unpublished. ', 'anspress-question-answer' ),
 		'<a href="' . esc_url( ap_get_link_to( '/' ) ) . '?unpublished=true">' . esc_attr( $text ) . '</a>'
 	);
 	echo '</div>';
