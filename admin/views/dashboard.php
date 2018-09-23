@@ -131,7 +131,7 @@ class AnsPress_Dashboard {
 	 * Show latest answers.
 	 */
 	public static function anspress_latesta() {
-		global $answers, $wpdb;
+		global $wpdb;
 
 		$results = $wpdb->get_results( "SELECT date_format(post_date, '%d %a') as post_day, post_date, count(ID) as post_count from {$wpdb->posts} WHERE post_status IN('publish', 'private_post', 'moderate') AND post_type = 'answer' AND post_date > (NOW() - INTERVAL 1 MONTH) GROUP BY post_day ORDER BY post_date ASC" ); // db call okay, cache ok.
 
@@ -147,7 +147,7 @@ class AnsPress_Dashboard {
 		<?php endif; ?>
 		<div class="main">
 			<?php
-			$answers = ap_get_answers(
+			ap_get_answers(
 				array(
 					'ap_order_by' => 'newest',
 					'showposts'   => 5,

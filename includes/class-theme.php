@@ -26,7 +26,7 @@ class AnsPress_Theme {
 	 */
 	public static function init_actions() {
 		// Register anspress shortcode.
-		add_shortcode( 'anspress', array( AnsPress_BasePage_Shortcode::get_instance(), 'anspress_sc' ) );
+		//add_shortcode( 'anspress', array( AnsPress_BasePage_Shortcode::get_instance(), 'anspress_sc' ) );
 
 		// Register question shortcode.
 		add_shortcode( 'question', array( AnsPress_Question_Shortcode::get_instance(), 'anspress_question_sc' ) );
@@ -71,7 +71,7 @@ class AnsPress_Theme {
 		return $template;
 	}
 
-   /**
+	/**
 	* Reset main query vars and filter 'the_content' to output a AnsPress
 	* template part as needed.
 	*
@@ -81,7 +81,32 @@ class AnsPress_Theme {
 	* @since 4.2.0
 	*/
 	public static function template_include_theme_compat( $template = '' ) {
-		if ( ap_current_page( 'question' ) ) {
+		if ( ap_current_page( 'archive' ) ) {
+			// Page exists where this archive should be
+			$page = get_page_by_path( ap_base_page_slug() );
+
+			// Should we replace the content.
+			if ( empty( $page->post_content ) ) {
+				$new_content = Shortcodes::get_instance()->display_archive();
+			} else {
+				$new_content = apply_filters( 'the_content', $page->post_content );
+			}
+
+			$new_title = apply_filters( 'the_title', $page->post_title );
+
+			// Reset post
+			ap_theme_compat_reset_post( array(
+				'ID'             => ! empty( $page->ID ) ? $page->ID : 0,
+				'post_title'     => $new_title,
+				'post_author'    => 0,
+				'post_date'      => 0,
+				'post_content'   => $new_content,
+				'post_type'      => 'question',
+				'post_status'    => 'publish',
+				'is_archive'     => true,
+				'comment_status' => 'closed',
+			) );
+		} elseif ( ap_current_page( 'question' ) ) {
 			$status_header = 200;
 
 			// Check if user have permission to read and add proper status header code.

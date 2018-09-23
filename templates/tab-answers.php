@@ -11,7 +11,7 @@ namespace AnsPress\Template;
 
 $tab_links = get_answers_tab_links();
 ?>
-<ul id="answers-order" class="ap-answers-tab ap-ul-inline clearfix">
+<ul id="answers-order" class="ap-tab ap-tab-answers ap-ul-inline clearfix">
 
 	<?php if ( ! empty( $tab_links ) ) : ?>
 		<?php foreach ( (array) $tab_links as $k => $nav ) : ?>

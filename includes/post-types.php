@@ -131,6 +131,16 @@ class AnsPress_PostTypes {
 			'rewrite'             => false,
 			'query_var'           => 'question',
 			'delete_with_user'    => true,
+			'capabilities' => array(
+				'edit_post'          => 'ap_edit_question',
+				'read_post'          => 'ap_read_question',
+				'delete_post'        => 'ap_delete_question',
+				'edit_posts'         => 'ap_edit_questions',
+				'edit_others_posts'  => 'ap_edit_others_question',
+				'publish_posts'      => 'ap_new_question',
+				'read_private_posts' => 'ap_read_question',
+				'create_posts'       => 'ap_new_question',
+			),
 		);
 
 		/**

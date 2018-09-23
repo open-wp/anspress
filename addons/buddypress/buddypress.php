@@ -274,7 +274,7 @@ class BuddyPress extends \AnsPress\Singleton {
 			echo '<div id="ap-bp-answers">';
 		}
 
-		if ( ap_has_answers( $args ) ) {
+		if ( ap_get_answers( $args ) ) {
 			/* Start the Loop */
 			while ( ap_have_answers() ) :
 				ap_the_answer();

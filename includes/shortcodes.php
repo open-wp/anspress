@@ -41,7 +41,7 @@ class Shortcodes {
 	 * @return \AnsPress\Shortcodes A single instance of this class.
 	 */
 	public static function get_instance() {
-		if ( null == self::$instance ) {
+		if ( null === self::$instance ) {
 			self::$instance = new self();
 		}
 
@@ -55,7 +55,10 @@ class Shortcodes {
 	 */
 	private function __construct() {
 		$this->codes = array(
+			'anspress'          => [ $this, 'display_archive' ],
+			'anspress_archive'  => [ $this, 'display_archive' ],
 			'anspress_question' => [ $this, 'display_question' ],
+			'anspress_ask_form' => [ $this, 'display_ask' ],
 		);
 	}
 
@@ -120,16 +123,12 @@ class Shortcodes {
 	}
 
 	/**
-	 * Display an index of all visible root level forums in an output buffer
-	 * and return to ensure that post/page contents are displayed first.
-	 *
-	 * @since bbPress (r3031)
+	 * Display archive of the question.
 	 *
 	 * @param array $attr
 	 * @param string $content
-	 * @uses bbp_has_forums()
-	 * @uses get_template_part()
 	 * @return string
+	 * @since 4.2.0
 	 */
 	public function display_archive() {
 		// Unset globals
@@ -138,50 +137,14 @@ class Shortcodes {
 		// Start output buffer
 		$this->start( 'ap_archive' );
 
-		ap_get_template_part( 'content-archive-question' );
+		if ( ap_user_can_read_questions() ) {
+			ap_get_template_part( 'content-archive-question' );
+		} else {
+			ap_get_template_part( 'feedback-questions' );
+		}
 
 		// Return contents of output buffer
 		return $this->end();
-	}
-
-	/**
-	 * Render question permissions message.
-	 *
-	 * @param object $_post Post object.
-	 * @return string
-	 * @since 4.1.0
-	 */
-	private function question_permission_msg( $_post ) {
-		$msg = false;
-
-		// Check if user is allowed to read this question.
-		if ( ! ap_user_can_read_question( $_post->ID ) ) {
-			if ( 'moderate' === $_post->post_status ) {
-				$msg = __( 'This question is awaiting moderation and cannot be viewed. Please check back later.', 'anspress-question-answer' );
-			} else {
-				$msg = __( 'Sorry! you are not allowed to read this question.', 'anspress-question-answer' );
-			}
-		} elseif ( 'future' === $_post->post_status && ! ap_user_can_view_future_post( $_post ) ) {
-			$time_to_publish = human_time_diff( strtotime( $_post->post_date ), current_time( 'timestamp', true ) );
-
-			$msg = '<strong>' . sprintf(
-				// Translators: %s contain time to publish.
-				__( 'Question will be published in %s', 'anspress-question-answer' ),
-				$time_to_publish
-			) . '</strong>';
-
-			$msg .= '<p>' . esc_attr__( 'This question is not published yet and is not accessible to anyone until it get published.', 'anspress-question-answer' ) . '</p>';
-		}
-
-		/**
-		 * Filter single question page permission message.
-		 *
-		 * @param string $msg Message.
-		 * @since 4.1.0
-		 */
-		$msg = apply_filters( 'ap_question_page_permission_msg', $msg );
-
-		return $msg;
 	}
 
 	/**
@@ -232,11 +195,11 @@ class Shortcodes {
 		} elseif ( ap_user_can_read_question( $question_id ) ) {
 
 			// Start answers query.
-			ap_has_answers( $answers_args );
+			ap_get_answers( $answers_args );
 
 			ap_get_template_part( 'content-single-question' );
 		} else {
-			ap_get_template_part( 'feedback-question' );
+			ap_get_template_part( 'feedback-single-question' );
 		}
 
 		/**
@@ -248,6 +211,15 @@ class Shortcodes {
 
 		// Return contents of output buffer
 		return $this->end();
+	}
+
+	/**
+	 * Output question form.
+	 *
+	 * @since 4.2.0
+	 */
+	public function display_ask( $attr = [], $content = '' ) {
+
 	}
 
 }

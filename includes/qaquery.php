@@ -169,7 +169,7 @@ class Question_Query extends WP_Query {
 	 * @return boolean
 	 */
 	public function is_main_query() {
-		return anspress()->questions === $this;
+		return anspress()->questions_query === $this;
 	}
 
 	/**
@@ -270,9 +270,19 @@ function ap_get_post( $post = null ) {
  * @return boolean
  */
 function ap_have_questions() {
-	if ( anspress()->questions ) {
-		return anspress()->questions->have_posts();
+	$q = anspress()->questions_query;
+	if ( ! $q instanceof \WP_Query ) {
+		return false;
 	}
+
+	$have_posts = anspress()->questions_query->have_posts();
+
+	// Reset the post data when finished.
+	if ( empty( $have_posts ) ) {
+		wp_reset_postdata();
+	}
+
+	return $have_posts;
 }
 
 /**
@@ -281,9 +291,7 @@ function ap_have_questions() {
  * @return Object
  */
 function ap_the_question() {
-	if ( anspress()->questions ) {
-		return anspress()->questions->the_question();
-	}
+	return anspress()->questions_query->the_post();
 }
 
 /**
@@ -292,9 +300,7 @@ function ap_the_question() {
  * @return integer
  */
 function ap_total_questions_found() {
-	if ( anspress()->questions ) {
-		return anspress()->questions->found_posts;
-	}
+	return anspress()->questions_query->found_posts;
 }
 
 /**
@@ -305,8 +311,8 @@ function ap_total_questions_found() {
  * @since 4.1.0 Check if global `$questions` exists.
  */
 function ap_reset_question_query() {
-	if ( anspress()->questions ) {
-		return anspress()->questions->reset_questions_data();
+	if ( anspress()->questions_query ) {
+		return anspress()->questions_query->reset_postdata();
 	}
 }
 
@@ -696,10 +702,11 @@ function ap_latest_post_activity_html( $post_id = false, $answer_activities = fa
  * The main answer loop.
  *
  * @param string|array $args Arguments.
- * @return \WP_Post
- * @since 4.2.0
+ * @return boolean
+ * @since 2.0
+ * @since 4.2.0 Improved logic.
  */
-function ap_has_answers( $args = '' ) {
+function ap_get_answers( $args = '' ) {
 	global $wp_rewrite;
 
 	$paged    = (int) max( 1, get_query_var( 'ap_paged', 1 ) );
@@ -780,73 +787,80 @@ function ap_has_answers( $args = '' ) {
 		ap_post_author_pre_fetch( $ids['user_ids'] );
 	}
 
-	// Return object
-	return apply_filters( 'ap_has_answers', $ap->answers_query->have_posts(), $ap->answers_query );
+	/**
+	 * Filter return of function `ap_get_answers`.
+	 *
+	 * @param boolean   $have_posts Have posts.
+	 * @param \WP_Query $query      WP_Query.
+	 *
+	 * @since 4.2.0
+	 */
+	return apply_filters( 'ap_get_answers', $ap->answers_query->have_posts(), $ap->answers_query );
 }
 
 /**
  * The main question loop.
  *
  * @param string|array $args Arguments.
- * @return \WP_Post
+ * @return boolean
  * @since 4.2.0
  */
-function ap_has_questions( $args = '' ) {
+function ap_get_questions( $args = '' ) {
 	global $wp_rewrite;
 
-	$paged    = (int) max( 1, get_query_var( 'ap_paged', 1 ) );
-	$order_by = ap_isset_post_value( 'order_by', ap_opt( 'answers_sort' ) );
+	$paged    = (int) max( 1, get_query_var( 'paged', 1 ) );
+	$order_by = ap_get_current_list_filters( 'order_by', 'active' );
+	$status   = [ 'publish', 'private' ];
 
 	// Default query args
 	$default = array(
-		'post_type'              => 'answer', // Only replies
-		'post_parent'            => ( is_question() ? get_question_id(): 'any' ), // Of this topic
 		'paged'                  => $paged, // On this page
 		'ignore_sticky_posts'    => true,
 		'ap_query'               => true,
 		'ap_current_user_ignore' => false,
-		'ap_answers_query'       => true,
-		'posts_per_page'         => ap_opt( 'answers_per_page' ),
-		'only_best_answer'       => false,
-		'ignore_selected_answer' => false,
-		'post_status'            => [ 'publish' ],
+		'ap_question_query'      => true,
+		'posts_per_page'         => ap_opt( 'question_per_page' ),
+		'post_status'            => $status,
 		'ap_order_by'            => $order_by,
+		'perm'                   => 'readable',
 	);
 
 	// Parse arguments against default values
 	$r = wp_parse_args( $args, $default );
 
+	$r['post_type'] = 'question';
+
 	// Set posts_per_page value if replies are threaded
-	$replies_per_page = $r['posts_per_page'];
+	$posts_per_page = $r['posts_per_page'];
 
 	$ap = anspress();
-	$ap->answers_query = new WP_Query( $r );
+	$ap->questions_query = new WP_Query( $r );
 
 	// Add pagination values to query object
-	$ap->answers_query->posts_per_page = $replies_per_page;
-	$ap->answers_query->paged = $r['paged'];
-	$ap->answers_query->is_home = false;
+	$ap->questions_query->posts_per_page = $posts_per_page;
+	$ap->questions_query->paged          = $r['paged'];
+	$ap->questions_query->is_home        = false;
 
 	// Only add pagination if query returned results
-	if ( (int) $ap->answers_query->found_posts && (int) $ap->answers_query->posts_per_page ) {
+	if ( (int) $ap->questions_query->found_posts && (int) $ap->questions_query->posts_per_page ) {
 
 		// Make our pagination pretty.
 		if ( $wp_rewrite->using_permalinks() ) {
-			$base = get_permalink( $r['post_parent'] );
+			$base = ap_get_link_to( '/' );
 			$base = trailingslashit( $base ) . user_trailingslashit( $wp_rewrite->pagination_base . '/%#%/' );
 		} else {
-			$base = add_query_arg( 'ap_paged', '%#%' );
+			$base = add_query_arg( 'paged', '%#%' );
 		}
 
 		// Figure out total pages
-		$total_pages = ceil( (int) $ap->answers_query->found_posts / (int) $replies_per_page );
+		$total_pages = ceil( (int) $ap->questions_query->found_posts / (int) $posts_per_page );
 
 		// Add pagination to query object
-		$ap->answers_query->pagination_links = paginate_links( apply_filters( 'ap_answers_pagination', array(
+		$ap->questions_query->pagination_links = paginate_links( apply_filters( 'ap_questions_pagination', array(
 			'base'      => $base,
 			'format'    => '',
 			'total'     => $total_pages,
-			'current'   => (int) $ap->answers_query->paged,
+			'current'   => (int) $ap->questions_query->paged,
 			'prev_text' => is_rtl() ? '&raquo;' : '&laquo;',
 			'next_text' => is_rtl() ? '&laquo;' : '&raquo;',
 			'mid_size'  => 1,
@@ -854,7 +868,7 @@ function ap_has_questions( $args = '' ) {
 	}
 
 	// Return object
-	return apply_filters( 'ap_has_answers', $ap->answers_query->have_posts(), $ap->answers_query );
+	return apply_filters( 'ap_get_questions', $ap->questions_query->have_posts(), $ap->questions_query );
 }
 
 /**
@@ -960,15 +974,17 @@ function ap_total_answers_found() {
  */
 function ap_count_published_answers( $question_id ) {
 	global $wpdb;
-	$query = $wpdb->prepare( "SELECT COUNT(*) FROM $wpdb->posts where post_parent = %d AND post_status = %s AND post_type = %s", $question_id, 'publish', 'answer' );
-	$key   = md5( $query );
 
-	$cache = wp_cache_get( $key, 'ap_count' );
+	$query = $wpdb->prepare( "SELECT COUNT(*) FROM $wpdb->posts where post_parent = %d AND post_status IN ('publish', 'private_post') AND post_type = 'answer'", $question_id );
+
+	$key = md5( $query );
+
+	$cache = wp_cache_get( $key, 'counts' );
 	if ( false !== $cache ) {
 		return $cache;
 	}
 
 	$count = $wpdb->get_var( $query );
-	wp_cache_set( $key, $count, 'ap_count' );
+	wp_cache_set( $key, $count, 'counts' );
 	return $count;
 }

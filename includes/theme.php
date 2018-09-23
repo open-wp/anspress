@@ -536,6 +536,10 @@ function ap_current_page( $looking_for = false ) {
 	$main_pages = array_keys( ap_main_pages() );
 	$page_ids   = [];
 
+	if ( 'archive' === $query_var ) {
+		$query_var = 'base';
+	}
+
 	foreach ( $main_pages as $page_slug ) {
 		$page_ids[ ap_opt( $page_slug ) ] = $page_slug;
 	}
@@ -548,8 +552,8 @@ function ap_current_page( $looking_for = false ) {
 		$query_var = $query_var;
 	} elseif ( in_array( get_the_ID(), array_keys( $page_ids ) ) ) {
 		$query_var = str_replace( '_page', '', $page_ids[ get_the_ID() ] );
-	} elseif ( 'base' === $query_var ) {
-		$query_var = 'base';
+	} elseif ( 'archive' === $query_var ) {
+		$query_var = 'archive';
 	} elseif ( is_404() ) {
 		$query_var = '';
 	}

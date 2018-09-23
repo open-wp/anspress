@@ -9,6 +9,8 @@
 
 ?>
 
+<?php ap_get_template_part( 'tab-questions' ); ?>
+
 <div class="ap-list-head clearfix">
 	<div class="pull-right">
 		<?php ap_ask_btn(); ?>

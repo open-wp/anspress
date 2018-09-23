@@ -104,7 +104,7 @@ function ap_answers_tab( $base = false ) {
  *
  * @since 2.1
  * @since 4.1.0 Removed calling function @see `ap_reset_question_query`.
- * @deprecated 4.2.0 Replace by `ap_has_answers()`.
+ * @deprecated 4.2.0 Replace by `ap_get_answers()`.
  */
 function ap_answers() {
 	_deprecated_function( __FUNCTION__, '4.2.0' );
@@ -182,28 +182,6 @@ function ap_update_qameta_terms( $question_id ) {
 	}
 
 	return $term_ids;
-}
-
-/**
- * Display answers of a question
- *
- * @param  array $args Answers query arguments.
- * @return Answers_Query
- * @since  2.0
- * @since 4.2.0 Replaced by `ap_has_answers`.
- */
-function ap_get_answers( $args = array() ) {
-	_deprecated_function( __FUNCTION__, '4.2.0' );
-
-	if ( empty( $args['question_id'] ) ) {
-		$args['question_id'] = get_question_id();
-	}
-
-	if ( ! isset( $args['ap_order_by'] ) ) {
-		$args['ap_order_by'] = isset( $_GET['order_by'] ) ? ap_sanitize_unslash( 'order_by', 'g' ) : ap_opt( 'answers_sort' );
-	}
-
-	return new Answers_Query( $args );
 }
 
 /**

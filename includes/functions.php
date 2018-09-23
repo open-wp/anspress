@@ -23,16 +23,7 @@ function ap_base_page_slug() {
 	$slug = 'questions';
 
 	if ( ! empty( ap_opt( 'base_page' ) ) ) {
-		$base_page = get_post( ap_opt( 'base_page' ) );
-
-		if ( $base_page ) {
-			$slug = $base_page->post_name;
-
-			if ( $base_page->post_parent > 0 ) {
-				$parent_page = get_post( $base_page->post_parent );
-				$slug        = $parent_page->post_name . '/' . $slug;
-			}
-		}
+		$slug = ap_opt( 'base_page_id' );
 	}
 
 	return apply_filters( 'ap_base_page_slug', $slug );
@@ -2092,7 +2083,7 @@ function ap_answer_post_ajax_response( $question_id, $answer_id ) {
 	// Get existing answer count.
 	$current_ans = ap_count_published_answers( $question_id );
 
-	$has_answer = ap_has_answers( array(
+	$has_answer = ap_get_answers( array(
 		'p' => $answer_id,
 	) );
 

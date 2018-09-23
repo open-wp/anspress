@@ -1136,6 +1136,7 @@ function ap_role_caps( $role ) {
 			'ap_change_status'   => true,
 		),
 		'moderator'   => array(
+			'ap_edit_questions'         => true,
 			'ap_edit_others_question'   => true,
 			'ap_edit_others_answer'     => true,
 			'ap_edit_others_comment'    => true,
@@ -1262,7 +1263,11 @@ function ap_user_can_read_post( $_post = null, $user_id = false, $post_type = fa
  * @uses   ap_user_can_read_post
  * @since  2.4.6
  */
-function ap_user_can_read_question( $question_id, $user_id = false ) {
+function ap_user_can_read_question( $question_id = false, $user_id = false ) {
+	if ( false === $question_id ) {
+		$question_id = get_question_id();
+	}
+
 	return ap_user_can_read_post( $question_id, $user_id, 'question' );
 }
 
@@ -1518,6 +1523,34 @@ function ap_user_can_read_comments( $_post = null, $user_id = false ) {
 	}
 	else if ( 'logged_in' === $option && is_user_logged_in() ) {
 	    return true;
+	} elseif ( 'anyone' === $option ) {
+		return true;
+	}
+
+	return false;
+}
+
+/**
+ * Check if user can read questions.
+ *
+ * @param integer $user_id User ID.
+ * @return boolean
+ * @since 4.2.0
+ */
+function ap_user_can_read_questions( $user_id = false ) {
+	if ( false === $user_id ) {
+		$user_id = get_current_user_id();
+	}
+
+	if ( is_super_admin( $user_id ) ) {
+		return true;
+	}
+
+	$option = ap_opt( 'read_question_per' );
+	if ( 'have_cap' === $option && is_user_logged_in() && user_can( $user_id, 'ap_read_question' ) ) {
+		return true;
+	} elseif ( 'logged_in' === $option && is_user_logged_in() ) {
+		return true;
 	} elseif ( 'anyone' === $option ) {
 		return true;
 	}

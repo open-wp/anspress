@@ -97,11 +97,9 @@ class AnsPress_Admin_Ajax {
 	 * @since 4.0
 	 */
 	public static function get_all_answers() {
-		global $answers;
-
 		$question_id = ap_sanitize_unslash( 'question_id', 'p' );
 		$answers_arr = [];
-		$answers     = ap_has_answers( array(
+		ap_get_answers( array(
 			'post_parent'    => $question_id,
 			'posts_per_page' => -1,
 		) );

@@ -14,7 +14,7 @@ namespace AnsPress\Template;
 
 	<?php
 	// Dont have permission.
-	if ( ap_user_can_read_questions() ) :
+	if ( ! ap_user_can_read_questions() ) :
 	?>
 		<div class="ap-display-flex align-item-center">
 			<i class="ap-feedback-icon apicon-stop ap-text-muted"></i>
@@ -29,12 +29,12 @@ namespace AnsPress\Template;
 		<div class="ap-display-flex align-item-center">
 			<i class="ap-feedback-icon apicon-question ap-text-muted"></i>
 			<div>
-				<strong class="ap-feedback-title"><?php esc_attr_e( 'No questions yet!', 'anspress-question-answer' ); ?></strong>
+				<strong class="ap-feedback-title"><?php esc_attr_e( 'No published questions yet!', 'anspress-question-answer' ); ?></strong>
 				<p class="mb-0 ap-feedback-msg">
 					<?php
 						printf(
-							esc_attr__( 'We have no questions to show. Be the first to %s.', 'anspress-question-answer' ),
-							'<a href="' . esc_url( ap_get_link_to( 'ask' ) ) . '">' . esc_attr__( 'ask a question', 'anspress-question-answer' ) . '</a>'
+							esc_attr__( 'Check back later or be the first to %s.', 'anspress-question-answer' ),
+							'<a href="' . esc_url( ap_get_link_to( 'ask' ) ) . '">' . esc_attr__( 'post a question', 'anspress-question-answer' ) . '</a>'
 						);
 					?>
 				</p>

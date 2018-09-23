@@ -10,6 +10,8 @@
  * @package AnsPress
  * @package Templates
  */
+
+namespace AnsPress\Template;
 ?>
 
 <?php dynamic_sidebar( 'ap-top' ); ?>
@@ -21,18 +23,19 @@
 			<?php ap_get_template_part( 'list-head' ); ?>
 		<?php endif; ?>
 
-		<?php if ( ap_have_questions() ) : ?>
+		<?php if ( ap_get_questions() ) : ?>
 
 			<div class="ap-questions">
 				<?php
 				/* Start the Loop */
 				while ( ap_have_questions() ) :
 					ap_the_question();
-					ap_get_template_part( 'question-list-item' );
-					endwhile;
+					ap_get_template_part( 'loop-question' );
+
+				endwhile;
 				?>
 			</div>
-			<?php ap_questions_the_pagination(); ?>
+			<?php ap_get_template_part( 'pagination-questions' ); ?>
 
 		<?php else : ?>
 

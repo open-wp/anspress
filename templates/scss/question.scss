@@ -315,44 +315,7 @@
 
 #ap-answers-c {
 	margin-top: 30px;
-	.ap-answers-tab {
-		float: right;
-		margin: 0;
-		li {
-			float: right;
-			margin-left: 4px;
-		}
-		>li a {
-			display: block;
-			font-size: 12px;
-			margin-bottom: -1px;
-			padding: 10px 15px;
-			text-decoration: none;
-			color: #888;
-			border: solid 1px transparent;
-			border-radius: 2px 2px 0 0;
-			&:hover {
-				background: #f3f3f3;
-			}
-		}
-		li.active a {
-			font-weight: bold;
-			padding: 10px 15px;
-			color: inherit;
-			border: solid 1px #ddd;
-			border-bottom-color: #fff;
-		}
-		.ap-tab-unpublished a{
-			color: $color9;
-		}
-		.ap-tab-count {
-			background: #FFEB3B;
-			padding: 0 4px;
-			display: inline-block;
-			text-align: center;
-			border-radius: 2px;
-		}
-	}
+
 }
 
 .ap-participants-list {

@@ -323,7 +323,7 @@ class Profile extends \AnsPress\Singleton {
 		 */
 		$args = apply_filters( 'ap_user_answers_args', $args );
 
-		ap_has_answers( $args );
+		ap_get_answers( $args );
 
 		ap_get_template_part( 'addons/user/answers' );
 	}
@@ -355,7 +355,7 @@ class Profile extends \AnsPress\Singleton {
 		$args = apply_filters( 'ap_user_answers_args', $args );
 
 		ob_start();
-		if ( ap_has_answers( $args ) ) {
+		if ( ap_get_answers( $args ) ) {
 			/* Start the Loop */
 			while ( ap_have_answers() ) :
 				ap_the_answer();
