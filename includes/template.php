@@ -726,3 +726,60 @@ function post_classes( $post_id = 0 ) {
 		echo esc_attr( implode( ' ', $list ) );
 	}
 }
+
+/**
+ * Get sorting of questions.
+ *
+ * @return array
+ * @since 4.2.0
+ */
+function get_questions_sorting() {
+	$arr = array(
+		'active' => [
+			'label' => __( 'Active', 'anspress-question-answer' ),
+			'order_by' => '',
+		],
+		'answers' => [
+			'label' => __( 'Answers', 'anspress-question-answer' ),
+			'order_by' => '',
+		],
+		'votes' => [
+			'label' => __( 'Votes', 'anspress-question-answer' ),
+			'order_by' => '',
+		],
+		'published' => [
+			'label' => __( 'Published', 'anspress-question-answer' ),
+			'order_by' => '',
+		],
+		'views' => [
+			'label' => __( 'Views', 'anspress-question-answer' ),
+			'order_by' => '',
+		],
+	);
+
+	return $arr;
+}
+
+/**
+ * Get current sorting of questions.
+ *
+ * @return void
+ * @since 4.2.0
+ */
+function get_current_questions_sorting() {
+	$active  = ap_isset_post_value( 'qsorting', ap_opt( 'questions-sorting' ) );
+	$sorting = get_questions_sorting();
+
+	// Check if sorting exists.
+	if ( empty( $sorting[ $active ] ) ) {
+		$active = 'active';
+	}
+
+	/**
+	 * Filter current sorting of questions.
+	 *
+	 * @param string $active Current sorting.
+	 * @since 4.2.0
+	 */
+	return apply_filters( 'ap_get_current_questions_sorting', $active );
+}

@@ -7,6 +7,12 @@
 		position: relative;
 		display: inline-block;
 		font-size: 14px;
+		&.right{
+			.ap-dropdown-menu{
+				right: 0;
+				left: auto;
+			}
+		}
 		&.open .ap-dropdown-menu{
 			display: block;
 		}
