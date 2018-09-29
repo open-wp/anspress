@@ -12,7 +12,9 @@ namespace AnsPress\Template;
 $tab_links = get_questions_tab_links();
 ?>
 
-<form class="questions-sorting-form" name="questionsSorting" method="GET">
+<form class="questions-sorting-form" name="questionFilters" method="GET">
+	<input type="hidden" name="question_filters" value="1" />
+
 	<div id="questions-tab" class="ap-tab ap-tab-questions">
 
 		<?php if ( ! empty( $tab_links ) ) : ?>
@@ -35,10 +37,10 @@ $tab_links = get_questions_tab_links();
 
 		<!-- Sorting field -->
 		<div class="ap-tab-item ap-tab-sort right">
-			<select class="ap-form-control" name="qsorting" id="question-sorting">
+			<select class="ap-form-control" name="order_by" id="question-order_by">
 
-				<?php foreach( get_questions_sorting() as $key => $args ) : ?>
-					<option value="<?php echo esc_attr( $key ); ?>" <?php selected( get_current_questions_sorting(), $key ); ?>><?php echo esc_html( $args['label'] ); ?></option>
+				<?php var_dump(get_question_filters( 'order_by' ));foreach( get_questions_sorting() as $key => $args ) : ?>
+					<option value="<?php echo esc_attr( $key ); ?>" <?php selected( get_question_filters( 'order_by' ), $key ); ?>><?php echo esc_html( $args['label'] ); ?></option>
 				<?php endforeach; ?>
 
 			</select>
@@ -46,10 +48,17 @@ $tab_links = get_questions_tab_links();
 		<!-- End sorting field -->
 
 	</div>
+
+	<div class="ap-questions__search mb-20">
+		<div class="ap-display-flex align-item-center">
+			<input name="question_s" type="text" class="ap-questions__searchi ap-search-input ap-form-input mr-10" placeholder="<?php esc_attr_e( 'Search questions...', 'anspress-question-answer' ); ?>" value="<?php echo ap_sanitize_unslash( 'question_s', 'r' ); ?>" />
+			<button class="ap-btn ap-search-btn ap-questions__searchb" type="submit"><?php esc_attr_e( 'Search', 'anspress-question-answer' ); ?></button>
+		</div>
+	</div>
 </form>
 
 <script type="text/javascript">
-	document.querySelector('#questions-tab').onchange = function(){
-		document.questionsSorting.submit();
+	document.questionFilters.onchange = function(){
+		document.questionFilters.submit();
 	};
 </script>

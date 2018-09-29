@@ -61,26 +61,26 @@
 			$length-x: map-get($lengths, x);
 			$length-y: map-get($lengths, y);
 
-			.#{$abbrev}-#{$size}  { #{$prop}:        $length-y $length-x !important; }
+			.#{$abbrev}-#{$size}  { #{$prop}:        $length-y $length-x; }
 
 			.#{$abbrev}t-#{$size},
 			.#{$abbrev}y-#{$size} {
-					#{$prop}-top:    $length-y !important;
+					#{$prop}-top:    $length-y;
 			}
 
 			.#{$abbrev}r-#{$size},
 			.#{$abbrev}x-#{$size} {
-					#{$prop}-right:  $length-x !important;
+					#{$prop}-right:  $length-x;
 			}
 
 			.#{$abbrev}b-#{$size},
 			.#{$abbrev}y-#{$size} {
-					#{$prop}-bottom: $length-y !important;
+					#{$prop}-bottom: $length-y;
 			}
 
 			.#{$abbrev}l-#{$size},
 			.#{$abbrev}x-#{$size} {
-					#{$prop}-left:   $length-x !important;
+					#{$prop}-left:   $length-x;
 			}
 	}
 }
@@ -444,6 +444,9 @@ ul{
 	display: flex;
 	&.align-item-center{
 		align-items: center;
+	}
+	&.justify-center{
+		justify-content: center;
 	}
 	&.direction-column{
 		flex-direction: column;

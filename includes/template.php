@@ -536,7 +536,7 @@ function get_questions_tab_links( $base = false ) {
  * @since 4.2.0
  */
 function get_questions_active_tab() {
-	$active = ap_isset_post_value( 'tab', ap_opt( 'tab' ) );
+	$active = ap_isset_post_value( 'qtab', ap_opt( 'qtab' ) );
 	$tab    = get_questions_tab_links();
 
 	// Check if tab exists.
@@ -761,25 +761,30 @@ function get_questions_sorting() {
 }
 
 /**
- * Get current sorting of questions.
+ * Get current sorting and filters of questions.
  *
  * @return void
  * @since 4.2.0
  */
-function get_current_questions_sorting() {
-	$active  = ap_isset_post_value( 'qsorting', ap_opt( 'questions-sorting' ) );
-	$sorting = get_questions_sorting();
-
-	// Check if sorting exists.
-	if ( empty( $sorting[ $active ] ) ) {
-		$active = 'active';
-	}
+function get_question_filters( $filter = null ) {
+	$filters = ap_isset_post_value( 'question_filters', [] );
+	$filters = wp_parse_args( $filters, array(
+		'search'   => '',
+		'tab'      => 'all',
+		'order_by' => 'active',
+	) );
 
 	/**
-	 * Filter current sorting of questions.
+	 * Current filters applied to question query.
 	 *
-	 * @param string $active Current sorting.
+	 * @param string $filters Current filters.
 	 * @since 4.2.0
 	 */
-	return apply_filters( 'ap_get_current_questions_sorting', $active );
+	$filters = apply_filters( 'ap_question_filters', $filters );
+	var_dump( $filters[ $filter ] );
+	if ( null !== $filter && isset( $filters[ $filter ] ) ) {
+		return ap_sanitize_unslash( $filters[ $filter ] );
+	}
+
+	return $filters;
 }

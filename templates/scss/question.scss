@@ -6,6 +6,19 @@
 	padding-right: 40px;
 }
 
+.ap-questions{
+	&__search{
+		&i{
+			flex-basis: 80%;
+			height: 35px;
+		}
+		&b{
+			flex-basis: 20%;
+			height: 35px;
+		}
+	}
+}
+
 #anspress {
 	.best-answer .ap-q-metas {
 		background: #dcedc8;
