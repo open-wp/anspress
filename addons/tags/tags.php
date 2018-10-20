@@ -55,17 +55,12 @@ class Tags extends \AnsPress\Singleton {
 		anspress()->add_action( 'wp_ajax_ap_tags_suggestion', $this, 'ap_tags_suggestion' );
 		anspress()->add_action( 'wp_ajax_nopriv_ap_tags_suggestion', $this, 'ap_tags_suggestion' );
 		anspress()->add_action( 'ap_rewrites', $this, 'rewrite_rules', 10, 3 );
-		anspress()->add_filter( 'ap_main_questions_args', $this, 'ap_main_questions_args' );
-		anspress()->add_filter( 'ap_category_questions_args', $this, 'ap_main_questions_args' );
+		anspress()->add_filter( 'ap_get_questions_default_args', $this, 'questions_args' );
 		anspress()->add_filter( 'ap_current_page', $this, 'ap_current_page' );
 		anspress()->add_action( 'posts_pre_query', $this, 'modify_query_archive', 9999, 2 );
 
-		// List filtering.
-		anspress()->add_filter( 'ap_list_filters', $this, 'ap_list_filters' );
-		anspress()->add_action( 'ap_ajax_load_filter_qtag', $this, 'load_filter_tag' );
-		anspress()->add_action( 'ap_ajax_load_filter_tags_order', $this, 'load_filter_tags_order' );
-		anspress()->add_filter( 'ap_list_filter_active_qtag', $this, 'filter_active_tag', 10, 2 );
-		anspress()->add_filter( 'ap_list_filter_active_tags_order', $this, 'filter_active_tags_order', 10, 2 );
+		anspress()->add_filter( 'get_current_questions_filters', $this, 'sorting_filters' );
+		anspress()->add_action( 'ap_questions_sort_filters_col3', $this, 'sort_filters_col3' );
 	}
 
 	/**
@@ -522,168 +517,23 @@ class Tags extends \AnsPress\Singleton {
 	}
 
 	/**
-	 * Filter main questions query args. Modify and add tags args.
+	 * Filter main questions query args. Modify and add tag args.
 	 *
-	 * @param  array $args Questions args.
+	 * @param  array $default Questions args.
 	 * @return array
 	 */
-	public function ap_main_questions_args( $args ) {
-		global $wp;
-		$query = $wp->query_vars;
+	public function questions_args( $default ) {
+		$current_tag = ap_isset_post_value( 'ap_tag' );
 
-		$current_filter = ap_get_current_list_filters( 'qtag' );
-		$tags_operator  = ! empty( $wp->query_vars['ap_tags_operator'] ) ? $wp->query_vars['ap_tags_operator'] : 'IN';
-
-		if ( isset( $query['ap_tags'] ) && is_array( $query['ap_tags'] ) ) {
-			$args['tax_query'][] = array(
+		if ( ! empty( $current_tag ) ) {
+			$default['tax_query'][] = array(
 				'taxonomy' => 'question_tag',
-				'field'    => 'slug',
-				'terms'    => $query['ap_tags'],
-				'operator' => $tags_operator,
-			);
-		} elseif ( ! empty( $current_filter ) ) {
-			$args['tax_query'][] = array(
-				'taxonomy' => 'question_tag',
-				'field'    => 'term_id',
-				'terms'    => $current_filter,
-				'operator' => 'IN',
+				'field'    => 'id',
+				'terms'    => [ $current_tag ],
 			);
 		}
 
-		return $args;
-	}
-
-	/**
-	 * Add tags sorting in list filters
-	 *
-	 * @return array
-	 */
-	public function ap_list_filters( $filters ) {
-		global $wp;
-
-		if ( ! isset( $wp->query_vars['ap_tags'] ) ) {
-			$filters['qtag'] = array(
-				'title'    => __( 'Tag', 'anspress-question-answer' ),
-				'search'   => true,
-				'multiple' => true,
-			);
-		}
-
-		if ( 'tags' === ap_current_page() ) {
-			return array(
-				'tags_order' => array(
-					'title' => __( 'Order', 'anspress-question-answer' ),
-				),
-			);
-		}
-
-		return $filters;
-	}
-
-	/**
-	 * Ajax callback for loading order by filter.
-	 *
-	 * @since 4.0.0
-	 */
-	public function load_filter_tag() {
-		$filter = ap_sanitize_unslash( 'filter', 'r' );
-		check_ajax_referer( 'filter_' . $filter, '__nonce' );
-		$search = ap_sanitize_unslash( 'search', 'r', false );
-
-		ap_ajax_json(
-			array(
-				'success'  => true,
-				'items'    => ap_get_tag_filter( $search ),
-				'multiple' => true,
-				'nonce'    => wp_create_nonce( 'filter_' . $filter ),
-			)
-		);
-	}
-
-	/**
-	 * Ajax callback for loading order by filter for tags.
-	 *
-	 * @since 4.0.0
-	 */
-	public function load_filter_tags_order() {
-		$filter = ap_sanitize_unslash( 'filter', 'r' );
-		check_ajax_referer( 'filter_' . $filter, '__nonce' );
-
-		ap_ajax_json(
-			array(
-				'success' => true,
-				'items'   => array(
-					[
-						'key'   => 'tags_order',
-						'value' => 'popular',
-						'label' => __( 'Popular', 'anspress-question-answer' ),
-					],
-					[
-						'key'   => 'tags_order',
-						'value' => 'new',
-						'label' => __( 'New', 'anspress-question-answer' ),
-					],
-					[
-						'key'   => 'tags_order',
-						'value' => 'name',
-						'label' => __( 'Name', 'anspress-question-answer' ),
-					],
-				),
-				'nonce'   => wp_create_nonce( 'filter_' . $filter ),
-			)
-		);
-	}
-
-	/**
-	 * Output active tag in filter
-	 *
-	 * @since 4.0.0
-	 */
-	public function filter_active_tag( $active, $filter ) {
-		$current_filters = ap_get_current_list_filters( 'qtag' );
-
-		if ( ! empty( $current_filters ) ) {
-			$args = array(
-				'hierarchical'  => true,
-				'hide_if_empty' => true,
-				'number'        => 2,
-				'include'       => $current_filters,
-			);
-
-			$terms = get_terms( 'question_tag', $args );
-
-			if ( $terms ) {
-				$active_terms = [];
-				foreach ( (array) $terms as $t ) {
-					$active_terms[] = $t->name;
-				}
-
-				$count      = count( $current_filters );
-				$more_label = sprintf( __( ', %d+', 'anspress-question-answer' ), $count - 2 );
-
-				return ': <span class="ap-filter-active">' . implode( ', ', $active_terms ) . ( $count > 2 ? $more_label : '' ) . '</span>';
-			}
-		}
-	}
-
-	/**
-	 * Output active tags_order in filter
-	 *
-	 * @since 4.1.0
-	 */
-	public function filter_active_tags_order( $active, $filter ) {
-		$tags_order = ap_get_current_list_filters( 'tags_order' );
-		$tags_order = ! empty( $tags_order ) ? $tags_order : 'popular';
-
-		$orders = array(
-			'popular' => __( 'Popular', 'anspress-question-answer' ),
-			'new'     => __( 'New', 'anspress-question-answer' ),
-			'name'    => __( 'Name', 'anspress-question-answer' ),
-		);
-
-		$active = isset( $orders[ $tags_order ] ) ? $orders[ $tags_order ] : '';
-
-		return ': <span class="ap-filter-active">' . $active . '</span>';
+		return $default;
 	}
 
 	/**
@@ -723,6 +573,48 @@ class Tags extends \AnsPress\Singleton {
 		}
 
 		return $posts;
+	}
+
+	/**
+	 * Add tag sorting in list filters.
+	 *
+	 * @return array
+	 */
+	public function sorting_filters( $filters ) {
+		$current_cat = ap_isset_post_value( 'ap_tag' );
+		if ( ! empty( $current_cat ) ) {
+			$tag = get_term_by( 'term_id', $current_cat, 'question_tag' );
+			$filters[] = array(
+				'name'  => 'ap_tag',
+				'label' => $tag->name,
+			);
+		}
+
+		return $filters;
+	}
+
+	/**
+	 * Show category filter dropdown.
+	 *
+	 * @since 4.2.0
+	 */
+	public function sort_filters_col3() {
+		$args = array(
+			'show_option_all' => __( 'All tags', 'anspress-question-answer' ),
+			'hide_empty'      => 1,
+			'selected'        => ap_isset_post_value( 'ap_tag' ),
+			'hierarchical'    => 1,
+			'name'            => 'ap_tag',
+			'id'              => 'ap-filters-tag',
+			'class'           => 'ap-filters-tag',
+			'depth'           => 0,
+			'tab_index'       => 0,
+			'taxonomy'        => 'question_tag',
+			'hide_if_empty'   => false,
+			'value_field'     => 'term_id',
+		);
+
+		wp_dropdown_categories( $args );
 	}
 }
 
