@@ -785,3 +785,24 @@ function get_current_questions_sorting() {
 
 	return 'active';
 }
+
+/**
+ * Get current questions filters.
+ *
+ * @since 4.2.0
+ */
+function get_current_questions_filters() {
+	$filters = [];
+
+	$current_qfilter = get_current_questions_filter();
+
+	if ( 'all' !== $current_qfilter ) {
+		$qfilters = get_questions_filter();
+		$filters[]         = array(
+			'name'  => 'qfilter',
+			'label' => $qfilters[ $current_qfilter ]['label'],
+		);
+	}
+
+	return apply_filters( 'get_current_questions_filters', $filters );
+}

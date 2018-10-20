@@ -37,31 +37,43 @@ namespace AnsPress\Template;
 			 */
 			do_action( 'ap_questions_sort_filters_col1' );
 		?>
-
-
 	</div>
 
 	<?php
-		$current_filter = get_current_questions_filter();
-		$filters        = get_questions_filter();
+		$qfilter         = get_questions_filter();
+		$current_qfilter = get_current_questions_filter();
+		$active_filters  = get_current_questions_filters();
 	?>
 
 	<div class="ap-questions-sorting-col2 ap-display-flex mt-10">
 		<a href="#" class="ap-link-show-filters ap-text-md" data-toggleclassof="#ap-questions-filters" data-classtotoggle="ap-display-none"><?php esc_attr_e( 'Show filters', 'anspress-question-answer' ); ?></a>
 
 		<div class="ap-questions-sorting-active">
-			<?php if ( 'all' !== $current_filter ) : ?>
-				<a href="#" class="ap-active-filter ap-text-md" data-removefilter="qfilter"><i class="apicon-x"></i><?php echo esc_attr( $filters[ $current_filter ]['label'] ); ?></a>
+			<?php if ( ! empty( $active_filters ) ) : ?>
+
+				<?php foreach ( $active_filters as $f ) : ?>
+					<a href="#" class="ap-active-filter ap-text-md" data-removefilter="<?php echo esc_attr( $f['name'] ); ?>"><i class="apicon-x"></i><?php echo esc_attr( $f['label'] ); ?></a>
+				<?php endforeach; ?>
+
 			<?php endif; ?>
+
+			<?php
+				/**
+				 * Action triggered in questions list sorting and filter.
+				 *
+				 * @since 4.2.0
+				 */
+				do_action( 'ap_sorting_filters_active' );
+			?>
 		</div>
 	</div>
 
-	<div id="ap-questions-filters" class="ap-display-none">
+	<div id="ap-questions-filters" class="<?php echo empty( $active_filters ) ? 'ap-display-none' : ''; ?>">
 		<div class="ap-questions-sorting-col3 ap-display-flex mt-10">
 			<select id="questions-filter" name="qfilter">
-			<?php foreach ( $filters as $k => $nav ) : ?>
+			<?php foreach ( $qfilter as $k => $nav ) : ?>
 
-				<option  value="<?php echo esc_attr( $k ); ?>" <?php selected( $current_filter, $k ); ?>>
+				<option  value="<?php echo esc_attr( $k ); ?>" <?php selected( $current_qfilter, $k ); ?>>
 					<?php echo esc_attr( $nav['label'] ); ?>
 
 					<?php if ( ! empty( $nav['count'] ) ) : ?>
@@ -71,6 +83,15 @@ namespace AnsPress\Template;
 
 			<?php endforeach; ?>
 			</select>
+
+			<?php
+				/**
+				 * Action after 3rd column of questions sort-filter.
+				 *
+				 * @since 4.2.0
+				 */
+				do_action( 'ap_questions_sort_filters_col3' );
+			?>
 		</div>
 	</div>
 </form>

@@ -52,13 +52,14 @@ class Categories extends \AnsPress\Singleton {
 		anspress()->add_action( 'save_post_question', $this, 'after_new_question', 0, 2 );
 		anspress()->add_filter( 'ap_breadcrumbs', $this, 'ap_breadcrumbs' );
 		anspress()->add_action( 'terms_clauses', $this, 'terms_clauses', 10, 3 );
-		anspress()->add_filter( 'ap_list_filters', $this, 'ap_list_filters' );
+		anspress()->add_filter( 'get_current_questions_filters', $this, 'sorting_filters' );
+		anspress()->add_action( 'ap_questions_sort_filters_col3', $this, 'sort_filters_col3' );
 		anspress()->add_action( 'question_category_add_form_fields', $this, 'image_field_new' );
 		anspress()->add_action( 'question_category_edit_form_fields', $this, 'image_field_edit' );
 		anspress()->add_action( 'create_question_category', $this, 'save_image_field' );
 		anspress()->add_action( 'edited_question_category', $this, 'save_image_field' );
 		anspress()->add_action( 'ap_rewrites', $this, 'rewrite_rules', 10, 3 );
-		anspress()->add_filter( 'ap_main_questions_args', $this, 'ap_main_questions_args' );
+		anspress()->add_filter( 'ap_get_questions_default_args', $this, 'questions_args' );
 		anspress()->add_filter( 'ap_question_subscribers_action_id', $this, 'subscribers_action_id' );
 		anspress()->add_filter( 'ap_ask_btn_link', $this, 'ap_ask_btn_link' );
 		// anspress()->add_filter( 'ap_canonical_url', $this, 'ap_canonical_url' );
@@ -67,10 +68,6 @@ class Categories extends \AnsPress\Singleton {
 		anspress()->add_filter( 'manage_question_category_custom_column', $this, 'column_content', 10, 3 );
 		anspress()->add_filter( 'ap_current_page', $this, 'ap_current_page' );
 		anspress()->add_action( 'posts_pre_query', $this, 'modify_query_category_archive', 9999, 2 );
-
-		// List filtering.
-		anspress()->add_action( 'ap_ajax_load_filter_category', $this, 'load_filter_category' );
-		anspress()->add_filter( 'ap_list_filter_active_category', $this, 'filter_active_category', 10, 2 );
 
 		anspress()->add_action( 'widgets_init', $this, 'widget' );
 	}
@@ -503,22 +500,43 @@ class Categories extends \AnsPress\Singleton {
 	/**
 	 * Add category sorting in list filters.
 	 *
-	 * @param array $filters Filters.
 	 * @return array
 	 */
-	public function ap_list_filters( $filters ) {
-		global $wp;
-
-		if ( ! isset( $wp->query_vars['ap_categories'] ) && ! is_question_category() ) {
-			$filters['category'] = array(
-				'title'    => __( 'Category', 'anspress-question-answer' ),
-				'items'    => [],
-				'search'   => true,
-				'multiple' => true,
+	public function sorting_filters( $filters ) {
+		$current_cat = ap_isset_post_value( 'ap_cat' );
+		if ( ! empty( $current_cat ) ) {
+			$cat = get_term_by( 'term_id', $current_cat, 'question_category' );
+			$filters[] = array(
+				'name'  => 'ap_cat',
+				'label' => $cat->name,
 			);
 		}
 
 		return $filters;
+	}
+
+	/**
+	 * Show category filter dropdown.
+	 *
+	 * @since 4.2.0
+	 */
+	public function sort_filters_col3() {
+		$args = array(
+			'show_option_all' => __( 'All categories', 'anspress-question-answer' ),
+			'hide_empty'      => 1,
+			'selected'        => ap_isset_post_value( 'ap_cat' ),
+			'hierarchical'    => 1,
+			'name'            => 'ap_cat',
+			'id'              => 'ap-filters-cat',
+			'class'           => 'ap-filters-cat',
+			'depth'           => 0,
+			'tab_index'       => 0,
+			'taxonomy'        => 'question_category',
+			'hide_if_empty'   => false,
+			'value_field'     => 'term_id',
+		);
+
+		wp_dropdown_categories( $args );
 	}
 
 	/**
@@ -711,32 +729,21 @@ class Categories extends \AnsPress\Singleton {
 	/**
 	 * Filter main questions query args. Modify and add category args.
 	 *
-	 * @param  array $args Questions args.
+	 * @param  array $default Questions args.
 	 * @return array
 	 */
-	public function ap_main_questions_args( $args ) {
-		global $wp;
-		$query = $wp->query_vars;
+	public function questions_args( $default ) {
+		$current_cat = ap_isset_post_value( 'ap_cat' );
 
-		$categories_operator = ! empty( $wp->query_vars['ap_categories_operator'] ) ? $wp->query_vars['ap_categories_operator'] : 'IN';
-		$current_filter      = ap_get_current_list_filters( 'category' );
-
-		if ( isset( $query['ap_categories'] ) && is_array( $query['ap_categories'] ) ) {
-			$args['tax_query'][] = array(
+		if ( ! empty( $current_cat ) ) {
+			$default['tax_query'][] = array(
 				'taxonomy' => 'question_category',
-				'field'    => 'slug',
-				'terms'    => $query['ap_categories'],
-				'operator' => $categories_operator,
-			);
-		} elseif ( ! empty( $current_filter ) ) {
-			$args['tax_query'][] = array(
-				'taxonomy' => 'question_category',
-				'field'    => 'term_id',
-				'terms'    => explode( ',', sanitize_comma_delimited( $current_filter ) ),
+				'field'    => 'id',
+				'terms'    => [ $current_cat ],
 			);
 		}
 
-		return $args;
+		return $default;
 	}
 
 	/**
@@ -798,58 +805,6 @@ class Categories extends \AnsPress\Singleton {
 		if ( is_question_category() ) {
 			$question_category = get_queried_object();
 			echo '<link href="' . esc_url( home_url( 'feed' ) ) . '?post_type=question&question_category=' . esc_url( $question_category->slug ) . '" title="' . esc_attr__( 'Question category feed', 'anspress-question-answer' ) . '" type="application/rss+xml" rel="alternate">';
-		}
-	}
-
-	/**
-	 * Ajax callback for loading order by filter.
-	 *
-	 * @since 4.0.0
-	 */
-	public function load_filter_category() {
-		$filter = ap_sanitize_unslash( 'filter', 'r' );
-		check_ajax_referer( 'filter_' . $filter, '__nonce' );
-
-		$search = (string) ap_sanitize_unslash( 'search', 'r', false );
-		ap_ajax_json(
-			array(
-				'success'  => true,
-				'items'    => ap_get_category_filter( $search ),
-				'multiple' => true,
-				'nonce'    => wp_create_nonce( 'filter_' . $filter ),
-			)
-		);
-	}
-
-	/**
-	 * Output active category in filter
-	 *
-	 * @since 4.0.0
-	 */
-	public function filter_active_category( $active, $filter ) {
-		$current_filters = ap_get_current_list_filters( 'category' );
-
-		if ( ! empty( $current_filters ) ) {
-			$args = array(
-				'hierarchical'  => true,
-				'hide_if_empty' => true,
-				'number'        => 2,
-				'include'       => $current_filters,
-			);
-
-			$terms = get_terms( 'question_category', $args );
-
-			if ( $terms ) {
-				$active_terms = [];
-				foreach ( (array) $terms as $t ) {
-					$active_terms[] = $t->name;
-				}
-
-				$count      = count( $current_filters );
-				$more_label = sprintf( __( ', %d+', 'anspress-question-answer' ), $count - 2 );
-
-				return ': <span class="ap-filter-active">' . implode( ', ', $active_terms ) . ( $count > 2 ? $more_label : '' ) . '</span>';
-			}
 		}
 	}
 

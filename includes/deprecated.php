@@ -539,7 +539,7 @@ class Answers_Query extends WP_Query {
  * @since  4.0.0
  * @deprecated 4.2.0
  *
- * @todo Replace all calls with ap_get_current_list_filters()
+ * @todo Deprecate this.
  */
 function ap_get_current_list_filters( $filter = null ) {
 	_deprecated_function( __FUNCTION__, '4.2.0', 'AnsPress\Template\get_current_questions_sorting()');

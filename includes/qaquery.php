@@ -841,6 +841,13 @@ function ap_get_questions( $args = '' ) {
 		$default['s'] = $search_str;
 	}
 
+	/**
+	 * Filter for overriding default arguments of `ap_get_questions`.
+	 *
+	 * @since 4.2.0
+	 */
+	$default = apply_filters( 'ap_get_questions_default_args', $default );
+
 	// Parse arguments against default values
 	$r = wp_parse_args( $args, $default );
 

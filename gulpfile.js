@@ -1,35 +1,17 @@
-/**
-* Configuration.
-*
-* Project Configuration for gulp tasks.
-*
-* In paths you can add <<glob or array of globs>>. Edit the variables as per your project requirements.
-*/
-
-var projectURL              = 'anspress.local';
-
-
-// Style related.
-var styleSRC                = './assets/css/style.scss'; // Path to main .scss file.
-var styleDestination        = './'; // Path to place the compiled CSS file.
-// Default set to root folder.
-
-// JS Vendor related.
-var jsVendorSRC             = './assets/js/vendor/*.js'; // Path to JS vendor folder.
-var jsVendorDestination     = './assets/js/'; // Path to place the compiled JS vendors file.
-var jsVendorFile            = 'vendors'; // Compiled JS vendors file name.
-// Default set to vendors i.e. vendors.js.
-
-
 // Images related.
-var imagesSRC               = './assets/img/raw/**/*.{png,jpg,gif,svg}'; // Source folder of images which should be optimized.
+var imagesSRC               = './assets/**/*.{png,jpg,gif,svg}'; // Source folder of images which should be optimized.
 var imagesDestination       = './assets/img/'; // Destination folder of optimized images. Must be different from the imagesSRC folder.
 
 // Watch files paths.
-var styleWatchFiles         = '**/*.scss'; // Path to all *.scss files inside css folder and inside them.
-var vendorJSWatchFiles      = './assets/js/vendor/*.js'; // Path to all vendor JS files.
-var projectPHPWatchFiles    = './**/*.php'; // Path to all PHP files.
-
+var styleWatchFiles         = [ './templates/scss/**/*.scss' ]; // Path to all *.scss files inside css folder and inside them.
+var projectPHPWatchFiles    = [
+  './includes/**/*.php',
+  './addons/**/*.php',
+  './admin/**/*.php',
+  './templates/**/*.php',
+  './classes/**/*.php',
+  './ajax/**/*.php'
+];
 
 // Browsers you care about for autoprefixing.
 // Browserlist https        ://github.com/ai/browserslist
@@ -127,21 +109,6 @@ gulp.task('styles', function () {
   //.pipe( notify( { message: 'TASK: "styles" Completed! 💯', onLast: true } ) )
 });
 
-gulp.task( 'vendorsJs', function() {
-  gulp.src( jsVendorSRC )
-  .pipe( concat( jsVendorFile + '.js' ) )
-  .pipe( lineec() ) // Consistent Line Endings for non UNIX systems.
-  .pipe( gulp.dest( jsVendorDestination ) )
-  .pipe( rename( {
-    basename: jsVendorFile,
-    suffix: '.min'
-  }))
-  .pipe( uglify() )
-  .pipe( lineec() ) // Consistent Line Endings for non UNIX systems.
-  .pipe( gulp.dest( jsVendorDestination ) )
-  .pipe( notify( { message: 'TASK: "vendorsJs" Completed! 💯', onLast: true } ) );
-});
-
 gulp.task( 'images', function() {
   gulp.src( imagesSRC )
   .pipe( imagemin( {
@@ -168,8 +135,7 @@ gulp.task( 'translate', function () {
 
 });
 
-gulp.task( 'default', ['styles', 'vendorsJs', 'images', 'browser-sync'], function () {
+gulp.task( 'default', ['styles', 'browser-sync'], function () {
   gulp.watch( projectPHPWatchFiles, reload ); // Reload on PHP file changes.
   gulp.watch( styleWatchFiles, [ 'styles' ] ); // Reload on SCSS file changes.
-  gulp.watch( vendorJSWatchFiles, [ 'vendorsJs', reload ] ); // Reload on vendorsJs file changes.
 });
