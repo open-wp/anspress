@@ -6,6 +6,13 @@
  * @since 4.0.0
  */
 
+// Bail if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+use AnsPress\Template;
+
 /**
  * Query hooks
  */
@@ -42,25 +49,24 @@ class AP_QA_Query_Hooks {
 				$sql['where'] = $sql['where'] . $wpdb->prepare( " AND {$wpdb->posts}.post_author = %d", $wp_query->query['author'] );
 			}
 
-			$ap_order_by  = isset( $wp_query->query['ap_order_by'] ) ? $wp_query->query['ap_order_by'] : 'active';
-			$answer_query = isset( $wp_query->query['ap_answers_query'] );
+			$query_sorting = isset( $wp_query->query['ap_order_by'] ) ? $wp_query->query['ap_order_by'] : 'active';
+			$query_filter  = isset( $wp_query->query['ap_filter_by'] ) ? $wp_query->query['ap_filter_by'] : 'all';
+			$answer_query  = isset( $wp_query->query['ap_answers_query'] );
 
-			if ( 'answers' === $ap_order_by && ! $answer_query ) {
-				$sql['orderby'] = 'IFNULL(qameta.answers, 0) DESC, ' . $sql['orderby'];
-			} elseif ( 'views' === $ap_order_by && ! $answer_query ) {
-				$sql['orderby'] = 'IFNULL(qameta.views, 0) DESC, ' . $sql['orderby'];
-			} elseif ( 'unanswered' === $ap_order_by && ! $answer_query ) {
-				$sql['orderby'] = 'IFNULL(qameta.answers, 0) ASC,' . $sql['orderby'];
-			} elseif ( 'voted' === $ap_order_by ) {
-				$sql['orderby'] = 'CASE WHEN IFNULL(votes_net, 0) >= 0 THEN 1 ELSE 2 END ASC, ABS(votes_net) DESC, ' . $sql['orderby'];
-			} elseif ( 'unsolved' === $ap_order_by && ! $answer_query ) {
-				$sql['orderby'] = "if( qameta.selected_id = '' or qameta.selected_id is null, 1, 0 ) DESC," . $sql['orderby'];
-			} elseif ( 'oldest' === $ap_order_by ) {
-				$sql['orderby'] = "{$wpdb->posts}.post_date ASC";
-			} elseif ( 'newest' === $ap_order_by ) {
-				$sql['orderby'] = "{$wpdb->posts}.post_date DESC";
-			} else {
-				$sql['orderby'] = 'qameta.last_updated DESC ';
+			if ( ! empty( $query_sorting ) ) {
+				$sorting  = Template\get_questions_sorting();
+				$order_by = isset( $sorting[ $query_sorting ] ) ? $sorting[ $query_sorting ]['sql'] : $sorting['active']['sql'];
+
+				$sql['orderby'] = sprintf( $order_by, $wpdb->posts, $wpdb->ap_qameta );
+			}
+
+			if ( ! empty( $query_filter ) ) {
+				$filter    = Template\get_questions_filter();
+				$filter_by = isset( $filter[ $query_filter ] ) ? $filter[ $query_filter ]['sql'] : '';
+
+				if ( 'all' !== $query_filter && ! empty( $filter_by ) ) {
+					$sql['where'] = $sql['where'] . ' AND(' . sprintf( $filter_by, $wpdb->posts, $wpdb->ap_qameta ) . ')';
+				}
 			}
 
 			// Keep featured posts on top.

@@ -1,5 +1,43 @@
 (function($){
+    AnsPress = AnsPress||{};
+    AnsPress.theme = {
+        events: {
+            'click [data-toggleclassof]': 'toggleClassOf',
+            'change [name="questionFilters"]': 'questionFilters',
+            'click [data-removefilter]': 'removeFilter'
+        },
+
+        bindEvents: function() {
+            $.each(AnsPress.theme.events, function(event, fn){
+
+                event = event.split(' ');
+                if(event.length<2)
+                    return console.log('AnsPress: Selector missing for ' + event[0]);
+
+                $('body').on( event[0], event[1], AnsPress.theme[fn] );
+            })
+        },
+        toggleClassOf: function(e) {
+            e.preventDefault();
+            var elm = $($(this).attr('data-toggleclassof'));
+            var klass = $(this).attr('data-classtotoggle');
+            elm.toggleClass(klass);
+        },
+        questionFilters: function(){
+            $(this).submit();
+        },
+        removeFilter: function(e){
+            e.preventDefault();
+            var removefilter = $(this).attr('data-removefilter');
+            $('[name='+removefilter+']').val('');
+            $(this).closest('form').submit();
+            $(this).remove();
+        }
+    }
+
     $(document).ready(function () {
+        AnsPress.theme.bindEvents();
+
         $('textarea.autogrow, textarea#post_content').autogrow({
             onInitialize: true
         });

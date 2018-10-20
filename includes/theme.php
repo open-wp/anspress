@@ -578,7 +578,7 @@ function ap_current_page( $looking_for = false ) {
  * @return array
  */
 function ap_assets() {
-	wp_register_script( 'selectize', ANSPRESS_URL . 'assets/js/min/selectize.min.js', [ 'jquery' ] );
+	wp_register_script( 'selectize', ANSPRESS_URL . 'assets/js/selectize.js', [ 'jquery' ] );
 
 	$assets = array(
 		'js'  => array(
@@ -594,6 +594,7 @@ function ap_assets() {
 				'theme'  => true,
 				'dep'    => [ 'anspress-main' ],
 				'footer' => true,
+				'active' => true,
 			],
 		),
 		'css' => array(
@@ -624,12 +625,13 @@ function ap_assets() {
  * Enqueue AnsPress assets.
  *
  * @since 2.4.6
+ * @todo Delete minified JS
  */
 function ap_enqueue_scripts() {
 	$assets = ap_assets();
 
 	foreach ( (array) $assets['js'] as $k => $js ) {
-		$src = '/min/' . $k . '.min.js';
+		$src = '/' . $k . '.js';
 
 		$src = ! empty( $js['theme'] ) ? ap_get_theme_url( 'js' . $src, false, false ) : ANSPRESS_URL . 'assets/js' . $src;
 

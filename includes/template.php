@@ -485,62 +485,63 @@ function get_answers_active_tab() {
 /**
  * Questions tab links.
  *
- * @param string|boolean $base Current page url.
  * @since 4.2.0
  */
-function get_questions_tab_links( $base = false ) {
-	if ( false === $base ) {
-		$base = get_permalink();
-	}
-
+function get_questions_filter() {
 	$links = [];
 
 	$links['all'] = array(
-		'link'  => add_query_arg( [ 'tab' => 'all' ], $base ),
-		'title' => __( 'All', 'anspress-question-answer' ),
+		'label' => __( 'All', 'anspress-question-answer' ),
+		'sql'   => '',
 	);
 
 	$links['solved'] = array(
-		'link'  => add_query_arg( [ 'tab' => 'solved' ], $base ),
-		'title' => __( 'Solved', 'anspress-question-answer' ),
+		'label' => __( 'Solved', 'anspress-question-answer' ),
+		'sql'   => 'IFNULL(qameta.selected_id, 0) > 0',
+	);
+
+	$links['unsolved'] = array(
+		'label' => __( 'Unsolved', 'anspress-question-answer' ),
+		'sql'   => 'IFNULL(qameta.selected_id, 0) < 1',
 	);
 
 	$links['unanswered'] = array(
-		'link'  => add_query_arg( [ 'tab' => 'unanswered' ], $base ),
-		'title' => __( 'Unanswered', 'anspress-question-answer' ),
+		'label' => __( 'Unanswered', 'anspress-question-answer' ),
+		'sql'   => 'qameta.answers < 1',
 	);
 
 	// Show unpublished answers tab.
 	$unpublished_posts = ap_get_unpublished_post_count( 'question', get_current_user_id(), get_question_id() );
 	if ( is_user_logged_in() && $unpublished_posts > 0 ) {
 		$links['unpublished'] = array(
-			'link'  => add_query_arg( [ 'tab' => 'unpublished' ], $base ),
-			'title' => __( 'Unpublished', 'anspress-question-answer' ),
+			'label' => __( 'Unpublished', 'anspress-question-answer' ),
 			'count' => $unpublished_posts,
+			'sql' => '',
 		);
 	}
 
 	/**
-	 * Questions tabs links.
+	 * Questions filter links.
 	 *
 	 * @param array $links Questions link.
 	 * @since 4.2.0
 	 */
-	return apply_filters( 'ap_get_questions_tab_links', $links );
+	return apply_filters( 'ap_get_questions_filter', $links );
 }
 
 /**
- * Get active tab slug of answers.
+ * Get current filter of questions.
  *
  * @return void
  * @since 4.2.0
+ * @todo Add `qfilter` to options. Previous option was `qtab`.
  */
-function get_questions_active_tab() {
-	$active = ap_isset_post_value( 'qtab', ap_opt( 'qtab' ) );
-	$tab    = get_questions_tab_links();
+function get_current_questions_filter() {
+	$active = ap_isset_post_value( 'qfilter' );
+	$tab    = get_questions_filter();
 
 	// Check if tab exists.
-	if ( empty( $tab[ $active ] ) ) {
+	if ( ! isset( $tab[ $active ] ) ) {
 		$active = 'all';
 	}
 
@@ -549,7 +550,7 @@ function get_questions_active_tab() {
 	 *
 	 * @param string $active Currently active tab sub.
 	 */
-	return apply_filters( 'ap_get_questions_active_tab', $active );
+	return apply_filters( 'get_current_questions_filter', $active );
 }
 
 /**
@@ -737,23 +738,23 @@ function get_questions_sorting() {
 	$arr = array(
 		'active' => [
 			'label' => __( 'Active', 'anspress-question-answer' ),
-			'order_by' => '',
+			'sql'   => 'qameta.last_updated DESC',
 		],
 		'answers' => [
 			'label' => __( 'Answers', 'anspress-question-answer' ),
-			'order_by' => '',
+			'sql'   => 'IFNULL(qameta.answers, 0) DESC',
 		],
 		'votes' => [
 			'label' => __( 'Votes', 'anspress-question-answer' ),
-			'order_by' => '',
+			'sql'   => 'CASE WHEN IFNULL(votes_net, 0) >= 0 THEN 1 ELSE 2 END ASC, ABS(votes_net) DESC',
 		],
 		'published' => [
 			'label' => __( 'Published', 'anspress-question-answer' ),
-			'order_by' => '',
+			'sql'   => '%1$s.post_date DESC',
 		],
 		'views' => [
 			'label' => __( 'Views', 'anspress-question-answer' ),
-			'order_by' => '',
+			'sql'   => 'IFNULL(qameta.views, 0) DESC',
 		],
 	);
 
@@ -761,30 +762,26 @@ function get_questions_sorting() {
 }
 
 /**
- * Get current sorting and filters of questions.
+ * Get current sorting of questions.
  *
- * @return void
+ * @return string
  * @since 4.2.0
  */
-function get_question_filters( $filter = null ) {
-	$filters = ap_isset_post_value( 'question_filters', [] );
-	$filters = wp_parse_args( $filters, array(
-		'search'   => '',
-		'tab'      => 'all',
-		'order_by' => 'active',
-	) );
+function get_current_questions_sorting() {
+	$current = ap_sanitize_unslash( ap_isset_post_value( 'qsort' ) );
+	$sorting = get_questions_sorting();
 
 	/**
-	 * Current filters applied to question query.
+	 * Current question sorting.
 	 *
 	 * @param string $filters Current filters.
 	 * @since 4.2.0
 	 */
-	$filters = apply_filters( 'ap_question_filters', $filters );
-	var_dump( $filters[ $filter ] );
-	if ( null !== $filter && isset( $filters[ $filter ] ) ) {
-		return ap_sanitize_unslash( $filters[ $filter ] );
+	$current = apply_filters( 'get_current_questions_sorting', $current );
+
+	if ( ! empty( $current ) && isset( $sorting[ $current ] ) ) {
+		return $current;
 	}
 
-	return $filters;
+	return 'active';
 }

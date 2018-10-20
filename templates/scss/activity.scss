@@ -38,7 +38,7 @@
 				flex-shrink: 0;
 				flex-basis: 60px;
 				i{
-					border: solid 1px #d1d8ff;
+					border: solid 1px var( --ap_border-color );
 					display: block;
 					width: 30px;
 					height: 30px;
@@ -61,7 +61,7 @@
 			}
 
 			> .ap-activity-right{
-				border-bottom: solid 1px #eee;
+				border-bottom: solid 1px var( --ap_border-color );
 				padding-bottom: 20px;
 				margin-bottom: 20px;
 			}

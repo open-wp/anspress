@@ -531,3 +531,42 @@ class Answers_Query extends WP_Query {
 	}
 }
 
+/**
+ * Get active list filter by filter key.
+ *
+ * @param  string|null $filter  Filter key.
+ * @return false|string|array
+ * @since  4.0.0
+ * @deprecated 4.2.0
+ *
+ * @todo Replace all calls with ap_get_current_list_filters()
+ */
+function ap_get_current_list_filters( $filter = null ) {
+	_deprecated_function( __FUNCTION__, '4.2.0', 'AnsPress\Template\get_current_questions_sorting()');
+
+	$get_filters = [];
+	$filters     = array_keys( ap_get_list_filters() );
+
+	if ( in_array( 'order_by', $filters, true ) ) {
+		$get_filters['order_by'] = ap_opt( 'question_order_by' );
+	}
+
+	if ( empty( $filters ) || ! is_array( $filters ) ) {
+		$filters = [];
+	}
+
+	foreach ( (array) $filters as $k ) {
+		$val = ap_isset_post_value( $k );
+
+		if ( ! empty( $val ) ) {
+			$get_filters[ $k ] = $val;
+		}
+	}
+
+	if ( null !== $filter ) {
+		return ! isset( $get_filters[ $filter ] ) ? null : $get_filters[ $filter ];
+	}
+
+	return $get_filters;
+}
+

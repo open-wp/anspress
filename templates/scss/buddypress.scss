@@ -1,15 +1,15 @@
 #anspress{
   .best-answer .ap-bpsingle, .answer-selected .ap-bpsingle{
-    border-color: #cce4c8;
+    border-color: var( --ap_border-color );
   }
   .ap-bpsingle{
     border-radius: 2px;
     margin-bottom: 30px;
-    border: solid 1px #ddd;
+    border: solid 1px var( --ap_border-color );
     &-title{
       padding: 5px 10px;
       font-size: 13px;
-      border-bottom: solid 1px #eee;
+      border-bottom: solid 1px var( --ap_border-color );
       margin-bottom: 10px;
       > a{
         text-decoration: none;
@@ -19,7 +19,7 @@
     }
     &-acount {
       margin-left: 10px;
-      border-left: solid 1px #ddd;
+      border-left: solid 1px var( --ap_border-color );
       padding-left: 10px;
       font-size: 13px;
       text-decoration: none;
@@ -37,7 +37,7 @@
     &-meta {
       font-size: 13px;
       color: #888;
-      border-top: solid 1px #eee;
+      border-top: solid 1px var( --ap_border-color );
       padding: 5px 10px;
       margin-top: 10px;
       > *{
@@ -77,7 +77,7 @@
     display: table;
   }
   .ap-bp-head{
-    border-bottom: solid 1px #ddd;
+    border-bottom: solid 1px var( --ap_border-color );
     margin-bottom: 25px;
     padding-bottom: 10px;
     h1{

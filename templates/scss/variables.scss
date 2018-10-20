@@ -21,36 +21,39 @@ $color9:  #F4AC20;
 //Font
 
 $default-font-size: 14px;
-$medium-font-size: 12px;
-$count-font-size: 19px;
-$list-font-size: 14px;
-$meta-font-size: 13px;
+$medium-font-size : 12px;
+$count-font-size  : 19px;
+$list-font-size   : 14px;
+$meta-font-size   : 13px;
 
-$bold : 600;
-$font-size-post-content: 13px;
+$bold                    : 600;
+$font-size-post-content  : 13px;
 $line-height-post-content: 1.6;
 
 //Border variables
-$border-color: rgba(0, 0, 0, 0.1);
+$border-color: rgba(0, 0, 0, 0.15);
 
 //Border radius
-$border-radius : 4px;
+$border-radius       : 4px;
 $avatar-border-radius: 0;
-$user-nav-width: 200px;
+$user-nav-width      : 200px;
 
 $anspress-vars: () !default;
 $anspress-vars: map-merge((
-  "color1":    $color1,
-  "color2":    $color2,
-  "color3":    $color3,
-  "color4":    $color4,
-  "color5":    $color5,
-  "color6":    $color6,
-  "color7":    $color7,
-  "color8":    $color8,
-  "color9":    $color9,
-  "border-radius":    $border-radius,
-  "border-color":    $border-color,
+  "color1"       : $color1,
+  "color2"       : $color2,
+  "color3"       : $color3,
+  "color4"       : $color4,
+  "color5"       : $color5,
+  "color6"       : $color6,
+  "color7"       : $color7,
+  "color8"       : $color8,
+  "color9"       : $color9,
+  "border-radius": $border-radius,
+  "border-color" : $border-color,
+  "btn-hover"    : rgba(0, 0, 0, 0.05),
+  "fs-md"    : .88rem,
+  "fs-sm"    : .78rem,
 ), $anspress-vars);
 
 $space-breaks: (

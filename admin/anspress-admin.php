@@ -1416,9 +1416,9 @@ class AnsPress_Admin {
 				apShowComments  = false;
 			</script>
 		<?php
-		wp_enqueue_script( 'selectize', ANSPRESS_URL . 'assets/js/min/selectize.min.js', [ 'jquery' ], AP_VERSION );
-		wp_enqueue_script( 'anspress-main', ANSPRESS_URL . 'assets/js/min/main.min.js', [ 'jquery', 'jquery-form', 'backbone', 'underscore' ], AP_VERSION );
-		wp_enqueue_script( 'anspress-admin-js', ANSPRESS_URL . 'assets/js/min/ap-admin.min.js', [ 'anspress-main' ], AP_VERSION, true );
+		wp_enqueue_script( 'selectize', ANSPRESS_URL . 'assets/js/selectize.js', [ 'jquery' ], AP_VERSION );
+		wp_enqueue_script( 'anspress-main', ANSPRESS_URL . 'assets/js/main.js', [ 'jquery', 'jquery-form', 'backbone', 'underscore' ], AP_VERSION );
+		wp_enqueue_script( 'anspress-admin-js', ANSPRESS_URL . 'assets/js/ap-admin.js', [ 'anspress-main' ], AP_VERSION, true );
 
 		$addon     = ap_get_addon( ap_sanitize_unslash( 'addon', 'r' ) );
 		$from_args = array(

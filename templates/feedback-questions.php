@@ -9,6 +9,8 @@
 
 namespace AnsPress\Template;
 
+$search_str = ap_isset_post_value( 'question_s' );
+
 ?>
 <div class="ap-feedback ap-feedback-questions">
 
@@ -21,6 +23,18 @@ namespace AnsPress\Template;
 			<div>
 				<strong class="ap-feedback-title"><?php esc_attr_e( 'You are not allowed to read questions!', 'anspress-question-answer' ); ?></strong>
 				<p class="mb-0 ap-feedback-msg"><?php esc_attr_e( 'You don\'t have enough permission to read the questions of this site.', 'anspress-question-answer' ); ?></p>
+			</div>
+		</div>
+
+	<?php elseif ( ! empty( $search_str ) ) : ?>
+
+		<div class="ap-display-flex align-item-center">
+			<i class="ap-feedback-icon apicon-search ap-text-muted"></i>
+			<div>
+				<strong class="ap-feedback-title"><?php esc_attr_e( 'No questions found matching your query.', 'anspress-question-answer' ); ?></strong>
+				<p class="mb-0 ap-feedback-msg">
+					<?php esc_attr_e( 'Try removing filters or try with differnt search term ', 'anspress-question-answer' ); ?>
+				</p>
 			</div>
 		</div>
 

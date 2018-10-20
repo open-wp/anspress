@@ -18,10 +18,10 @@ namespace AnsPress\Template;
 
 <div class="ap-row">
 	<div id="ap-lists" class="<?php echo is_active_sidebar( 'ap-sidebar' ) ? 'ap-col-9' : 'ap-col-12'; ?>">
-
-		<?php if ( ! get_query_var( 'ap_hide_list_head' ) ) : ?>
-			<?php ap_get_template_part( 'list-head' ); ?>
-		<?php endif; ?>
+		<?php
+			// Questions sort and filter.
+			ap_get_template_part( 'questions-sort-filters' );
+		?>
 
 		<?php if ( ap_get_questions() ) : ?>
 

@@ -16,7 +16,7 @@
   }
   .ap-user-posts-vcount {
     background: none repeat scroll 0 0 #ffffff;
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    border: 1px solid var( --ap_border-color );
     border-radius: 2px;
     color: #333333;
     display: block;

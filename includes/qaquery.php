@@ -804,17 +804,20 @@ function ap_get_answers( $args = '' ) {
  * @param string|array $args Arguments.
  * @return boolean
  * @since 4.2.0
+ *
+ * @todo Migrate old private_post
  */
 function ap_get_questions( $args = '' ) {
 	global $wp_rewrite;
 
-	$paged    = (int) max( 1, get_query_var( 'paged', 1 ) );
-	$order_by = ap_get_current_list_filters( 'order_by', 'active' );
-	$status   = [ 'publish', 'private' ];
+	$paged     = (int) max( 1, get_query_var( 'paged', 1 ) );
+	$order_by  = Template\get_current_questions_sorting();
+	$filter_by = Template\get_current_questions_filter();
+	$status    = [ 'publish', 'private' ];
 
 	// Default query args
 	$default = array(
-		'paged'                  => $paged, // On this page
+		'paged'                  => $paged,
 		'ignore_sticky_posts'    => true,
 		'ap_query'               => true,
 		'ap_current_user_ignore' => false,
@@ -822,8 +825,21 @@ function ap_get_questions( $args = '' ) {
 		'posts_per_page'         => ap_opt( 'question_per_page' ),
 		'post_status'            => $status,
 		'ap_order_by'            => $order_by,
+		'ap_filter_by'           => 'all',
 		'perm'                   => 'readable',
 	);
+
+	if ( 'unpublished' === $filter_by ) {
+		$default['post_status'] = [ 'moderate', 'trash', 'future' ];
+	} else {
+		$default['ap_filter_by'] = $filter_by;
+	}
+
+	// Search string.
+	$search_str = ap_isset_post_value( 'question_s' );
+	if ( ! empty( $search_str ) ) {
+		$default['s'] = $search_str;
+	}
 
 	// Parse arguments against default values
 	$r = wp_parse_args( $args, $default );

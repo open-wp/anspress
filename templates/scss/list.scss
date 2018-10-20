@@ -129,111 +129,6 @@
 			margin-right: 5px;
 		}
 	}
-	.ap-list-head{
-		padding: 15px 15px 5px 15px;
-		border: solid 1px #ddd;
-		margin-bottom: 10px;
-		.ap-btn-ask{
-			background: $color1;
-			border-radius: 2px;
-			color: #fff;
-			float: right;
-			font-size: 14px;
-			font-weight: bold;
-			height: 36px;
-			margin-left: 15px;
-			padding: 7px 20px;
-			text-decoration: none;
-			&:visited{
-				color: #fff;
-			}
-		}
-		.ap-filters {
-			margin-top: 15px;
-		}
-	}
-	.ap-filter{
-		&s .ap-dropdown{
-			margin-right: 15px;
-			float: left;
-			display: block;
-			&-menu{
-				min-width: 140px;
-			}
-		}
-		&-toggle{
-			color: $color1;
-			text-decoration: none;
-			font-weight: bold;
-			font-size: 13px;
-			padding: 0;
-			display: block;
-		}
-		&-active{
-			font-weight: normal;
-			color: $color5;
-		}
-		input[type="checkbox"],input[type="radio"]{
-			display: none;
-		}
-
-		label{
-			display: block;
-			padding: 4px;
-    	font-size: 12px;
-			i{
-				color: #fff;
-				border-radius: 2px;
-				margin-right: 10px;
-				background: #eee;
-				height: 16px;
-				display: block;
-				float: left;
-				padding: 1px;
-				font-size: 10px;
-				width: 16px;
-				text-align: center;
-				line-height: 16px;
-				&[class^="apicon-"]:before, [class*=" apicon-"]:before{
-					visibility: hidden;
-				}
-			}
-		}
-		li{
-			padding: 0 5px;
-		}
-		input[type="checkbox"]:checked + .apicon-check, input[type="radio"]:checked + .apicon-check{
-			background: $color1;
-			&[class^="apicon-"]:before, [class*=" apicon-"]:before{
-				visibility: visible;
-			}
-		}
-		&-search{
-			padding: 7px 10px;
-			border-bottom: solid 1px #ddd;
-			border-radius: 2px 2px 0 0;
-			margin-bottom: 5px;
-			margin-top: -4px;
-			background: #f7f7f7;
-		}
-	}
-	#ap-filter-reset {
-		background: none;
-		border: none;
-		padding: 3px;
-		color: #888;
-		display: block;
-
-		&:focus, &:active{
-			outline: none;
-		}
-		i{
-			display: block;
-			float: left;
-			font-size: 14px;
-			margin-right: 4px;
-		}
-	}
 
 	.ap-pagging-warning {
     background: #FFF8E1;
@@ -262,4 +157,38 @@
 	margin-right: 8px;
 	padding: 4px 8px;
 	display: none;
+}
+#questions-filter{
+}
+
+.ap-questions{
+
+	&-search{
+		position: relative;
+		margin-left: auto;
+		&b{
+			position: absolute;
+			right: 0;
+			top: 0;
+			background: #fff;
+			border-radius: 0 var( --ap_border-radius ) var( --ap_border-radius ) 0;
+		}
+	}
+	&-sorting{
+		&-active{
+			a{
+				margin-left: 10px;
+				background: #eee;
+				padding: 3px 5px;
+				border-radius: var(--ap_border-radius);
+				i{
+					color: #aaa;
+					margin-right: 5px;
+				}
+			}
+		}
+		&-col2{
+			justify-content: space-between;
+		}
+	}
 }

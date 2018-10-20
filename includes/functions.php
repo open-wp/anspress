@@ -1082,40 +1082,6 @@ function ap_isset_post_value( $var, $default = '' ) {
 }
 
 /**
- * Get active list filter by filter key.
- *
- * @param  string|null $filter  Filter key.
- * @return false|string|array
- * @since  4.0.0
- */
-function ap_get_current_list_filters( $filter = null ) {
-	$get_filters = [];
-	$filters     = array_keys( ap_get_list_filters() );
-
-	if ( in_array( 'order_by', $filters, true ) ) {
-		$get_filters['order_by'] = ap_opt( 'question_order_by' );
-	}
-
-	if ( empty( $filters ) || ! is_array( $filters ) ) {
-		$filters = [];
-	}
-
-	foreach ( (array) $filters as $k ) {
-		$val = ap_isset_post_value( $k );
-
-		if ( ! empty( $val ) ) {
-			$get_filters[ $k ] = $val;
-		}
-	}
-
-	if ( null !== $filter ) {
-		return ! isset( $get_filters[ $filter ] ) ? null : $get_filters[ $filter ];
-	}
-
-	return $get_filters;
-}
-
-/**
  * Sanitize and unslash string or array or post/get value at the same time.
  *
  * @param  string|array   $str    String or array to sanitize. Or post/get key name.

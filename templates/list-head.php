@@ -5,11 +5,10 @@
  *
  * @package AnsPress
  * @author  Rahul Aryan <support@anspress.io>
+ *
+ * @todo Delete this template
  */
-
 ?>
-
-<?php ap_get_template_part( 'tab-questions' ); ?>
 
 <div class="ap-list-head clearfix">
 	<div class="pull-right">
