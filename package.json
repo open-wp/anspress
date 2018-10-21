@@ -7,7 +7,9 @@
         "type": "git",
         "url": "https://github.com/anspress/anspress"
     },
-    "dependencies": {},
+    "dependencies": {
+        "gulp-wait": "^0.0.2"
+    },
     "devDependencies": {
         "browser-sync": "^2.11.1",
         "gulp": "^3.9.1",

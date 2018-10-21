@@ -80,6 +80,8 @@ class AnsPress_Hooks {
 			//anspress()->add_filter( 'mce_external_languages', __CLASS__, 'mce_plugins_languages' );
 			anspress()->add_filter( 'wp_insert_post_data', __CLASS__, 'wp_insert_post_data', 1000, 2 );
 			anspress()->add_filter( 'ap_form_contents_filter', __CLASS__, 'sanitize_description' );
+			anspress()->add_filter( 'ap_question_footer', 'AnsPress_Theme', 'question_answer_footer' );
+			anspress()->add_filter( 'ap_answer_footer', 'AnsPress_Theme', 'question_answer_footer' );
 
 			anspress()->add_filter( 'template_include', 'AnsPress_Theme', 'anspress_basepage_template', 9999 );
 			anspress()->add_filter( 'get_the_excerpt', 'AnsPress_Theme', 'get_the_excerpt', 9999, 2 );

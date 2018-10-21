@@ -61,6 +61,7 @@ var browserSync  = require('browser-sync').create(); // Reloads browser and inje
 var reload       = browserSync.reload; // For manual browser reload.
 var wpPot        = require('gulp-wp-pot'); // For generating the .pot file.
 var sort         = require('gulp-sort'); // Recommended to prevent unnecessary changes in pot-file.
+var wait = require('gulp-wait')
 
 
 gulp.task( 'browser-sync', function() {
@@ -77,6 +78,7 @@ gulp.task( 'browser-sync', function() {
 
 gulp.task('styles', function () {
   gulp.src( './templates/scss/main.scss' )
+  .pipe(wait(50))
   .pipe( sourcemaps.init() )
   .pipe( sass( {
     errLogToConsole: true,

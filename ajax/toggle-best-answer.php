@@ -66,7 +66,6 @@ class Toggle_Best_Answer extends \AnsPress\Classes\Ajax {
 			ap_unset_selected_answer( $_post->post_parent );
 			$this->set_success();
 			$this->add_res( 'selected', false );
-			$this->add_res( 'label', __( 'Select', 'anspress-question-answer' ) );
 			$this->snackbar( __( 'Best answer is unselected for your question.', 'anspress-question-answer' ) );
 
 			$this->send();
@@ -85,7 +84,6 @@ class Toggle_Best_Answer extends \AnsPress\Classes\Ajax {
 
 		$this->set_success();
 		$this->add_res( 'selected', true );
-		$this->add_res( 'label', __( 'Unselect', 'anspress-question-answer' ) );
 		$this->snackbar( __( 'Best answer is selected for your question.', 'anspress-question-answer' ) );
 	}
 }

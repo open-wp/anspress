@@ -10,7 +10,7 @@
 namespace AnsPress\Template;
 ?>
 
-<form class="ap-questions-sorting-form mb-30 clearfix" name="questionFilters" method="GET">
+<form class="ap-questions-sorting-form mb-30 clearfix" ap="submitOnChange" name="questionFilters" method="GET">
 
 	<div class="ap-questions-sorting-col1 ap-display-flex">
 		<!-- Sorting -->
@@ -52,7 +52,7 @@ namespace AnsPress\Template;
 			<?php if ( ! empty( $active_filters ) ) : ?>
 
 				<?php foreach ( $active_filters as $f ) : ?>
-					<a href="#" class="ap-active-filter ap-text-md" data-removefilter="<?php echo esc_attr( $f['name'] ); ?>"><i class="apicon-x"></i><?php echo esc_attr( $f['label'] ); ?></a>
+					<a href="#" class="ap-active-filter ap-text-md" ap="removeQFilter" data-name="<?php echo esc_attr( $f['name'] ); ?>"><i class="apicon-x"></i><?php echo esc_attr( $f['label'] ); ?></a>
 				<?php endforeach; ?>
 
 			<?php endif; ?>

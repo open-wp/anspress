@@ -2474,7 +2474,7 @@ function ap_get_page_of_answer( $_post, $args = array() ) {
 		$post_status = " AND (p.post_status IN ($allowed_status) $logged_in_status )";
 		$order_by    = " ORDER BY case when qameta.selected = 1 then 0 else 1 end, ";
 
-		$ap_order_by = Template\get_answers_active_tab();
+		$ap_order_by = Template\get_current_answer_sorting();
 
 		if ( 'oldest' === $ap_order_by ) {
 			$order_by .= "p.post_date ASC";

@@ -69,12 +69,7 @@ namespace AnsPress\Template;
 
 				</div>
 
-				<div class="ap-post-footer clearfix">
-					<?php if ( ap_user_can_read_answer() ) : ?>
-						<?php select_button(); ?>
-						<?php actions_button(); ?>
-					<?php endif; ?>
-
+				<div class="ap-post-footer ap-display-flex align-item-center">
 					<?php do_action( 'ap_answer_footer' ); ?>
 				</div>
 

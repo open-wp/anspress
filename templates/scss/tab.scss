@@ -1,7 +1,6 @@
 .ap-tab {
-    margin-bottom: 15px;
-    display: flex;
-    border-bottom: solid 1px #ddd;
+    display: inline-flex;
+    border-bottom: solid 1px var(--ap_border-color);
 
     &__item{
         margin-bottom: -1px;
@@ -25,8 +24,9 @@
     &__active {
         font-weight: bold;
         color: inherit;
-        border-color: #ddd;
+        border-color: var(--ap_border-color);
         border-bottom-color: #fff;
+        background: #fff;
     }
     .ap-tab-unpublished a{
         color: $color9;

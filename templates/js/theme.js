@@ -2,9 +2,10 @@
     AnsPress = AnsPress||{};
     AnsPress.theme = {
         events: {
-            'click [data-toggleclassof]': 'toggleClassOf',
-            'change [name="questionFilters"]': 'questionFilters',
-            'click [data-removefilter]': 'removeFilter'
+            'click [data-toggleclassof]'  : 'toggleClassOf',
+            'change [ap="submitOnChange"]': 'autoSubmitForm',
+            'click [ap="removeQFilter"]'  : 'removeFilter',
+            'click [ap="toggleAnswer"]'   : 'toggleAnswer'
         },
 
         bindEvents: function() {
@@ -23,16 +24,33 @@
             var klass = $(this).attr('data-classtotoggle');
             elm.toggleClass(klass);
         },
-        questionFilters: function(){
+        autoSubmitForm: function(){
             $(this).submit();
         },
         removeFilter: function(e){
             e.preventDefault();
-            var removefilter = $(this).attr('data-removefilter');
+            var removefilter = $(this).attr('data-name');
             $('[name='+removefilter+']').val('');
             $(this).closest('form').submit();
             $(this).remove();
-        }
+        },
+        toggleAnswer: function(e){
+			e.preventDefault();
+			var self = this;
+			var q = $.parseJSON($(e.target).attr('apquery'));
+			q.action = 'ap_toggle_best_answer';
+
+			AnsPress.showLoading(e.target);
+			AnsPress.ajax({
+				data: q,
+				success: function(data){
+					AnsPress.hideLoading(e.target);
+					if(data.success){
+						location.reload();
+					}
+				}
+			});
+		},
     }
 
     $(document).ready(function () {

@@ -199,12 +199,10 @@
 		},
 		initialize: function(options){
 			this.listenTo(this.model, 'change:vote', this.voteUpdate);
-			this.listenTo(this.model, 'change:hideSelect', this.selectToggle);
 		},
 		events: {
 			'click [ap-vote] > a': 'voteClicked',
-			'click [ap="actiontoggle"]:not(.loaded)': 'postActions',
-			'click [ap="select_answer"]': 'selectAnswer'
+			'click [ap="actiontoggle"]:not(.loaded)': 'postActions'
 		},
 		voteClicked: function(e){
 			e.preventDefault();
@@ -279,38 +277,6 @@
 					self.$el.find('postActions .ap-actions').html(self.actions.view.render().$el);
 				}
 			});
-		},
-
-		selectAnswer: function(e){
-			e.preventDefault();
-			var self = this;
-			var q = $.parseJSON($(e.target).attr('apquery'));
-			q.action = 'ap_toggle_best_answer';
-
-			AnsPress.showLoading(e.target);
-			AnsPress.ajax({
-				data: q,
-				success: function(data){
-					AnsPress.hideLoading(e.target);
-					if(data.success){
-						if(data.selected){
-							self.$el.addClass('best-answer');
-							$(e.target).addClass('active').text(data.label);
-							AnsPress.trigger('answerToggle', [self.model, true]);
-						}else{
-							self.$el.removeClass('best-answer');
-							$(e.target).removeClass('active').text(data.label);
-							AnsPress.trigger('answerToggle', [self.model, false]);
-						}
-					}
-				}
-			});
-		},
-		selectToggle: function(){
-			if(this.model.get('hideSelect'))
-				this.$el.find('[ap="select_answer"]').addClass('hide');
-			else
-				this.$el.find('[ap="select_answer"]').removeClass('hide');
 		}
 	});
 

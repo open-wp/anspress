@@ -54,7 +54,7 @@ class AP_QA_Query_Hooks {
 			$answer_query  = isset( $wp_query->query['ap_answers_query'] );
 
 			if ( ! empty( $query_sorting ) ) {
-				$sorting  = Template\get_questions_sorting();
+				$sorting  = $answer_query ? Template\get_answers_sorting() : Template\get_questions_sorting();
 				$order_by = isset( $sorting[ $query_sorting ] ) ? $sorting[ $query_sorting ]['sql'] : $sorting['active']['sql'];
 
 				$sql['orderby'] = sprintf( $order_by, $wpdb->posts, $wpdb->ap_qameta );

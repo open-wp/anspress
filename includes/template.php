@@ -153,7 +153,7 @@ function comments( $post_id = 0 ) {
 	echo '</apcomments>';
 
 	// New comment button.
-	echo ap_comment_btn_html( $post_id );
+	//echo ap_comment_btn_html( $post_id );
 }
 
 /**
@@ -174,7 +174,7 @@ function actions_button( $post_id = 0 ) {
 		'nonce'   => wp_create_nonce( 'post-actions-' . $post_id ),
 	] );
 
-	echo '<postActions class="ap-dropdown"><button class="ap-btn apicon-gear ap-actions-handle ap-dropdown-toggle" ap="actiontoggle" apquery="' . esc_js( $args ) . '"></button><ul class="ap-actions ap-dropdown-menu"></ul></postActions>';
+	echo '<postActions class="ap-dropdown"><a href="#" class="apicon-dots ap-actions-handle ap-dropdown-toggle" ap="actiontoggle" apquery="' . esc_js( $args ) . '"></a><ul class="ap-actions ap-dropdown-menu"></ul></postActions>';
 }
 
 /**
@@ -235,15 +235,15 @@ function get_select_button( $answer_id = 0 ) {
 	$active = false;
 
 	$title = __( 'Select this answer as best', 'anspress-question-answer' );
-	$label = __( 'Select', 'anspress-question-answer' );
+	$label = __( 'Accept', 'anspress-question-answer' );
 
 	$have_best = ap_have_answer_selected( $_post->post_parent );
 	$selected  = ap_is_selected( $_post );
 	$hide      = false;
 
 	if ( $have_best && $selected ) {
-		$title  = __( 'Unselect this answer', 'anspress-question-answer' );
-		$label  = __( 'Unselect', 'anspress-question-answer' );
+		$title  = __( 'Unset this answer as a best answer', 'anspress-question-answer' );
+		$label  = __( 'Unaccept', 'anspress-question-answer' );
 		$active = true;
 	}
 
@@ -251,7 +251,12 @@ function get_select_button( $answer_id = 0 ) {
 		$hide = true;
 	}
 
-	return '<a href="#" class="ap-btn-select ap-btn ' . ( $active ? ' active' : '' ) . ( $hide ? ' hide' : '' ) . '" ap="select_answer" apquery="' . $q . '" title="' . $title . '">' . $label . '</a>';
+	$btn = '<a href="#" class="ap-btn-select ' . ( $active ? ' active' : '' ) . ( $hide ? ' hide' : '' ) . '" ap="toggleAnswer" apquery="' . $q . '" title="' . $title . '">';
+
+	$btn .= '<i class="' . ( ! $selected ? 'apicon-check' : 'apicon-x' ) . '"></i>';
+	$btn .= $label . '</a>';
+
+	return $btn;
 }
 
 /**
@@ -411,44 +416,34 @@ function question_pagination_count() {
  * @param string|boolean $base Current page url.
  * @since 4.2.0
  */
-function get_answers_tab_links( $base = false ) {
+function get_answers_sorting( $base = false ) {
 	if ( false === $base ) {
 		$base = get_permalink();
 	}
 
-	$links = [];
+	$arr = array(
+		'active' => [
+			'label' => __( 'Active', 'anspress-question-answer' ),
+			'sql'   => 'qameta.last_updated DESC',
+		],
+		'votes' => [
+			'label' => __( 'Votes', 'anspress-question-answer' ),
+			'sql'   => 'CASE WHEN IFNULL(votes_net, 0) >= 0 THEN 1 ELSE 2 END ASC, ABS(votes_net) DESC',
+		],
+		'published' => [
+			'label' => __( 'Published', 'anspress-question-answer' ),
+			'sql'   => '%1$s.post_date DESC',
+		],
+	);
 
 	// Show unpublished answers tab.
 	$unpublished_posts = ap_get_unpublished_post_count( 'answer', get_current_user_id(), get_question_id() );
 	if ( is_user_logged_in() && $unpublished_posts > 0 ) {
-		$links['unpublished'] = array(
-			'link'  => add_query_arg( [ 'order_by' => 'unpublished' ], $base ),
-			'title' => __( 'Unpublished', 'anspress-question-answer' ),
+		$arr['unpublished'] = array(
+			'label' => __( 'Unpublished', 'anspress-question-answer' ),
 			'count' => $unpublished_posts,
 		);
 	}
-
-	$links['active'] = array(
-		'link'  => add_query_arg( [ 'order_by' => 'active' ], $base ),
-		'title' => __( 'Active', 'anspress-question-answer' ),
-	);
-
-	if ( ! ap_opt( 'disable_voting_on_answer' ) ) {
-		$links['voted'] = array(
-			'link'  => add_query_arg( [ 'order_by' => 'voted' ], $base ),
-			'title' => __( 'Voted', 'anspress-question-answer' ),
-		);
-	}
-
-	$links['newest'] = array(
-		'link'  => add_query_arg( [ 'order_by' => 'newest' ], $base ),
-		'title' => __( 'Newest', 'anspress-question-answer' ),
-	);
-
-	$links['oldest'] = array(
-		'link'  => add_query_arg( [ 'order_by' => 'oldest' ], $base ),
-		'title' => __( 'Oldest', 'anspress-question-answer' ),
-	);
 
 	/**
 	 * Answers tabs links.
@@ -456,7 +451,7 @@ function get_answers_tab_links( $base = false ) {
 	 * @param array $links Answers link.
 	 * @since 4.2.0
 	 */
-	return apply_filters( 'ap_get_answers_tab_links', $links );
+	return apply_filters( 'ap_get_answers_sorting', $arr );
 }
 
 /**
@@ -465,13 +460,13 @@ function get_answers_tab_links( $base = false ) {
  * @return void
  * @since 4.2.0
  */
-function get_answers_active_tab() {
-	$active = ap_isset_post_value( 'order_by', ap_opt( 'answers_sort' ) );
-	$tab    = get_answers_tab_links();
+function get_current_answer_sorting() {
+	$active = ap_isset_post_value( 'asort', ap_opt( 'answers_sort' ) );
+	$tab    = get_answers_sorting();
 
 	// Check if tab exists.
-	if ( empty( $tab[ $active ] ) ) {
-		$active = ap_opt( 'answers_sort' );
+	if ( ! isset( $tab[ $active ] ) ) {
+		$active = 'active';
 	}
 
 	/**
@@ -479,7 +474,7 @@ function get_answers_active_tab() {
 	 *
 	 * @param string $active Currently active tab sub.
 	 */
-	return apply_filters( 'ap_get_answers_active_tab', $active );
+	return apply_filters( 'ap_get_current_answer_sorting', $active );
 }
 
 /**
@@ -758,7 +753,13 @@ function get_questions_sorting() {
 		],
 	);
 
-	return $arr;
+	/**
+	 * Filter questions sorting.
+	 *
+	 * @param array $arr Sorting.
+	 * @since 4.2.0
+	 */
+	return apply_filters( 'ap_get_questions_sorting', $arr );
 }
 
 /**

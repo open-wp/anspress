@@ -710,7 +710,7 @@ function ap_get_answers( $args = '' ) {
 	global $wp_rewrite;
 
 	$paged    = (int) max( 1, get_query_var( 'ap_paged', 1 ) );
-	$order_by = Template\get_answers_active_tab();
+	$order_by = Template\get_current_answer_sorting();
 	$status   = [ 'publish', 'private_post' ];
 
 	// Default query args
@@ -728,6 +728,11 @@ function ap_get_answers( $args = '' ) {
 		'post_status'            => $status,
 		'ap_order_by'            => $order_by,
 	);
+
+	if ( 'unpublished' === $default['ap_order_by'] ) {
+		$default['ap_order_by'] = 'active';
+		$default['post_status'] = [ 'moderate', 'trash', 'future' ];
+	}
 
 	// Parse arguments against default values
 	$r = wp_parse_args( $args, $default );

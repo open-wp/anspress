@@ -450,6 +450,9 @@ ul{
 		&.justify-center{
 			justify-content: center;
 		}
+		&.justify-space-betw{
+			justify-content: space-between;
+		}
 		&.direction-column{
 			flex-direction: column;
 		}

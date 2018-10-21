@@ -103,9 +103,8 @@ namespace AnsPress\Template;
 					?>
 				</div>
 
-				<div class="ap-post-footer clearfix">
-					<?php actions_button(); ?>
-					<?php do_action( 'ap_post_footer' ); ?>
+				<div class="ap-post-footer ap-display-flex align-item-center">
+					<?php do_action( 'ap_question_footer' ); ?>
 				</div>
 			</div>
 

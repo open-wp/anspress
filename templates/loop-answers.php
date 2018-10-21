@@ -14,18 +14,18 @@ namespace AnsPress\Template;
 <apanswersw>
 
 	<div id="ap-answers-c">
-		<div class="ap-sorting-tab clearfix">
+		<div class="ap-answers-heading ap-display-flex justify-space-betw">
 			<h3 class="ap-answers-label ap-pull-left" ap="answers_count_t">
 				<span itemprop="answerCount"><?php answer_count(); ?></span>
 				<?php echo _n( 'Answer', 'Answers', get_answer_count(), 'anspress-question-answer' ); ?>
 			</h3>
 
-			<?php ap_get_template_part( 'tab-answers' ); ?>
+			<?php ap_get_template_part( 'answers-sort' ); ?>
 		</div>
 
 		<div id="answers">
 
-			<?php if ( 'unpublished' === get_answers_active_tab() ) : ?>
+			<?php if ( 'unpublished' === get_current_answer_sorting() ) : ?>
 				<?php ap_get_template_part( 'feedback-unpublished-answers' ); ?>
 			<?php endif; ?>
 

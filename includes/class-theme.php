@@ -11,6 +11,7 @@
  */
 
 use AnsPress\Shortcodes;
+use AnsPress\Template;
 
 // If this file is called directly, abort.
 if ( ! defined( 'WPINC' ) ) {
@@ -394,6 +395,26 @@ class AnsPress_Theme {
 
 		if ( ! empty( $activity ) ) {
 			echo '<div class="ap-post-updated"><i class="apicon-clock"></i>' . $activity . '</div>';
+		}
+	}
+
+	/**
+	 * Show actions in answer footer.
+	 *
+	 * @since 4.2.0
+	 */
+	public static function question_answer_footer() {
+		$post_id = ap_is_answer() ? ap_get_answer_id() : get_question_id();
+
+		if ( ap_user_can_read_answer() ) {
+			Template\select_button();
+		}
+
+		// Comment button id.
+		echo ap_comment_btn_html( $post_id );
+
+		if ( ap_user_can_read_answer() ) {
+			Template\actions_button();
 		}
 	}
 }
