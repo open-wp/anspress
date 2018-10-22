@@ -35,24 +35,21 @@ namespace AnsPress\Template;
 	do_action( 'ap_after_question_meta' );
 ?>
 <div ap="question" apid="<?php qustion_id(); ?>">
-	<div id="question" role="main" class="ap-content">
-		<div class="ap-single-vote"><?php vote_buttons(); ?></div>
-		<?php
-		/**
-		 * Action triggered before question title.
-		 *
-		 * @since   2.0
-		 */
-		do_action( 'ap_before_question_title' );
-		?>
+	<?php
+	/**
+	 * Action triggered before question title.
+	 *
+	 * @since   2.0
+	 */
+	do_action( 'ap_before_question_title' );
+	?>
 
-		<div class="ap-avatar">
-			<a href="<?php ap_profile_link(); ?>">
-				<?php ap_author_avatar( ap_opt( 'avatar_size_qquestion' ) ); ?>
-			</a>
-		</div>
+	<div id="question" role="main" class="ap-content ap-display-flex">
+		<a class="ap-content-col ap-avatar-col" href="<?php ap_profile_link(); ?>">
+			<?php ap_author_avatar( ap_opt( 'avatar_size_qquestion' ) ); ?>
+		</a>
 
-		<div class="ap-cell clearfix">
+		<div class="ap-content-col ap-cell">
 			<div class="ap-cell-inner">
 				<div class="ap-q-metas">
 					<span class="ap-author" itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -110,6 +107,8 @@ namespace AnsPress\Template;
 
 			<?php comments(); ?>
 		</div>
+
+		<div class="ap-content-col ap-single-vote"><?php vote_buttons(); ?></div>
 	</div>
 </div>
 

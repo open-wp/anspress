@@ -13,19 +13,13 @@ namespace AnsPress\Template;
 
 ?>
 <div id="post-<?php answer_id(); ?>" class="<?php post_classes(); ?>" apid="<?php answer_id(); ?>" ap="answer">
-	<div class="ap-content" itemprop="suggestedAnswer<?php echo ap_is_selected() ? ' acceptedAnswer' : ''; ?>" itemscope itemtype="https://schema.org/Answer">
+	<div class="ap-content ap-display-flex" itemprop="suggestedAnswer<?php echo ap_is_selected() ? ' acceptedAnswer' : ''; ?>" itemscope itemtype="https://schema.org/Answer">
 
-		<div class="ap-single-vote">
-			<?php vote_buttons(); ?>
-		</div>
+		<a class="ap-avatar-col ap-content-col" href="<?php ap_profile_link(); ?>">
+			<?php ap_author_avatar( ap_opt( 'avatar_size_qanswer' ) ); ?>
+		</a>
 
-		<div class="ap-avatar">
-			<a href="<?php ap_profile_link(); ?>">
-				<?php ap_author_avatar( ap_opt( 'avatar_size_qanswer' ) ); ?>
-			</a>
-		</div>
-
-		<div class="ap-cell clearfix">
+		<div class="ap-cell ap-content-col">
 			<div class="ap-cell-inner">
 				<div class="ap-q-metas">
 					<?php echo ap_user_display_name( [ 'html' => true ] ); ?>
@@ -75,6 +69,10 @@ namespace AnsPress\Template;
 
 			</div>
 			<?php comments(); ?>
+		</div>
+
+		<div class="ap-single-vote ap-content-col">
+			<?php vote_buttons(); ?>
 		</div>
 
 	</div>

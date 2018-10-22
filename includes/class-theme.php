@@ -53,7 +53,7 @@ class AnsPress_Theme {
 	 * @since  4.2.0
 	 */
 	public static function redirect_answer( $template = '' ) {
-		if ( is_singular( 'answer' ) ) {
+		if ( is_singular( 'answer' ) && ! ap_current_page( 'edit' ) ) {
 			wp_redirect( ap_get_permalink( ap_get_answer_id() ), 301 );
 			exit();
 		}
@@ -82,6 +82,7 @@ class AnsPress_Theme {
 	* @since 4.2.0
 	*/
 	public static function template_include_theme_compat( $template = '' ) {
+
 		if ( ap_current_page( 'archive' ) ) {
 			// Page exists where this archive should be
 			$page = get_page_by_path( ap_base_page_slug() );
@@ -107,6 +108,29 @@ class AnsPress_Theme {
 				'is_archive'     => true,
 				'comment_status' => 'closed',
 			) );
+		} elseif ( ap_current_page( 'edit' ) ) {
+			$status_header = 200;
+
+			// Check if user have permission to read and add proper status header code.
+			// $answer_id = get_query_var( 'answer_id', false );
+			// if ( false !== $answer_id && ! ap_user_can_read_answer( $answer_id ) ) {
+			// 	$status_header = 403;
+			// } elseif ( ! ap_user_can_read_question( get_question_id() ) ) {
+			// 	$status_header = 403;
+			// }
+
+			ap_theme_compat_reset_post( array(
+				'ID'             => get_question_id(),
+				'post_title'     => __( 'Editing question', 'anspress-question-answer' ),
+				'post_author'    => get_post_field( 'post_author', get_question_id() ),
+				'post_date'      => 0,
+				'post_content'   => Shortcodes::get_instance()->display_edit(),
+				'post_type'      => 'question',
+				'post_status'    => get_post_status( get_question_id() ),
+				'is_single'      => true,
+				'comment_status' => 'closed',
+				'status_header'  => $status_header,
+			) );
 		} elseif ( ap_current_page( 'question' ) ) {
 			$status_header = 200;
 
@@ -129,6 +153,37 @@ class AnsPress_Theme {
 				'is_single'      => true,
 				'comment_status' => 'closed',
 				'status_header'  => $status_header,
+			) );
+		} elseif ( ap_current_page( 'ask' ) ) {
+			// Ask page.
+			$page_id = ap_main_pages_id( 'ask' );
+
+			$page = get_page( $page_id );
+
+			// Replace the content.
+			if ( empty( $page->post_content ) ) {
+				$new_content =  Shortcodes::get_instance()->display_ask();
+			} else {
+				$new_content = apply_filters( 'the_content', $page->post_content );
+			}
+
+			// Replace the title.
+			if ( empty( $page->post_title ) ) {
+				$new_title = __( 'Post a question', 'anspress-question-answer' );
+			} else {
+				$new_title = apply_filters( 'the_title', $page->post_title );
+			}
+
+			ap_theme_compat_reset_post( array(
+				'ID'             => ! empty( $page->ID ) ? $page->ID : 0,
+				'post_title'     => $new_title,
+				'post_author'    => 0,
+				'post_date'      => 0,
+				'post_content'   => $new_content,
+				'post_type'      => 'question',
+				'post_status'    => 'publish',
+				'is_single'      => true,
+				'comment_status' => 'closed'
 			) );
 		}
 
@@ -403,15 +458,31 @@ class AnsPress_Theme {
 	 *
 	 * @since 4.2.0
 	 */
-	public static function question_answer_footer() {
-		$post_id = ap_is_answer() ? ap_get_answer_id() : get_question_id();
+	public static function question_footer() {
+		if ( ap_user_can_read_question() ) {
+			Template\select_button();
+		}
 
+		// Comment button id.
+		echo ap_comment_btn_html( get_question_id() );
+
+		if ( ap_user_can_read_question() ) {
+			Template\actions_button();
+		}
+	}
+
+	/**
+	 * Show actions in answer footer.
+	 *
+	 * @since 4.2.0
+	 */
+	public static function answer_footer() {
 		if ( ap_user_can_read_answer() ) {
 			Template\select_button();
 		}
 
 		// Comment button id.
-		echo ap_comment_btn_html( $post_id );
+		echo ap_comment_btn_html( ap_get_answer_id() );
 
 		if ( ap_user_can_read_answer() ) {
 			Template\actions_button();

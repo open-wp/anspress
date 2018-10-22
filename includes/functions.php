@@ -238,12 +238,12 @@ function ap_answers_link( $question_id = false ) {
 function ap_post_edit_link( $_post ) {
 	$_post     = ap_get_post( $_post );
 	$nonce     = wp_create_nonce( 'edit-post-' . $_post->ID );
-	$base_page = 'question' === $_post->post_type ? ap_get_link_to( 'ask' ) : ap_get_link_to( 'edit' );
 	$edit_link = add_query_arg(
 		array(
+			'ap_page' => 'edit',
 			'id'      => $_post->ID,
 			'__nonce' => $nonce,
-		), $base_page
+		), get_permalink( $_post )
 	);
 
 	/**
@@ -2297,10 +2297,11 @@ function ap_main_pages() {
 /**
  * Return post IDs of main pages.
  *
- * @return array
+ * @param string $find Slug of page to return id.
+ * @return array|integer|false
  * @since 4.1.0
  */
-function ap_main_pages_id() {
+function ap_main_pages_id( $find = false ) {
 	$main_pages = array_keys( ap_main_pages() );
 	$pages_id   = [];
 
@@ -2308,7 +2309,16 @@ function ap_main_pages_id() {
 		$pages_id[ $slug ] = ap_opt( $slug );
 	}
 
-	return $pages_id;
+	if ( false === $find ) {
+		return $pages_id;
+	}
+
+	// Return ID of page if `$find` not false.
+	if ( isset( $pages_id[ $find . '_page' ] ) ) {
+		return $pages_id[ $find . '_page' ];
+	}
+
+	return false;
 }
 
 /**

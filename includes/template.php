@@ -161,6 +161,7 @@ function comments( $post_id = 0 ) {
  *
  * @param integer $post_id Question or answer id.
  * @since   4.2.0
+ * @todo Remove JavaScript rendering and pre render from server.
  */
 function actions_button( $post_id = 0 ) {
 	if ( ! is_user_logged_in() ) {

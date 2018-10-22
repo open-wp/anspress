@@ -85,9 +85,9 @@ function ap_default_options() {
 		'multiple_answers'              => true,
 		'disallow_op_to_answer'         => false,
 		'minimum_ans_length'            => 5,
-		'avatar_size_qquestion'         => 50,
+		'avatar_size_qquestion'         => 40,
 		'allow_private_post'            => true,
-		'avatar_size_qanswer'           => 50,
+		'avatar_size_qanswer'           => 40,
 		'avatar_size_qcomment'          => 25,
 		'avatar_size_list'              => 45,
 		'question_per_page'             => '20',
@@ -141,6 +141,7 @@ function ap_default_options() {
 		'post_comment_per'              => 'logged_in',
 		'activity_exclude_roles'        => [],
 		'create_account'                => true,
+		'allow_private_posts'           => true,
 	);
 
 	/**

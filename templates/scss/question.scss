@@ -2,8 +2,15 @@
 // Question page style
 // --------------------------------------------------
 .ap-content {
-	position: relative;
-	padding-right: 40px;
+	.ap-avatar-col{
+		margin-right: 15px;
+		img {
+			max-width: initial;
+		}
+	}
+	.ap-single-vote {
+		margin-left: 10px;
+	}
 }
 
 #anspress {
@@ -11,8 +18,6 @@
 		background: #dcedc8;
 	}
 	.ap-cell {
-		font-size: 14px;
-		margin-left: 70px;
 		&-inner {
 			border: 2px solid rgba(0, 0, 0, .1);
 			border-radius: 3px;
@@ -27,11 +32,6 @@
 	.ap-status-moderate .ap-cell-inner {
 		border-color: #FFCC80;
 	}
-	.ap-content>.ap-avatar {
-		position: absolute;
-		float: left;
-		margin-right: 0x;
-	}
 	.ap-q {
 		&-head {
 			margin-bottom: 20px;
@@ -45,10 +45,6 @@
 				font-weight: 600;
 				text-decoration: none;
 				color: inherit;
-			}
-			.ap-avatar {
-				margin-top: 0;
-				margin-right: 10px;
 			}
 			.ap-posted {
 				font-weight: normal;
@@ -289,9 +285,7 @@
 	.ap-content {
 		padding-top: 0;
 	}
-	.ap-single-vote {
-		top: 0;
-	}
+
 	.answer {
 		margin-top: 30px;
 		&.active .ap-a-cells {
@@ -330,9 +324,7 @@
 }
 
 .ap-single-vote {
-	position: absolute;
-	top: 0;
-	right: 0;
+
 }
 
 .ap-question-info {

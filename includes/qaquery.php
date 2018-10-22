@@ -593,7 +593,7 @@ function ap_get_time( $_post = null, $format = '' ) {
  */
 function ap_is_featured_question( $question = null ) {
 	$question = ap_get_post( $question );
-	return (bool) $question->featured;
+	return isset( $question->featured ) ? (bool) $question->featured : false;
 }
 
 /**

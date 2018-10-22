@@ -532,30 +532,33 @@ function ap_get_template_part( $file, $args = false ) {
  * @since 4.1.15 Added parameter `$looking_for`.
  */
 function ap_current_page( $looking_for = false ) {
-	$query_var  = get_query_var( 'ap_page', '' );
+	$ap_page    = get_query_var( 'ap_page', '' );
+	$query_name = get_query_var( '_ap_query_name', '' );
 	$main_pages = array_keys( ap_main_pages() );
 	$page_ids   = [];
 
-	if ( 'archive' === $query_var ) {
-		$query_var = 'base';
+	if ( 'archive' === $ap_page ) {
+		$ap_page = 'base';
 	}
 
 	foreach ( $main_pages as $page_slug ) {
 		$page_ids[ ap_opt( $page_slug ) ] = $page_slug;
 	}
 
-	if ( is_question() || is_singular( 'question' ) ) {
-		$query_var = 'question';
-	} elseif ( 'edit' === $query_var ) {
-		$query_var = 'edit';
-	} elseif ( in_array( $query_var . '_page', $main_pages, true ) ) {
-		$query_var = $query_var;
+	if ( ! empty( $query_name ) ) {
+		$ap_page = $query_name;
+	} elseif ( 'edit' === $ap_page ) {
+		$ap_page = 'edit';
+	} elseif ( is_question() || is_singular( 'question' ) ) {
+		$ap_page = 'question';
+	} elseif ( in_array( $ap_page . '_page', $main_pages, true ) ) {
+		$ap_page = $ap_page;
 	} elseif ( in_array( get_the_ID(), array_keys( $page_ids ) ) ) {
-		$query_var = str_replace( '_page', '', $page_ids[ get_the_ID() ] );
-	} elseif ( 'archive' === $query_var ) {
-		$query_var = 'archive';
+		$ap_page = str_replace( '_page', '', $page_ids[ get_the_ID() ] );
+	} elseif ( 'archive' === $ap_page ) {
+		$ap_page = 'archive';
 	} elseif ( is_404() ) {
-		$query_var = '';
+		$ap_page = '';
 	}
 
 	/**
@@ -563,7 +566,7 @@ function ap_current_page( $looking_for = false ) {
 	 *
 	 * @param    string $query_var Current page slug.
 	 */
-	$ret = apply_filters( 'ap_current_page', esc_attr( $query_var ) );
+	$ret = apply_filters( 'ap_current_page', esc_attr( $ap_page ) );
 
 	if ( false !== $looking_for ) {
 		return $looking_for === $ret;

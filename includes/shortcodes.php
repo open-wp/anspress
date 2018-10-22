@@ -55,9 +55,10 @@ class Shortcodes {
 	 */
 	private function __construct() {
 		$this->codes = array(
-			'anspress'          => [ $this, 'display_archive' ],
+			'anspress'          => [ $this, 'display_current_page' ],
 			'anspress_archive'  => [ $this, 'display_archive' ],
 			'anspress_question' => [ $this, 'display_question' ],
+			'anspress_edit'     => [ $this, 'display_edit' ],
 			'anspress_ask_form' => [ $this, 'display_ask' ],
 		);
 	}
@@ -123,6 +124,22 @@ class Shortcodes {
 	}
 
 	/**
+	 * Display current page, fallback for old shortcode.
+	 *
+	 * @param array $attr
+	 * @param string $content
+	 * @return string
+	 * @since 4.2.0
+	 */
+	public function display_current_page( $attr = [], $content = '' ) {
+		if ( ap_current_page( 'ask' ) ) {
+			return $this->display_ask( $attr, $content );
+		} else {
+			return $this->display_archive();
+		}
+	}
+
+	/**
 	 * Display archive of the question.
 	 *
 	 * @param array $attr
@@ -135,7 +152,7 @@ class Shortcodes {
 		$this->unset_globals();
 
 		// Start output buffer
-		$this->start( 'ap_archive' );
+		$this->start( 'archive' );
 
 		if ( ap_user_can_read_questions() ) {
 			ap_get_template_part( 'content-archive-question' );
@@ -186,7 +203,7 @@ class Shortcodes {
 		}
 
 		// Start output buffer
-		$this->start( 'single-question' );
+		$this->start( 'question' );
 
 		if ( false !== $answer_id && ! ap_user_can_read_answer( $answer_id ) ) {
 			$ap->answers_query->in_the_loop = true;
@@ -214,12 +231,59 @@ class Shortcodes {
 	}
 
 	/**
+	 * Output edit page.
+	 *
+	 * @since 4.2.0
+	 * @todo add feedback and check permissions.
+	 */
+	public function display_edit( $attr = [], $content = '' ) {
+		$post_id = (int) ap_sanitize_unslash( 'id', 'r' );
+
+		if ( ! ap_verify_nonce( 'edit-post-' . $post_id ) || empty( $post_id ) || ! ap_user_can_edit_answer( $post_id ) ) {
+			echo '<p>' . esc_attr__( 'Sorry, you cannot edit this answer.', 'anspress-question-answer' ) . '</p>';
+				return;
+		}
+
+		global $editing_post;
+		$editing_post = ap_get_post( $post_id );
+
+		// Start output buffer
+		$this->start( 'edit' );
+
+		if ( 'question' === $editing_post->post_type ) {
+			ap_ask_form();
+		} elseif ( 'answer' === $editing_post->post_type ) {
+			ap_answer_form( $editing_post->post_parent, true );
+		}
+
+		// Return contents of output buffer
+		return $this->end();
+	}
+
+	/**
 	 * Output question form.
 	 *
 	 * @since 4.2.0
 	 */
 	public function display_ask( $attr = [], $content = '' ) {
+		// Start output buffer
+		$this->start( 'ask' );
 
+		if ( ! ap_user_can_ask() ) {
+			ap_get_template_part( 'feedback-ask' );
+		} else {
+			ap_get_template_part( 'content-ask' );
+		}
+
+		/**
+		 * Action called after ask page (shortcode) is rendered.
+		 *
+		 * @since 4.1.8
+		 */
+		do_action( 'ap_after_ask_page' );
+
+		// Return contents of output buffer
+		return $this->end();
 	}
 
 }
