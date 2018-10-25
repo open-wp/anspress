@@ -1953,7 +1953,7 @@ function ap_ask_form( $deprecated = null ) {
 	}
 
 	$editing    = false;
-	$editing_id = ap_sanitize_unslash( 'id', 'r' );
+	$editing_id = ap_editing_post_id();
 
 	// If post_id is empty then its not editing.
 	if ( ! empty( $editing_id ) ) {
@@ -2095,7 +2095,7 @@ function ap_answer_post_ajax_response( $question_id, $answer_id ) {
  */
 function ap_answer_form( $question_id, $editing = false ) {
 	$editing    = false;
-	$editing_id = ap_sanitize_unslash( 'id', 'r' );
+	$editing_id = ap_editing_post_id();
 
 	// If post_id is empty then its not editing.
 	if ( ! empty( $editing_id ) ) {
@@ -2630,4 +2630,24 @@ function ap_get_unpublished_post_count( $type = 'question', $user_id = null, $po
 	 * @since 4.2.0
 	 */
 	return (int) apply_filters( 'ap_get_unpublished_post_count', $count, $user_id, $type, $post_parent );
+}
+
+function ap_editing_post_id() {
+	$id = 0;
+
+	$query_id = (int) get_query_var( '_ap_editing_post_id', '' );
+
+	if ( ! empty( $query_id ) ) {
+		$id = $query_id;
+	} elseif ( ap_current_page( 'edit' ) ) {
+		$id = (int) ap_sanitize_unslash( 'id', 'r' );
+	}
+
+	/**
+	 * Filters currently editing post id.
+	 *
+	 * @param integer $id Post id.
+	 * @since 4.2.0
+	 */
+	return apply_filters( 'ap_editing_post_id', $id );
 }

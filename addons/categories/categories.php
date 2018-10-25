@@ -397,7 +397,7 @@ class Categories extends \AnsPress\Singleton {
 			return $form;
 		}
 
-		$editing_id  = ap_sanitize_unslash( 'id', 'r' );
+		$editing_id  = ap_editing_post_id();
 		$category_id = ap_sanitize_unslash( 'category', 'r' );
 
 		$form['fields']['category'] = array(

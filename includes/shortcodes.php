@@ -154,11 +154,25 @@ class Shortcodes {
 		// Start output buffer
 		$this->start( 'archive' );
 
+		/**
+		 * Action called before displaying archive page shortcode.
+		 *
+		 * @since 4.2.0
+		 */
+		do_action( 'ap_before_display_archive' );
+
 		if ( ap_user_can_read_questions() ) {
 			ap_get_template_part( 'content-archive-question' );
 		} else {
 			ap_get_template_part( 'feedback-questions' );
 		}
+
+		/**
+		 * Action called after displaying archive page shortcode.
+		 *
+		 * @since 4.2.0
+		 */
+		do_action( 'ap_after_display_arcive' );
 
 		// Return contents of output buffer
 		return $this->end();
@@ -205,6 +219,13 @@ class Shortcodes {
 		// Start output buffer
 		$this->start( 'question' );
 
+		/**
+		 * Action called before displaying question page shortcode.
+		 *
+		 * @since 4.2.0
+		 */
+		do_action( 'ap_before_display_question' );
+
 		if ( false !== $answer_id && ! ap_user_can_read_answer( $answer_id ) ) {
 			$ap->answers_query->in_the_loop = true;
 			$ap->answers_query->post        = get_post( $answer_id );
@@ -220,11 +241,11 @@ class Shortcodes {
 		}
 
 		/**
-		 * An action triggered after rendering single question page.
+		 * Action called after displaying question page shortcode.
 		 *
-		 * @since 0.0.1
+		 * @since 4.2.0
 		 */
-		do_action( 'ap_after_question' );
+		do_action( 'ap_after_display_question' );
 
 		// Return contents of output buffer
 		return $this->end();
@@ -233,16 +254,20 @@ class Shortcodes {
 	/**
 	 * Output edit page.
 	 *
+	 * @param array $attr {
+	 *    @type integer $id Post id to edit.
+	 * }
+	 * @param string $content Shortcode content.
 	 * @since 4.2.0
 	 * @todo add feedback and check permissions.
 	 */
 	public function display_edit( $attr = [], $content = '' ) {
-		$post_id = (int) ap_sanitize_unslash( 'id', 'r' );
-
-		if ( ! ap_verify_nonce( 'edit-post-' . $post_id ) || empty( $post_id ) || ! ap_user_can_edit_answer( $post_id ) ) {
-			echo '<p>' . esc_attr__( 'Sorry, you cannot edit this answer.', 'anspress-question-answer' ) . '</p>';
-				return;
+		// Set editing post id as query var.
+		if ( ! empty( $attr['id'] ) ) {
+			set_query_var( '_ap_editing_post_id', (int) $attr['id'] );
 		}
+
+		$post_id = ap_editing_post_id();
 
 		global $editing_post;
 		$editing_post = ap_get_post( $post_id );
@@ -250,10 +275,35 @@ class Shortcodes {
 		// Start output buffer
 		$this->start( 'edit' );
 
-		if ( 'question' === $editing_post->post_type ) {
-			ap_ask_form();
-		} elseif ( 'answer' === $editing_post->post_type ) {
-			ap_answer_form( $editing_post->post_parent, true );
+		/**
+		 * Action called before displaying edit page shortcode.
+		 *
+		 * @since 4.2.0
+		 */
+		do_action( 'ap_before_display_edit' );
+
+		if ( empty( $attr['id'] ) && ! ap_verify_nonce( 'edit-post-' . $post_id ) ) {
+			echo '<p class="ap-msg-cheating">' . esc_attr__( 'Trying to cheat?!', 'anspress-question-answer' ) . '</p>';
+		} else {
+
+			if ( 'question' === $editing_post->post_type ) {
+				ap_ask_form();
+			} elseif ( 'answer' === $editing_post->post_type ) {
+				ap_answer_form( $editing_post->post_parent, true );
+			}
+
+		}
+
+		/**
+		 * Action called after displaying edit page shortcode.
+		 *
+		 * @since 4.2.0
+		 */
+		do_action( 'ap_after_display_edit' );
+
+		// Unset post id.
+		if ( ! empty( $attr['id'] ) ) {
+			set_query_var( '_ap_editing_post_id', '' );
 		}
 
 		// Return contents of output buffer
@@ -264,10 +314,18 @@ class Shortcodes {
 	 * Output question form.
 	 *
 	 * @since 4.2.0
+	 * @todo Remove old shortcode code and add capability to new shortcode.
 	 */
 	public function display_ask( $attr = [], $content = '' ) {
 		// Start output buffer
 		$this->start( 'ask' );
+
+		/**
+		 * Action called before ask page (shortcode) is rendered.
+		 *
+		 * @since 4.2.0
+		 */
+		do_action( 'ap_before_display_ask' );
 
 		if ( ! ap_user_can_ask() ) {
 			ap_get_template_part( 'feedback-ask' );
@@ -278,9 +336,9 @@ class Shortcodes {
 		/**
 		 * Action called after ask page (shortcode) is rendered.
 		 *
-		 * @since 4.1.8
+		 * @since 4.2.0
 		 */
-		do_action( 'ap_after_ask_page' );
+		do_action( 'ap_after_display_ask' );
 
 		// Return contents of output buffer
 		return $this->end();

@@ -369,7 +369,7 @@ class Tags extends \AnsPress\Singleton {
 	 * @since 4.1.0
 	 */
 	public function ap_question_form_fields( $form ) {
-		$editing_id = ap_sanitize_unslash( 'id', 'r' );
+		$editing_id = ap_editing_post_id();
 
 		$form['fields']['tags'] = array(
 			'label'      => __( 'Tags', 'anspress-question-answer' ),

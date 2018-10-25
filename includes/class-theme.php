@@ -110,23 +110,25 @@ class AnsPress_Theme {
 			) );
 		} elseif ( ap_current_page( 'edit' ) ) {
 			$status_header = 200;
+			$post_id       = ap_sanitize_unslash( 'id', 'r' );
 
 			// Check if user have permission to read and add proper status header code.
-			// $answer_id = get_query_var( 'answer_id', false );
-			// if ( false !== $answer_id && ! ap_user_can_read_answer( $answer_id ) ) {
-			// 	$status_header = 403;
-			// } elseif ( ! ap_user_can_read_question( get_question_id() ) ) {
-			// 	$status_header = 403;
-			// }
+			if ( ! ap_user_can_read_post( $post_id ) ) {
+				$status_header = 403;
+			}
+
+			$_post = ap_get_post( $post_id );
+
+			$type_label = 'question' === $_post->post_type ? __( 'question', 'anspress-question-answer' ) : __( 'answer', 'anspress-question-answer' );
 
 			ap_theme_compat_reset_post( array(
-				'ID'             => get_question_id(),
-				'post_title'     => __( 'Editing question', 'anspress-question-answer' ),
-				'post_author'    => get_post_field( 'post_author', get_question_id() ),
+				'ID'             => $_post->ID,
+				'post_title'     => sprintf( __( 'Editing %s', 'anspress-question-answer' ), $type_label ),
+				'post_author'    => $_post->post_author,
 				'post_date'      => 0,
 				'post_content'   => Shortcodes::get_instance()->display_edit(),
 				'post_type'      => 'question',
-				'post_status'    => get_post_status( get_question_id() ),
+				'post_status'    => $_post->post_status,
 				'is_single'      => true,
 				'comment_status' => 'closed',
 				'status_header'  => $status_header,
