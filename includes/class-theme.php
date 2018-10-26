@@ -94,7 +94,14 @@ class AnsPress_Theme {
 				$new_content = apply_filters( 'the_content', $page->post_content );
 			}
 
-			$new_title = apply_filters( 'the_title', $page->post_title );
+			if ( ap_is_search() ) {
+				$new_title = sprintf(
+					apply_filters( 'ap_search_the_title', __( 'Search questions: "%s"', 'anspress-question-answer' ) ),
+					ap_get_search_terms()
+				);
+			} else {
+				$new_title = apply_filters( 'the_title', $page->post_title );
+			}
 
 			// Reset post
 			ap_theme_compat_reset_post( array(
@@ -106,8 +113,10 @@ class AnsPress_Theme {
 				'post_type'      => 'question',
 				'post_status'    => 'publish',
 				'is_archive'     => true,
+				'is_single'      => false,
 				'comment_status' => 'closed',
 			) );
+
 		} elseif ( ap_current_page( 'edit' ) ) {
 			$status_header = 200;
 			$post_id       = ap_sanitize_unslash( 'id', 'r' );
@@ -183,6 +192,38 @@ class AnsPress_Theme {
 				'post_date'      => 0,
 				'post_content'   => $new_content,
 				'post_type'      => 'question',
+				'post_status'    => 'publish',
+				'is_single'      => true,
+				'comment_status' => 'closed'
+			) );
+		} elseif ( ap_current_page( 'activities' ) ) {
+
+			// Ask page.
+			$page_id = ap_main_pages_id( 'activities' );
+
+			$page = get_page( $page_id );
+
+			// Replace the content.
+			if ( empty( $page->post_content ) ) {
+				$new_content =  Shortcodes::get_instance()->display_activities();
+			} else {
+				$new_content = apply_filters( 'the_content', $page->post_content );
+			}
+
+			// Replace the title.
+			if ( empty( $page->post_title ) ) {
+				$new_title = __( 'Questions activities', 'anspress-question-answer' );
+			} else {
+				$new_title = apply_filters( 'the_title', $page->post_title );
+			}
+
+			ap_theme_compat_reset_post( array(
+				'ID'             => ! empty( $page->ID ) ? $page->ID : 0,
+				'post_title'     => $new_title,
+				'post_author'    => 0,
+				'post_date'      => 0,
+				'post_content'   => $new_content,
+				'post_type'      => 'page',
 				'post_status'    => 'publish',
 				'is_single'      => true,
 				'comment_status' => 'closed'
@@ -264,12 +305,20 @@ class AnsPress_Theme {
 		if ( is_anspress() ) {
 			remove_filter( 'wp_title', [ __CLASS__, 'ap_title' ] );
 
-			if ( is_question() ) {
-				return ap_question_title_with_solved_prefix() . ' | ';
+			if ( ap_is_search() ) {
+				$title = sprintf(
+					__( 'Search question: "%s"', 'anspress-questions-answer' ),
+					ap_get_search_terms()
+				);
+			} elseif ( is_question() ) {
+				$title = ap_question_title_with_solved_prefix() . ' | ';
 			}
 		}
 
-		return $title;
+		/**
+		 * Filter AnsPress page titles.
+		 */
+		return apply_filters( 'ap_title', $title );
 	}
 
 	/**
@@ -347,6 +396,7 @@ class AnsPress_Theme {
 	 * @since  3.0.0
 	 * @since  4.1.0 Give priority to page templates and then anspress.php and lastly fallback to page.php.
 	 * @since  4.1.1 Load single question template if exists.
+	 * @todo Check if this works with new template compatibility @critical.
 	 */
 	public static function anspress_basepage_template( $template ) {
 		if ( is_anspress() ) {

@@ -10,7 +10,7 @@
 namespace AnsPress\Template;
 ?>
 
-<form class="ap-questions-sorting-form mb-30 clearfix" ap="submitOnChange" name="questionFilters" method="GET">
+<form class="ap-questions-sorting-form mb-30 clearfix" ap="submitOnChange" apDisableEmptyFields name="questionFilters" method="GET">
 
 	<div class="ap-questions-sorting-col1 ap-display-flex">
 		<!-- Sorting -->
@@ -25,7 +25,7 @@ namespace AnsPress\Template;
 		<!-- End sorting -->
 
 		<div class="ap-questions-search">
-			<input name="question_s" type="text" class="ap-questions-searchi ap-search-input ap-form-input" placeholder="<?php esc_attr_e( 'Search questions...', 'anspress-question-answer' ); ?>" value="<?php echo ap_sanitize_unslash( 'question_s', 'r' ); ?>" />
+			<input name="ap_search" type="text" class="ap-questions-searchi ap-search-input ap-form-input" placeholder="<?php esc_attr_e( 'Search questions...', 'anspress-question-answer' ); ?>" value="<?php echo ap_get_search_terms(); ?>" />
 			<button class="ap-questions-searchb" type="submit"><i class="apicon-search"></i></button>
 		</div>
 
@@ -46,7 +46,7 @@ namespace AnsPress\Template;
 	?>
 
 	<div class="ap-questions-sorting-col2 ap-display-flex mt-10">
-		<a href="#" class="ap-link-show-filters ap-text-md" data-toggleclassof="#ap-questions-filters" data-classtotoggle="ap-display-none"><?php esc_attr_e( 'Show filters', 'anspress-question-answer' ); ?></a>
+		<a href="#" class="ap-link-show-filters ap-text-md" data-toggleclassof="#ap-questions-filters" data-classtotoggle="ap-display-none"><?php esc_attr_e( 'Toggle filters', 'anspress-question-answer' ); ?></a>
 
 		<div class="ap-questions-sorting-active">
 			<?php if ( ! empty( $active_filters ) ) : ?>

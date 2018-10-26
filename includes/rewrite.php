@@ -72,6 +72,8 @@ class AnsPress_Rewrite {
 		$query_vars[] = 'ap_paged';
 		$query_vars[] = 'ap_comment_id';
 
+		$query_vars[] = 'ap_search';
+
 		return $query_vars;
 	}
 
@@ -126,16 +128,15 @@ class AnsPress_Rewrite {
 		$answer_rewrite = str_replace( '&p=', '&question_id=', $answer_rewrite );
 
 		$all_rules = array(
-			'answer/([^/]+)/?$'                           => 'index.php?answer=$matches[#]',
-			'ap_comment/([^/]+)/?$'                       => 'index.php?ap_comment_id=$matches[#]',
-			$slug . 'search/([^/]+)/?$'                   => 'index.php?s=$matches[#]&post_type=question',
-			$slug . 'edit/?$'                             => 'index.php?pagename=' . $slug_main . '&ap_page=edit',
+			'answer/([^/]+)/?$'                                    => 'index.php?answer=$matches[#]',
+			'ap_comment/([^/]+)/?$'                                => 'index.php?ap_comment_id=$matches[#]',
+			///$slug . 'search/?ss=([^/]+)$'                                   => 'index.php?ap_search=$matches',
 			$rule . '/answer/([0-9]+)/(feed|rdf|rss|rss2|atom)/?$' => $answer_rewrite . '&answer_id=$matches[#]&feed=$matches[#]',
-			$rule . '/answer-page-([0-9]{1,})/([^/]+)/?$' => $rewrite . '&ap_paged=$matches[#]&answer_id=$matches[#]',
-			$rule . '/answer-page-([0-9]{1,})/?$'         => $rewrite . '&ap_paged=$matches[#]',
-			$rule . '/(feed|rdf|rss|rss2|atom)/?$'        => $rewrite . '&feed=$matches[#]',
-			$rule . '/embed/?$'                           => $rewrite . '&embed=true',
-			$rule . '/?$'                                 => $rewrite,
+			$rule . '/answer-page-([0-9]{1,})/([^/]+)/?$'          => $rewrite . '&ap_paged=$matches[#]&answer_id=$matches[#]',
+			$rule . '/answer-page-([0-9]{1,})/?$'                  => $rewrite . '&ap_paged=$matches[#]',
+			$rule . '/(feed|rdf|rss|rss2|atom)/?$'                 => $rewrite . '&feed=$matches[#]',
+			$rule . '/embed/?$'                                    => $rewrite . '&embed=true',
+			$rule . '/?$'                                          => $rewrite,
 		);
 
 		/**

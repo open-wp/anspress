@@ -4,6 +4,7 @@
         events: {
             'click [data-toggleclassof]'  : 'toggleClassOf',
             'change [ap="submitOnChange"]': 'autoSubmitForm',
+            'submit [apDisableEmptyFields]': 'disableEmptyFields',
             'click [ap="removeQFilter"]'  : 'removeFilter',
             'click [ap="toggleAnswer"]'   : 'toggleAnswer'
         },
@@ -26,6 +27,11 @@
         },
         autoSubmitForm: function(){
             $(this).submit();
+        },
+        disableEmptyFields: function(e){
+            $(this).find(':input').filter(function(){
+                return !this.value || '0' == this.value;
+            }).prop('disabled', true);
         },
         removeFilter: function(e){
             e.preventDefault();

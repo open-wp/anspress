@@ -52,14 +52,16 @@ class Shortcodes {
 	 * CLass constructor.
 	 *
 	 * @since 4.2.0
+	 * @todo Move activities to an extension.
 	 */
 	private function __construct() {
 		$this->codes = array(
-			'anspress'          => [ $this, 'display_current_page' ],
-			'anspress_archive'  => [ $this, 'display_archive' ],
-			'anspress_question' => [ $this, 'display_question' ],
-			'anspress_edit'     => [ $this, 'display_edit' ],
-			'anspress_ask_form' => [ $this, 'display_ask' ],
+			'anspress'            => [ $this, 'display_current_page' ],
+			'anspress_archive'    => [ $this, 'display_archive' ],
+			'anspress_question'   => [ $this, 'display_question' ],
+			'anspress_edit'       => [ $this, 'display_edit' ],
+			'anspress_ask_form'   => [ $this, 'display_ask' ],
+			'anspress_activities' => [ $this, 'display_activities' ],
 		);
 	}
 
@@ -134,6 +136,8 @@ class Shortcodes {
 	public function display_current_page( $attr = [], $content = '' ) {
 		if ( ap_current_page( 'ask' ) ) {
 			return $this->display_ask( $attr, $content );
+		} elseif ( ap_current_page( 'activities' ) ) {
+			return $this->display_activities( $attr, $content );
 		} else {
 			return $this->display_archive();
 		}
@@ -339,6 +343,31 @@ class Shortcodes {
 		 * @since 4.2.0
 		 */
 		do_action( 'ap_after_display_ask' );
+
+		// Return contents of output buffer
+		return $this->end();
+	}
+
+	public function display_activities() {
+
+		// Start output buffer
+		$this->start( 'activities' );
+
+		/**
+		 * Action called before activities page (shortcode) is displayed.
+		 *
+		 * @since 4.2.0
+		 */
+		do_action( 'ap_before_display_activities' );
+
+		ap_get_template_part( 'activities/activities' );
+
+		/**
+		 * Action called after activities page (shortcode) is displayed.
+		 *
+		 * @since 4.2.0
+		 */
+		do_action( 'ap_after_display_activities' );
 
 		// Return contents of output buffer
 		return $this->end();

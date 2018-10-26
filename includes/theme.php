@@ -21,25 +21,13 @@ if ( ! defined( 'WPINC' ) ) {
  * @return string current title
  * @since unknown
  * @since 4.1.0 Removed `question_name` query var check.
+ * @todo Deprecate this.
  */
 function ap_page_title() {
 	$new_title = '';
 	$new_title = apply_filters( 'ap_page_title', $new_title );
 
 	return $new_title;
-}
-
-/**
- * Check if current page is search page
- *
- * @return boolean
- */
-function is_ap_search() {
-	if ( is_anspress() && get_query_var( 'ap_s' ) ) {
-		return true;
-	}
-
-	return false;
 }
 
 /**
@@ -537,10 +525,6 @@ function ap_current_page( $looking_for = false ) {
 	$main_pages = array_keys( ap_main_pages() );
 	$page_ids   = [];
 
-	if ( 'archive' === $ap_page ) {
-		$ap_page = 'base';
-	}
-
 	foreach ( $main_pages as $page_slug ) {
 		$page_ids[ ap_opt( $page_slug ) ] = $page_slug;
 	}
@@ -555,10 +539,14 @@ function ap_current_page( $looking_for = false ) {
 		$ap_page = $ap_page;
 	} elseif ( in_array( get_the_ID(), array_keys( $page_ids ) ) ) {
 		$ap_page = str_replace( '_page', '', $page_ids[ get_the_ID() ] );
-	} elseif ( 'archive' === $ap_page ) {
+	} elseif ( 'archive' === $ap_page || 'base' === $ap_page || ap_is_search() ) {
 		$ap_page = 'archive';
 	} elseif ( is_404() ) {
 		$ap_page = '';
+	}
+
+	if ( 'base' === $ap_page ) {
+		$ap_page = 'archive';
 	}
 
 	/**
@@ -567,6 +555,11 @@ function ap_current_page( $looking_for = false ) {
 	 * @param    string $query_var Current page slug.
 	 */
 	$ret = apply_filters( 'ap_current_page', esc_attr( $ap_page ) );
+
+	// Fallback for old archive slug.
+	if ( 'base' === $looking_for ) {
+		$looking_for = 'archive';
+	}
 
 	if ( false !== $looking_for ) {
 		return $looking_for === $ret;
@@ -1165,5 +1158,20 @@ function is_ask() {
 	if ( is_anspress() && 'ask' === ap_current_page() ) {
 		return true;
 	}
+	return false;
+}
+
+/**
+ * Check if current page is search page.
+ *
+ * @return boolean
+ */
+function ap_is_search() {
+	global $wp_query;
+
+	if ( ! empty( $wp_query->ap_is_search ) && true === $wp_query->ap_is_search ) {
+		return true;
+	}
+
 	return false;
 }

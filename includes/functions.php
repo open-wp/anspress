@@ -2651,3 +2651,29 @@ function ap_editing_post_id() {
 	 */
 	return apply_filters( 'ap_editing_post_id', $id );
 }
+
+/**
+ * Get the search terms.
+ *
+ * If search terms are supplied, those are used. Otherwise check the
+ * search rewrite id query var.
+ *
+ * @param string $passed_terms Optional. Search terms.
+ * @return bool|string Search terms on success, false on failure.
+ */
+function ap_get_search_terms( $passed_terms = '' ) {
+
+	// Sanitize terms if they were passed in
+	if ( ! empty( $passed_terms ) ) {
+		$search_terms = sanitize_title( $passed_terms );
+
+	// Use query variable if not
+	} else {
+		$search_terms = get_query_var( 'ap_search' );
+	}
+
+	// Trim whitespace and decode, or set explicitly to false if empty
+	$search_terms = ! empty( $search_terms ) ? urldecode( trim( $search_terms ) ) : false;
+
+	return apply_filters( 'ap_get_search_terms', $search_terms, $passed_terms );
+}

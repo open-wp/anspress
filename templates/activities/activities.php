@@ -11,6 +11,15 @@
  * @global object $activities Activity query.
  */
 
+$roles = array_keys( ap_opt( 'activity_exclude_roles' ) );
+$args  = [];
+
+if ( ! empty( $roles ) ) {
+	$args['exclude_roles'] = $roles;
+}
+
+$activities = new AnsPress\Activity( $args );
+
 ?>
 <div class="ap-activities">
 	<?php if ( $activities->have() ) : ?>

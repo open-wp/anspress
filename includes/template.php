@@ -486,7 +486,7 @@ function get_current_answer_sorting() {
 function get_questions_filter() {
 	$links = [];
 
-	$links['all'] = array(
+	$links[''] = array(
 		'label' => __( 'All', 'anspress-question-answer' ),
 		'sql'   => '',
 	);
@@ -538,7 +538,7 @@ function get_current_questions_filter() {
 
 	// Check if tab exists.
 	if ( ! isset( $tab[ $active ] ) ) {
-		$active = 'all';
+		$active = '';
 	}
 
 	/**
@@ -798,7 +798,7 @@ function get_current_questions_filters() {
 
 	$current_qfilter = get_current_questions_filter();
 
-	if ( 'all' !== $current_qfilter ) {
+	if ( '' !== $current_qfilter ) {
 		$qfilters = get_questions_filter();
 		$filters[]         = array(
 			'name'  => 'qfilter',

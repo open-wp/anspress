@@ -570,3 +570,18 @@ function ap_get_current_list_filters( $filter = null ) {
 	return $get_filters;
 }
 
+/**
+ * Check if current page is search page
+ *
+ * @return boolean
+ * @deprecated 4.2.0 Replace by ap_is_search().
+ */
+function is_ap_search() {
+	_deprecated_function( __FUNCTION__, '4.2.0', 'ap_is_search');
+
+	if ( is_anspress() && get_query_var( 'ap_s' ) ) {
+		return true;
+	}
+
+	return false;
+}

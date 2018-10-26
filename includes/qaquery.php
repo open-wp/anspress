@@ -841,7 +841,7 @@ function ap_get_questions( $args = '' ) {
 	}
 
 	// Search string.
-	$search_str = ap_isset_post_value( 'question_s' );
+	$search_str = ap_get_search_terms();
 	if ( ! empty( $search_str ) ) {
 		$default['s'] = $search_str;
 	}

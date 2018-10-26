@@ -167,11 +167,11 @@ class AP_QA_Query_Hooks {
 	 * @since 4.1.0
 	 */
 	public static function modify_main_posts( $posts, $query ) {
-		if ( $query->is_main_query() && $query->is_search() && 'question' === get_query_var( 'post_type' ) ) {
-			$query->found_posts   = 1;
-			$query->max_num_pages = 1;
-			$posts                = [ get_page( ap_opt( 'base_page' ) ) ];
-		}
+		// if ( $query->is_main_query() && $query->is_search() && 'question' === get_query_var( 'post_type' ) ) {
+		// 	$query->found_posts   = 1;
+		// 	$query->max_num_pages = 1;
+		// 	$posts                = [ get_page( ap_opt( 'base_page' ) ) ];
+		// }
 
 		return $posts;
 	}
@@ -187,6 +187,42 @@ class AP_QA_Query_Hooks {
 	public static function pre_get_posts( $query ) {
 		if ( $query->is_single() && $query->is_main_query() && 'question' === get_query_var( 'post_type' ) ) {
 			//$query->set( 'post_status', [ 'publish', 'trash', 'moderate', 'private_post', 'future', 'ap_spam' ] );
+		}
+	}
+
+	/**
+	 * Add custom query vars.
+	 */
+	public static function parse_query( $posts_query ) {
+		// Bail if $posts_query is not the main loop.
+		if ( ! $posts_query->is_main_query() ) {
+			return;
+		}
+
+		// Bail if filters are suppressed on this query
+		if ( true === $posts_query->get( 'suppress_filters' ) ) {
+			return;
+		}
+
+		// Bail if in admin
+		if ( is_admin() ) {
+			return;
+		}
+
+		if ( isset( $posts_query->query_vars[ 'ap_search' ] ) ) {
+
+			// Check if there are search query args set
+			$search_terms = ap_get_search_terms();
+			if ( ! empty( $search_terms ) ) {
+				$posts_query->ap_search_terms = $search_terms;
+			}
+
+			// Correct is_home variable
+			$posts_query->is_home = false;
+
+			// We are in a search query
+			$posts_query->ap_is_search = true;
+			$posts_query->is_search    = true;
 		}
 	}
 }
