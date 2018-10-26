@@ -96,9 +96,6 @@ class AnsPress_Hooks {
 			anspress()->add_filter( 'preprocess_comment', 'AnsPress_Comment_Hooks', 'preprocess_comment' );
 			anspress()->add_filter( 'comments_template', 'AnsPress_Comment_Hooks', 'comments_template' );
 
-			// Common pages hooks.
-			anspress()->add_action( 'init', 'AnsPress_Common_Pages', 'register_common_pages' );
-
 			// Register post status.
 			anspress()->add_action( 'init', 'AnsPress_Post_Status', 'register_post_status' );
 

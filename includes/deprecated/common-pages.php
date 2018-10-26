@@ -7,6 +7,8 @@
  * @license   GPL-3.0+
  * @link      https://anspress.io
  * @copyright 2014 Rahul Aryan
+ *
+ * @deprecated 4.2.0
  */
 
 /**
