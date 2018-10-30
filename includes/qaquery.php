@@ -815,10 +815,8 @@ function ap_get_answers( $args = '' ) {
 function ap_get_questions( $args = '' ) {
 	global $wp_rewrite;
 
-	$paged     = (int) max( 1, get_query_var( 'paged', 1 ) );
-	$order_by  = Template\get_current_questions_sorting();
-	$filter_by = Template\get_current_questions_filter();
-	$status    = [ 'publish', 'private' ];
+	$paged  = (int) max( 1, get_query_var( 'paged', 1 ) );
+	$status = [ 'publish', 'private' ];
 
 	// Default query args
 	$default = array(
@@ -829,16 +827,11 @@ function ap_get_questions( $args = '' ) {
 		'ap_question_query'      => true,
 		'posts_per_page'         => ap_opt( 'question_per_page' ),
 		'post_status'            => $status,
-		'ap_order_by'            => $order_by,
+		'ap_order_by'            => 'active',
 		'ap_filter_by'           => 'all',
 		'perm'                   => 'readable',
+		'pagination_base'        => ap_get_link_to( '/' ),
 	);
-
-	if ( 'unpublished' === $filter_by ) {
-		$default['post_status'] = [ 'moderate', 'trash', 'future' ];
-	} else {
-		$default['ap_filter_by'] = $filter_by;
-	}
 
 	// Search string.
 	$search_str = ap_get_search_terms();
@@ -855,6 +848,10 @@ function ap_get_questions( $args = '' ) {
 
 	// Parse arguments against default values
 	$r = wp_parse_args( $args, $default );
+
+	if ( 'unpublished' === $r['ap_filter_by'] ) {
+		$r['post_status'] = [ 'moderate', 'trash', 'future' ];
+	}
 
 	$r['post_type'] = 'question';
 
@@ -874,7 +871,7 @@ function ap_get_questions( $args = '' ) {
 
 		// Make our pagination pretty.
 		if ( $wp_rewrite->using_permalinks() ) {
-			$base = ap_get_link_to( '/' );
+			$base = $r['pagination_base'];
 			$base = trailingslashit( $base ) . user_trailingslashit( $wp_rewrite->pagination_base . '/%#%/' );
 		} else {
 			$base = add_query_arg( 'paged', '%#%' );

@@ -22,4 +22,3 @@ namespace AnsPress\Template;
 	endwhile;
 	?>
 </div>
-<?php ap_get_template_part( 'pagination-questions' ); ?>

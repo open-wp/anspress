@@ -38,8 +38,6 @@ class Categories extends \AnsPress\Singleton {
 	 * @since 4.0.0
 	 */
 	protected function __construct() {
-		//ap_register_page( 'category', __( 'Category', 'anspress-question-answer' ), array( $this, 'category_page' ), false );
-
 		anspress()->add_action( 'init', $this, 'register_question_categories', 1 );
 		anspress()->add_action( 'ap_form_addon-categories', $this, 'load_options' );
 		anspress()->add_action( 'admin_enqueue_scripts', $this, 'admin_enqueue_scripts' );

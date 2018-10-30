@@ -10,18 +10,25 @@
  * @subpackage  Templates
  */
 
+namespace AnsPress\Template;
+
+$category  = get_queried_object();
+$order_by  = get_current_questions_sorting();
+$filter_by = get_current_questions_filter();
+
+// Query args.
 $question_args = array(
-	'tax_query' => array(
+	'ap_order_by'  => $order_by,
+	'ap_filter_by' => $filter_by,
+	'tax_query'    => array(
 		array(
 			'taxonomy' => 'question_category',
 			'field'    => 'id',
 			'terms'    => array( get_queried_object_id() ),
 		),
 	),
+	'pagination_base' => get_term_link( $category, 'question_category' ),
 );
-
-$category = get_queried_object();
-
 
 $icon = ap_get_category_icon( $category->term_id );
 ?>
@@ -47,12 +54,12 @@ $icon = ap_get_category_icon( $category->term_id );
 			<div class="no-overflow">
 				<div>
 					<span class="ap-tax-count">
-						<?php
-							printf(
-								_n( '%d Question', '%d Questions', (int) $category->count, 'anspress-question-answer' ),
-								(int) $category->count
-							);
-						?>
+					<?php
+						printf(
+							_n( '%d Question', '%d Questions', (int) $category->count, 'anspress-question-answer' ),
+							(int) $category->count
+						);
+					?>
 					</span>
 				</div>
 
@@ -80,8 +87,11 @@ $icon = ap_get_category_icon( $category->term_id );
 
 		<?php if ( ap_get_questions( $question_args ) ) : ?>
 			<?php ap_get_template_part( 'loop-questions' ); ?>
+			<?php ap_get_template_part( 'pagination-questions' ); ?>
+		<?php else : ?>
+			<?php ap_get_template_part( 'feedback-questions' ); ?>
+			<?php ap_get_template_part( 'login-signup' ); ?>
 		<?php endif; ?>
-
 
 	</div><!-- close #ap-lists -->
 

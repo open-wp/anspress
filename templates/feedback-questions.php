@@ -26,7 +26,7 @@ $search_str = ap_isset_post_value( 'question_s' );
 			</div>
 		</div>
 
-	<?php elseif ( ! empty( $search_str ) ) : ?>
+	<?php elseif ( ap_get_search_terms() ) : ?>
 
 		<div class="ap-display-flex align-item-center">
 			<i class="ap-feedback-icon apicon-search ap-text-muted"></i>
@@ -34,6 +34,18 @@ $search_str = ap_isset_post_value( 'question_s' );
 				<strong class="ap-feedback-title"><?php esc_attr_e( 'No questions found matching your query.', 'anspress-question-answer' ); ?></strong>
 				<p class="mb-0 ap-feedback-msg">
 					<?php esc_attr_e( 'Try removing filters or try with differnt search term ', 'anspress-question-answer' ); ?>
+				</p>
+			</div>
+		</div>
+
+	<?php elseif ( ap_current_page( 'category' ) ) : ?>
+
+		<div class="ap-display-flex align-item-center">
+			<i class="ap-feedback-icon apicon-category ap-text-muted"></i>
+			<div>
+				<strong class="ap-feedback-title"><?php esc_attr_e( 'No questions in this category.', 'anspress-question-answer' ); ?></strong>
+				<p class="mb-0 ap-feedback-msg">
+					<?php esc_attr_e( 'Try browsing other categories.', 'anspress-question-answer' ); ?>
 				</p>
 			</div>
 		</div>

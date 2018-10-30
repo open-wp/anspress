@@ -12,6 +12,14 @@
  */
 
 namespace AnsPress\Template;
+
+$order_by  = get_current_questions_sorting();
+$filter_by = get_current_questions_filter();
+
+$args = [
+	'ap_order_by'  => $order_by,
+	'ap_filter_by' => $filter_by,
+];
 ?>
 
 <?php dynamic_sidebar( 'ap-top' ); ?>
@@ -23,9 +31,10 @@ namespace AnsPress\Template;
 			ap_get_template_part( 'questions-sort-filters' );
 		?>
 
-		<?php if ( ap_get_questions() ) : ?>
+		<?php if ( ap_get_questions( $args ) ) : ?>
 
 			<?php ap_get_template_part( 'loop-questions' ); ?>
+			<?php ap_get_template_part( 'pagination-questions' ); ?>
 
 		<?php else : ?>
 
