@@ -145,6 +145,7 @@ class AP_QA_Query_Hooks {
 	 * An imaginary post.
 	 *
 	 * @return object
+	 * @todo Deprecate this.
 	 */
 	public static function imaginary_post( $p ) {
 		$_post = array(
@@ -223,6 +224,13 @@ class AP_QA_Query_Hooks {
 			// We are in a search query
 			$posts_query->ap_is_search = true;
 			$posts_query->is_search    = true;
+		} elseif ( isset( $posts_query->query_vars['question_category'] ) ) {
+
+			// Correct is_home variable
+			$posts_query->is_home = false;
+
+			// We are in a search query
+			$posts_query->ap_is_category = true;
 		}
 	}
 }

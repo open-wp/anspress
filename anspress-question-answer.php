@@ -283,7 +283,7 @@ if ( ! class_exists( 'AnsPress' ) ) {
 		private function includes() {
 			require_once ANSPRESS_DIR . 'loader.php';
 			require_once ANSPRESS_DIR . 'includes/activity.php';
-			require_once ANSPRESS_DIR . 'includes/common-pages.php';
+			//require_once ANSPRESS_DIR . 'includes/common-pages.php';
 			require_once ANSPRESS_DIR . 'includes/class-theme.php';
 			require_once ANSPRESS_DIR . 'includes/class-form-hooks.php';
 			require_once ANSPRESS_DIR . 'includes/options.php';
@@ -301,7 +301,7 @@ if ( ! class_exists( 'AnsPress' ) ) {
 			require_once ANSPRESS_DIR . 'includes/shortcode-basepage.php';
 			require_once ANSPRESS_DIR . 'includes/process-form.php';
 			require_once ANSPRESS_DIR . 'includes/rewrite.php';
-			require_once ANSPRESS_DIR . 'includes/deprecated.php';
+
 			require_once ANSPRESS_DIR . 'includes/flag.php';
 			require_once ANSPRESS_DIR . 'includes/shortcode-question.php';
 			require_once ANSPRESS_DIR . 'includes/akismet.php';
@@ -337,8 +337,9 @@ if ( ! class_exists( 'AnsPress' ) ) {
 			require_once ANSPRESS_DIR . 'lib/form/class-textarea.php';
 			require_once ANSPRESS_DIR . 'lib/class-validate.php';
 			require_once ANSPRESS_DIR . 'lib/class-wp-async-task.php';
-
 			require_once ANSPRESS_DIR . 'includes/class-async-tasks.php';
+
+			require_once ANSPRESS_DIR . 'includes/deprecated/functions.php';
 
 			if ( defined( 'WP_CLI' ) && WP_CLI ) {
 				require_once ANSPRESS_DIR . 'lib/class-anspress-cli.php';

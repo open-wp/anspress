@@ -100,6 +100,7 @@ class AnsPress_Rewrite {
 	 * Rewrite rules.
 	 *
 	 * @return array
+	 * @since 4.2.0 Improved rewrite for questions.
 	 */
 	public static function rewrites() {
 		global $wp_rewrite;
@@ -130,12 +131,13 @@ class AnsPress_Rewrite {
 		$all_rules = array(
 			'answer/([^/]+)/?$'                                    => 'index.php?answer=$matches[#]',
 			'ap_comment/([^/]+)/?$'                                => 'index.php?ap_comment_id=$matches[#]',
-			///$slug . 'search/?ss=([^/]+)$'                                   => 'index.php?ap_search=$matches',
 			$rule . '/answer/([0-9]+)/(feed|rdf|rss|rss2|atom)/?$' => $answer_rewrite . '&answer_id=$matches[#]&feed=$matches[#]',
 			$rule . '/answer-page-([0-9]{1,})/([^/]+)/?$'          => $rewrite . '&ap_paged=$matches[#]&answer_id=$matches[#]',
 			$rule . '/answer-page-([0-9]{1,})/?$'                  => $rewrite . '&ap_paged=$matches[#]',
 			$rule . '/(feed|rdf|rss|rss2|atom)/?$'                 => $rewrite . '&feed=$matches[#]',
 			$rule . '/embed/?$'                                    => $rewrite . '&embed=true',
+			$slug . 'page/([0-9]{1,})/?$'                          => 'index.php?post_type=question&paged=$matches[#]',
+			$slug . '?$'                                           => 'index.php?post_type=question',
 			$rule . '/?$'                                          => $rewrite,
 		);
 

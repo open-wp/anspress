@@ -25,17 +25,7 @@ namespace AnsPress\Template;
 
 		<?php if ( ap_get_questions() ) : ?>
 
-			<div class="ap-questions">
-				<?php
-				/* Start the Loop */
-				while ( ap_have_questions() ) :
-					ap_the_question();
-					ap_get_template_part( 'loop-question' );
-
-				endwhile;
-				?>
-			</div>
-			<?php ap_get_template_part( 'pagination-questions' ); ?>
+			<?php ap_get_template_part( 'loop-questions' ); ?>
 
 		<?php else : ?>
 

@@ -17,6 +17,8 @@
 class AnsPress_Common_Pages {
 	/**
 	 * Register all pages of AnsPress
+	 *
+	 * @todo Remove this if not required anymore.
 	 */
 	public static function register_common_pages() {
 		ap_register_page( 'base', ap_opt( 'base_page_title' ), [ __CLASS__, 'base_page' ] );

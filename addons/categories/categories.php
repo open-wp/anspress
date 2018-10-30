@@ -12,6 +12,7 @@
  */
 
 namespace AnsPress\Addons;
+use AnsPress\Shortcodes;
 
 // If this file is called directly, abort.
 if ( ! defined( 'WPINC' ) ) {
@@ -37,8 +38,7 @@ class Categories extends \AnsPress\Singleton {
 	 * @since 4.0.0
 	 */
 	protected function __construct() {
-		ap_register_page( 'category', __( 'Category', 'anspress-question-answer' ), array( $this, 'category_page' ), false );
-		ap_register_page( 'categories', __( 'Categories', 'anspress-question-answer' ), array( $this, 'categories_page' ) );
+		//ap_register_page( 'category', __( 'Category', 'anspress-question-answer' ), array( $this, 'category_page' ), false );
 
 		anspress()->add_action( 'init', $this, 'register_question_categories', 1 );
 		anspress()->add_action( 'ap_form_addon-categories', $this, 'load_options' );
@@ -70,89 +70,9 @@ class Categories extends \AnsPress\Singleton {
 		anspress()->add_action( 'posts_pre_query', $this, 'modify_query_category_archive', 9999, 2 );
 
 		anspress()->add_action( 'widgets_init', $this, 'widget' );
-	}
 
-	/**
-	 * Category page layout.
-	 *
-	 * @since 4.1.0 Use `get_queried_object()` to get current term.
-	 * @since 4.1.8 Added new filter `ap_category_questions_args`.
-	 */
-	public function category_page() {
-		$question_args = array(
-			'tax_query' => array(
-				array(
-					'taxonomy' => 'question_category',
-					'field'    => 'id',
-					'terms'    => array( get_queried_object_id() ),
-				),
-			),
-		);
-
-		$question_category = get_queried_object();
-
-		if ( $question_category ) {
-
-			/**
-			 * Filter category page question list query arguments.
-			 *
-			 * @param array $args Wp_Query arguments.
-			 * @since 4.1.8
-			 */
-			$question_args = apply_filters( 'ap_category_questions_args', $question_args );
-
-			anspress()->questions = ap_get_questions( $question_args );
-
-			/**
-			 * This action can be used to show custom message before category page.
-			 *
-			 * @param object $question_category Current question category.
-			 * @since 1.4.2
-			 */
-			do_action( 'ap_before_category_page', $question_category );
-
-			include ap_get_theme_location( 'addons/category/single-category.php' );
-		}
-	}
-
-	/**
-	 * Categories page layout
-	 */
-	public function categories_page() {
-		global $question_categories, $ap_max_num_pages, $ap_per_page;
-
-		$paged            = max( 1, get_query_var( 'paged' ) );
-		$per_page         = ap_opt( 'categories_per_page' );
-		$total_terms      = wp_count_terms(
-			'question_category', [
-				'hide_empty' => false,
-				'parent'     => 0,
-			]
-		);
-		$offset           = $per_page * ( $paged - 1 );
-		$ap_max_num_pages = ceil( $total_terms / $per_page );
-
-		$order = ap_opt( 'categories_page_order' ) == 'ASC' ? 'ASC' : 'DESC';
-
-		$cat_args = array(
-			'parent'     => 0,
-			'number'     => $per_page,
-			'offset'     => $offset,
-			'hide_empty' => false,
-			'orderby'    => ap_opt( 'categories_page_orderby' ),
-			'order'      => $order,
-		);
-
-		/**
-		 * Filter applied before getting categories.
-		 *
-		 * @param array $cat_args `get_terms` arguments.
-		 * @since 1.0
-		 */
-		$cat_args = apply_filters( 'ap_categories_shortcode_args', $cat_args );
-
-		$question_categories = get_terms( 'question_category', $cat_args );
-		include ap_get_theme_location( 'addons/category/categories.php' );
+		anspress()->add_filter( 'ap_shortcode_display_current_page', $this, 'shortcode_fallback' );
+		anspress()->add_filter( 'ap_template_include_theme_compat', $this, 'template_include_theme_compat' );
 	}
 
 	/**
@@ -193,8 +113,7 @@ class Categories extends \AnsPress\Singleton {
 		);
 
 		/**
-		 * FILTER: ap_question_category_labels
-		 * Filter ic called before registering question_category taxonomy
+		 * Filter ic called before registering question_category taxonomy.
 		 */
 		$categories_labels = apply_filters( 'ap_question_category_labels', $categories_labels );
 
@@ -218,10 +137,91 @@ class Categories extends \AnsPress\Singleton {
 		 */
 		$category_args = apply_filters( 'ap_question_category_args', $category_args );
 
-		/**
-		 * Now let WordPress know about our taxonomy
-		 */
 		register_taxonomy( 'question_category', [ 'question' ], $category_args );
+
+		$this->register_shortcodes();
+	}
+
+	/**
+	 * Register shortcodes.
+	 *
+	 * @since 4.2.0
+	 */
+	private function register_shortcodes() {
+		add_shortcode( 'anspress_category', [ self::$instance, 'shortcode_category' ] );
+		add_shortcode( 'anspress_categories', [ self::$instance, 'shortcode_categories' ] );
+	}
+
+	/**
+	 * Register category shortcode.
+	 *
+	 * @since 4.2.0
+	 */
+	public function shortcode_category() {
+		$shortcode = Shortcodes::get_instance();
+		return $shortcode->display_custom_shortcode(
+			'category',
+			self::$instance,
+			'display_shortcode_category'
+		);
+	}
+
+	/**
+	 * Category page layout.
+	 */
+	public function display_shortcode_category() {
+		/**
+		 * Action called before category page (shortcode) is rendered.
+		 *
+		 * @since 4.2.0
+		 */
+		do_action( 'ap_before_display_category' );
+
+		ap_get_template_part( 'content-archive-category' );
+
+		/**
+		 * Action called after category page (shortcode) is rendered.
+		 *
+		 * @since 4.2.0
+		 */
+		do_action( 'ap_after_display_category' );
+	}
+
+	/**
+	 * Register categories shortcode.
+	 *
+	 * @since 4.2.0
+	 */
+	public function shortcode_categories() {
+		$shortcode = Shortcodes::get_instance();
+		return $shortcode->display_custom_shortcode(
+			'categories',
+			self::$instance,
+			'display_shortcode_categories'
+		);
+	}
+
+	/**
+	 * Display categories shortcode.
+	 *
+	 * @since 4.2.0
+	 */
+	public function display_shortcode_categories() {
+		/**
+		 * Action called before categories page (shortcode) is rendered.
+		 *
+		 * @since 4.2.0
+		 */
+		do_action( 'ap_before_display_categories' );
+
+		ap_get_template_part( 'categories' );
+
+		/**
+		 * Action called after categories page (shortcode) is rendered.
+		 *
+		 * @since 4.2.0
+		 */
+		do_action( 'ap_after_display_categories' );
 	}
 
 	/**
@@ -353,7 +353,7 @@ class Categories extends \AnsPress\Singleton {
 	 * @since 1.0
 	 */
 	public function ap_assets_js( $js ) {
-		if ( ap_current_page() === 'category' ) {
+		if ( ap_current_page( 'category' ) || ap_current_page( 'categories' ) ) {
 			$js['main']['active'] = true;
 		}
 		return $js;
@@ -521,6 +521,11 @@ class Categories extends \AnsPress\Singleton {
 	 * @since 4.2.0
 	 */
 	public function sort_filters_col3() {
+		// Don't show on category archive.
+		if ( ap_current_page( 'category' ) ) {
+			return;
+		}
+
 		$args = array(
 			'show_option_all' => __( 'All categories', 'anspress-question-answer' ),
 			'hide_empty'      => 1,
@@ -836,8 +841,12 @@ class Categories extends \AnsPress\Singleton {
 	 * @since 4.1.0
 	 */
 	public function ap_current_page( $query_var ) {
-		if ( 'categories' === $query_var && 'category' === get_query_var( 'ap_page' ) ) {
+		global $wp_query;
+
+		if ( ap_is_category() || 'category' === $query_var || 'category' === get_query_var( 'ap_page' ) ) {
 			return 'category';
+		} elseif ( 'categories' === $query_var ) {
+			return 'categories';
 		}
 
 		return $query_var;
@@ -871,6 +880,77 @@ class Categories extends \AnsPress\Singleton {
 	public function widget() {
 		require_once ANSPRESS_ADDONS_DIR . '/categories/widget.php';
 		register_widget( 'Anspress\Widgets\Categories' );
+	}
+
+	/**
+	 * Fallback for old categories/category shortcode `[anspress page="categories"]`.
+	 *
+	 * @since 4.2.0
+	 */
+	public function shortcode_fallback() {
+		if ( ap_current_page( 'categories' ) ) {
+			return $this->shortcode_categories();
+		}
+
+		return false;
+	}
+
+	/**
+	 * Template compatibility.
+	 *
+	 * @since 4.2.0
+	 */
+	public static function template_include_theme_compat( $template = '' ) {
+		if ( ap_current_page( 'categories' ) ) {
+			// Ask page.
+			$page_id = ap_main_pages_id( 'categories' );
+
+			$page = get_page( $page_id );
+
+			// Replace the content.
+			if ( empty( $page->post_content ) ) {
+				$new_content = $this->shortcode_categories();
+			} else {
+				$new_content = apply_filters( 'the_content', $page->post_content );
+			}
+
+			// Replace the title.
+			if ( empty( $page->post_title ) ) {
+				$new_title = __( 'Categories', 'anspress-question-answer' );
+			} else {
+				$new_title = apply_filters( 'the_title', $page->post_title );
+			}
+
+			ap_theme_compat_reset_post( array(
+				'ID'             => ! empty( $page->ID ) ? $page->ID : 0,
+				'post_title'     => $new_title,
+				'post_author'    => 0,
+				'post_date'      => 0,
+				'post_content'   => $new_content,
+				'post_type'      => 'page',
+				'post_status'    => 'publish',
+				'is_single'      => true,
+				'comment_status' => 'closed',
+			) );
+		} elseif ( ap_current_page( 'category' ) ) {
+			$category = get_queried_object();
+
+			ap_theme_compat_reset_post( array(
+				'ID'             => 0,
+				'post_title'     => $category->name,
+				'post_author'    => 0,
+				'post_date'      => 0,
+				'post_content'   => $this->shortcode_category(),
+				'post_type'      => 'question',
+				'post_status'    => 'publish',
+				'is_tax'         => true,
+				'is_archive'     => true,
+				'is_single'      => false,
+				'comment_status' => 'closed',
+			) );
+		}
+
+		return $template;
 	}
 }
 

@@ -1,24 +1,20 @@
 //--------------------------
 // Categories styles
 //-------------------------
-#ap-categories {
-}
-#anspress {
-  .ap-term-category-box {
-    list-style: outside none none;
-    padding: 0;
+.ap-categories {
+  &-items{
     display: flex;
     flex-wrap: wrap;
-    margin: -20px;
-    >li {
-      margin: 0;
-      padding: 20px;
-      flex-shrink: 0;
-      flex-grow: 0;
-      flex-basis: 33.33%;
-      min-width: 280px;
+    margin: 0 -15px;
+    .ap-categories-item{
+      width: 33.33%;
+      padding: 0 15px;
+      margin-bottom: 40px;
     }
   }
+}
+#anspress {
+
   .ap-category-item {
     .ap-cat-img-c .ap-category-icon {
       color: #fff;
@@ -55,17 +51,6 @@
     float: right;
     font-size: 13px;
     text-align: right;
-  }
-  .ap-term-title {
-    font-size: 17px;
-    font-weight: bold;
-    margin-top: 10px;
-    text-decoration: none;
-  }
-  .ap-taxo-description {
-    font-size: 13px;
-    line-height: 1.4;
-    margin-top: 5px;
   }
   .ap-category-image {
     box-shadow: none;

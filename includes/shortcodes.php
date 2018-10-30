@@ -134,7 +134,11 @@ class Shortcodes {
 	 * @since 4.2.0
 	 */
 	public function display_current_page( $attr = [], $content = '' ) {
-		if ( ap_current_page( 'ask' ) ) {
+		$fallback = apply_filters( 'ap_shortcode_display_current_page', false );
+
+		if ( false !== $fallback ) {
+			return $fallback;
+		} elseif ( ap_current_page( 'ask' ) ) {
 			return $this->display_ask( $attr, $content );
 		} elseif ( ap_current_page( 'activities' ) ) {
 			return $this->display_activities( $attr, $content );
@@ -348,6 +352,11 @@ class Shortcodes {
 		return $this->end();
 	}
 
+	/**
+	 * Display activities page.
+	 *
+	 * @since 4.2.0
+	 */
 	public function display_activities() {
 
 		// Start output buffer
@@ -368,6 +377,21 @@ class Shortcodes {
 		 * @since 4.2.0
 		 */
 		do_action( 'ap_after_display_activities' );
+
+		// Return contents of output buffer
+		return $this->end();
+	}
+
+	public function display_custom_shortcode( $tag, $class, $method ) {
+
+		if ( ! is_callable( [ $class, $method ] ) ) {
+			return;
+		}
+
+		// Start output buffer
+		$this->start( $tag );
+
+		$class->$method();
 
 		// Return contents of output buffer
 		return $this->end();

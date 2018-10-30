@@ -539,7 +539,7 @@ function ap_current_page( $looking_for = false ) {
 		$ap_page = $ap_page;
 	} elseif ( in_array( get_the_ID(), array_keys( $page_ids ) ) ) {
 		$ap_page = str_replace( '_page', '', $page_ids[ get_the_ID() ] );
-	} elseif ( 'archive' === $ap_page || 'base' === $ap_page || ap_is_search() ) {
+	} elseif ( 'archive' === $ap_page || 'base' === $ap_page || ap_is_search() || is_post_type_archive( 'question' ) ) {
 		$ap_page = 'archive';
 	} elseif ( is_404() ) {
 		$ap_page = '';

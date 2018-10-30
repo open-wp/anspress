@@ -653,15 +653,13 @@ div.mce-toolbar-grp{border-bottom:2px solid #eee}
 .ap-snackbar.success{color:#fff;background-color:#323232}
 .snackbar-show .ap-snackbar{opacity:1;bottom:0}
 .ap-snackbar .action{background:inherit;display:inline-block;border:0;font-size:inherit;text-transform:uppercase;color:#ffeb3b;margin:0 0 0 24px;padding:0;min-width:-webkit-min-content;min-width:-moz-min-content;min-width:min-content}
-#anspress .ap-term-category-box{list-style:outside none none;padding:0;display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-wrap:wrap;-ms-flex-wrap:wrap;flex-wrap:wrap;margin:-20px}
-#anspress .ap-term-category-box>li{margin:0;padding:20px;-webkit-flex-shrink:0;-ms-flex-negative:0;flex-shrink:0;-webkit-box-flex:0;-webkit-flex-grow:0;-ms-flex-positive:0;flex-grow:0;-webkit-flex-basis:33.33%;-ms-flex-preferred-size:33.33%;flex-basis:33.33%;min-width:280px}
+.ap-categories-items{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-wrap:wrap;-ms-flex-wrap:wrap;flex-wrap:wrap;margin:0 -15px}
+.ap-categories-items .ap-categories-item{width:33.33%;padding:0 15px;margin-bottom:40px}
 #anspress .ap-category-item .ap-cat-img-c .ap-category-icon{color:#fff;width:50px;font-size:35px;height:50px;text-align:center}
 #anspress .ap-cat-img-c{position:relative}
 #anspress .ap-cat-img-c .ap-category-icon{left:50%;margin-left:-20px;margin-top:-20px;position:absolute;top:50%}
 #anspress .ap-term-count{background:#333 none repeat scroll 0 0;border-radius:3px;bottom:0;color:#fff;display:block;font-size:12px;font-weight:bold;padding:1px 7px;position:absolute;right:0}
 #anspress .ap-sub-category{color:#888;float:right;font-size:13px;text-align:right}
-#anspress .ap-term-title{font-size:17px;font-weight:bold;margin-top:10px;text-decoration:none}
-#anspress .ap-taxo-description{font-size:13px;line-height:1.4;margin-top:5px}
 #anspress .ap-category-image{box-shadow:none;max-height:114px}
 #anspress .sub-taxo-label{font-size:16px;font-weight:bold;margin-bottom:15px;margin-top:10px}
 #anspress .ap-category-subitems{margin-bottom:30px}

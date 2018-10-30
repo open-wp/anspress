@@ -261,6 +261,7 @@ function ap_category_image( $term_id, $height = 32 ) {
  *
  * @param  integer $term_id     Term ID.
  * @param  string  $attributes  Custom attributes.
+ * @todo Improve
  */
 function ap_get_category_icon( $term_id, $attributes = '' ) {
 	$option = get_term_meta( $term_id, 'ap_category', true );
@@ -481,4 +482,19 @@ function ap_get_tag_slug() {
  */
 function ap_get_tags_slug() {
 	return apply_filters( 'ap_tags_slug', ap_get_page_slug( 'tags' ) );
+}
+
+/**
+ * Checks if category archive.
+ *
+ * @since 4.2.0
+ */
+function ap_is_category() {
+	global $wp_query;
+
+	if ( ! empty( $wp_query->ap_is_category ) && true === $wp_query->ap_is_category ) {
+		return true;
+	}
+
+	return false;
 }

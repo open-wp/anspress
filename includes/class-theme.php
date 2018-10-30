@@ -230,6 +230,8 @@ class AnsPress_Theme {
 			) );
 		}
 
+		do_action( 'ap_template_include_theme_compat' );
+
 		if ( true === anspress()->theme_compat->active ) {
 			ap_remove_all_filters( 'the_content' );
 		}
@@ -310,8 +312,6 @@ class AnsPress_Theme {
 					__( 'Search question: "%s"', 'anspress-questions-answer' ),
 					ap_get_search_terms()
 				);
-			} elseif ( is_question() ) {
-				$title = ap_question_title_with_solved_prefix() . ' | ';
 			}
 		}
 

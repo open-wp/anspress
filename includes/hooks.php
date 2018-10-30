@@ -495,12 +495,12 @@ class AnsPress_Hooks {
 		$a_id = 'answer' === $post->post_type ? $post->ID : 0;
 
 		// Insert activity.
-		ap_activity_add( array(
+		ap_activity_add( [
 			'q_id'   => $q_id,
 			'a_id'   => $a_id,
 			'action' => 'edit_c',
-      'c_id'   => $comment_id,
-		) );
+			'c_id'   => $comment_id,
+		] );
 	}
 
 	/**
@@ -510,6 +510,7 @@ class AnsPress_Hooks {
 	 * @param	object $item Current menu item.
 	 * @return array menu item.
 	 * @since	2.1
+	 * @since   4.2.0 Add current class to question archive page.
 	 */
 	public static function fix_nav_current_class( $class, $item ) {
 		// Return if empty or `$item` is not object.
@@ -517,7 +518,9 @@ class AnsPress_Hooks {
 			return $class;
 		}
 
-		if ( ap_current_page() === $item->object ) {
+		if ( ap_current_page( 'archive' ) && 'page' === $item->object && ap_main_pages_id( 'base' ) == $item->object_id ) {
+			$class[] = 'current-menu-item';
+		} elseif ( ap_current_page() === $item->object ) {
 			$class[] = 'current-menu-item';
 		}
 
