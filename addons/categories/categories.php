@@ -39,6 +39,7 @@ class Categories extends \AnsPress\Singleton {
 	 */
 	protected function __construct() {
 		anspress()->add_action( 'init', $this, 'register_question_categories', 1 );
+		anspress()->add_action( 'widgets_init', $this, 'widget_positions' );
 		anspress()->add_action( 'ap_form_addon-categories', $this, 'load_options' );
 		anspress()->add_action( 'admin_enqueue_scripts', $this, 'admin_enqueue_scripts' );
 		anspress()->add_action( 'ap_load_admin_assets', $this, 'ap_load_admin_assets' );
@@ -138,6 +139,27 @@ class Categories extends \AnsPress\Singleton {
 		register_taxonomy( 'question_category', [ 'question' ], $category_args );
 
 		$this->register_shortcodes();
+	}
+
+	/**
+	 * Register widget sidebars.
+	 */
+	public function widget_positions() {
+		register_sidebar( array(
+			'name'          => __( '(AnsPress) Category Archive', 'anspress-question-answer' ),
+			'description'   => __( 'Sidebar is shown in question category archive.', 'anspress-question-answer' ),
+			'id'            => 'anspress-category',
+			'before_widget' => '<div id="%1$s" class="ap-widget-pos %2$s">',
+			'after_widget'  => '</div>',
+		) );
+
+		register_sidebar( array(
+			'name'          => __( '(AnsPress) Categories Page', 'anspress-question-answer' ),
+			'description'   => __( 'Sidebar is shown in categories page.', 'anspress-question-answer' ),
+			'id'            => 'anspress-categories',
+			'before_widget' => '<div id="%1$s" class="ap-widget-pos %2$s">',
+			'after_widget'  => '</div>',
+		) );
 	}
 
 	/**
