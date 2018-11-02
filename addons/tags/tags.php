@@ -11,6 +11,7 @@
  */
 
 namespace AnsPress\Addons;
+use AnsPress\Shortcodes;
 
 // If this file is called directly, abort.
 if ( ! defined( 'WPINC' ) ) {
@@ -35,9 +36,6 @@ class Tags extends \AnsPress\Singleton {
 	 * @since 4.1.8 Added filter `ap_category_questions_args`.
 	 */
 	protected function __construct() {
-		ap_register_page( 'tag', __( 'Tag', 'anspress-question-answer' ), [ $this, 'tag_page' ], false );
-		ap_register_page( 'tags', __( 'Tags', 'anspress-question-answer' ), [ $this, 'tags_page' ] );
-
 		anspress()->add_action( 'ap_form_addon-tags', $this, 'option_fields' );
 		anspress()->add_action( 'widgets_init', $this, 'widget_positions' );
 		anspress()->add_action( 'init', $this, 'register_question_tag', 1 );
@@ -61,108 +59,30 @@ class Tags extends \AnsPress\Singleton {
 
 		anspress()->add_filter( 'get_current_questions_filters', $this, 'sorting_filters' );
 		anspress()->add_action( 'ap_questions_sort_filters_col3', $this, 'sort_filters_col3' );
+
+		anspress()->add_filter( 'ap_shortcode_display_current_page', $this, 'shortcode_fallback' );
+		anspress()->add_filter( 'ap_template_include_theme_compat', $this, 'template_include_theme_compat' );
 	}
 
 	/**
-	 * Tag page layout.
-	 *
-	 * @since 4.1.0 Use `get_queried_object()` to get current term.
-	 */
-	public function tag_page() {
-		global $question_tag;
-		$question_tag = get_queried_object();
-
-		$question_args = array(
-			'paged'     => max( 1, get_query_var( 'ap_paged' ) ),
-			'tax_query' => array(
-				array(
-					'taxonomy' => 'question_tag',
-					'field'    => 'id',
-					'terms'    => array( $question_tag->term_id ),
-				),
-			),
-		);
-
-		$question_args = apply_filters( 'ap_tag_question_query_args', $question_args );
-
-		if ( $question_tag ) {
-			anspress()->questions = ap_get_questions( $question_args );
-			include ap_get_theme_location( 'addons/tag/tag.php' );
-		}
-
-	}
-
-	/**
-	 * Tags page layout
-	 */
-	public function tags_page() {
-
-		global $question_tags, $ap_max_num_pages, $ap_per_page, $tags_rows_found;
-		$paged    = max( 1, get_query_var( 'paged' ) );
-		$per_page = (int) ap_opt( 'tags_per_page' );
-		$per_page = 0 === $per_page ? 1 : $per_page;
-		$offset   = $per_page * ( $paged - 1 );
-
-		$tag_args = array(
-			'taxonomy'      => 'question_tag',
-			'ap_tags_query' => true,
-			'parent'        => 0,
-			'number'        => $per_page,
-			'offset'        => $offset,
-			'hide_empty'    => false,
-			'order'         => 'DESC',
-		);
-
-		$ap_sort = ap_isset_post_value( 'tags_order', 'count' );
-
-		if ( 'new' === $ap_sort ) {
-			$tag_args['orderby'] = 'id';
-			$tag_args['order']   = 'DESC';
-		} elseif ( 'name' === $ap_sort ) {
-			$tag_args['orderby'] = 'name';
-			$tag_args['order']   = 'ASC';
-		} else {
-			$tag_args['orderby'] = 'count';
-		}
-
-		if ( ap_isset_post_value( 'ap_s' ) ) {
-			$tag_args['search'] = ap_sanitize_unslash( 'ap_s', 'r' );
-		}
-
-		/**
-		 * Filter applied before getting tags.
-		 *
-		 * @var array
-		 */
-		$tag_args = apply_filters( 'ap_tags_shortcode_args', $tag_args );
-
-		$query = new \WP_Term_Query( $tag_args );
-
-		// Count terms.
-		$tag_args['fields'] = 'count';
-		$found_query        = new \WP_Term_Query( $tag_args );
-		$tags_rows_found    = $found_query->get_terms();
-		$ap_max_num_pages   = ceil( $tags_rows_found / $per_page );
-		$question_tags      = $query->get_terms();
-
-		include ap_get_theme_location( 'addons/tag/tags.php' );
-	}
-
-	/**
-	 * Register widget position.
+	 * Register widget sidebars.
 	 */
 	public function widget_positions() {
-		register_sidebar(
-			array(
-				'name'          => __( '(AnsPress) Tags', 'anspress-question-answer' ),
-				'id'            => 'ap-tags',
-				'before_widget' => '<div id="%1$s" class="ap-widget-pos %2$s">',
-				'after_widget'  => '</div>',
-				'description'   => __( 'Widgets in this area will be shown in anspress tags page.', 'anspress-question-answer' ),
-				'before_title'  => '<h3 class="ap-widget-title">',
-				'after_title'   => '</h3>',
-			)
-		);
+		register_sidebar( array(
+			'name'          => __( '(AnsPress) Tag Archive', 'anspress-question-answer' ),
+			'description'   => __( 'Sidebar is shown in question tag archive.', 'anspress-question-answer' ),
+			'id'            => 'anspress-tag',
+			'before_widget' => '<div id="%1$s" class="ap-widget-pos %2$s">',
+			'after_widget'  => '</div>',
+		) );
+
+		register_sidebar( array(
+			'name'          => __( '(AnsPress) Tags Page', 'anspress-question-answer' ),
+			'description'   => __( 'Sidebar is shown in tags page.', 'anspress-question-answer' ),
+			'id'            => 'anspress-tags',
+			'before_widget' => '<div id="%1$s" class="ap-widget-pos %2$s">',
+			'after_widget'  => '</div>',
+		) );
 	}
 
 	/**
@@ -172,14 +92,12 @@ class Tags extends \AnsPress\Singleton {
 	 * @since 2.0
 	 */
 	public function register_question_tag() {
-		ap_add_default_options(
-			[
-				'max_tags'      => 5,
-				'min_tags'      => 1,
-				'tags_per_page' => 20,
-				'tag_page_slug' => 'tag',
-			]
-		);
+		ap_add_default_options( [
+			'max_tags'      => 5,
+			'min_tags'      => 1,
+			'tags_per_page' => 20,
+			'tag_page_slug' => 'tag',
+		] );
 
 		$tag_labels = array(
 			'name'               => __( 'Question Tags', 'anspress-question-answer' ),
@@ -196,7 +114,6 @@ class Tags extends \AnsPress\Singleton {
 		);
 
 		/**
-		 * FILTER: ap_question_tag_labels
 		 * Filter ic called before registering question_tag taxonomy
 		 */
 		$tag_labels = apply_filters( 'ap_question_tag_labels', $tag_labels );
@@ -207,7 +124,6 @@ class Tags extends \AnsPress\Singleton {
 		);
 
 		/**
-		 * FILTER: ap_question_tag_args
 		 * Filter ic called before registering question_tag taxonomy
 		 */
 		$tag_args = apply_filters( 'ap_question_tag_args', $tag_args );
@@ -216,6 +132,8 @@ class Tags extends \AnsPress\Singleton {
 		 * Now let WordPress know about our taxonomy
 		 */
 		register_taxonomy( 'question_tag', array( 'question' ), $tag_args );
+
+		$this->register_shortcodes();
 	}
 
 	/**
@@ -509,7 +427,7 @@ class Tags extends \AnsPress\Singleton {
 		update_option( 'ap_tags_path', $base_slug, true );
 
 		$cat_rules = array(
-			$base_slug . '/([^/]+)/page/?([0-9]{1,})/?$' => 'index.php?question_tag=$matches[#]&ap_paged=$matches[#]&ap_page=tag',
+			$base_slug . '/([^/]+)/page/?([0-9]{1,})/?$' => 'index.php?question_tag=$matches[#]&paged=$matches[#]&ap_page=tag',
 			$base_slug . '/([^/]+)/?$'                   => 'index.php?question_tag=$matches[#]&ap_page=tag',
 		);
 
@@ -544,8 +462,12 @@ class Tags extends \AnsPress\Singleton {
 	 * @since 4.1.0
 	 */
 	public function ap_current_page( $query_var ) {
-		if ( 'tags' === $query_var && 'tag' === get_query_var( 'ap_page' ) ) {
+		global $wp_query;
+
+		if ( ap_is_tag() || 'tag' === $query_var || 'tag' === get_query_var( 'ap_page' ) ) {
 			return 'tag';
+		} elseif ( 'tags' === $query_var ) {
+			return 'tags';
 		}
 
 		return $query_var;
@@ -599,6 +521,10 @@ class Tags extends \AnsPress\Singleton {
 	 * @since 4.2.0
 	 */
 	public function sort_filters_col3() {
+		if ( ap_current_page( 'tag' ) ) {
+			return;
+		}
+
 		$args = array(
 			'show_option_all' => __( 'All tags', 'anspress-question-answer' ),
 			'hide_empty'      => 1,
@@ -615,6 +541,161 @@ class Tags extends \AnsPress\Singleton {
 		);
 
 		wp_dropdown_categories( $args );
+	}
+
+	/**
+	 * Fallback for old tags/tag shortcode `[anspress page="tags"]`.
+	 *
+	 * @since 4.2.0
+	 */
+	public function shortcode_fallback() {
+		if ( ap_current_page( 'tags' ) ) {
+			return $this->shortcode_tags();
+		} elseif ( ap_current_page( 'tag' ) ) {
+			return $this->shortcode_tag();
+		}
+
+		return false;
+	}
+
+	/**
+	 * Template compatibility.
+	 *
+	 * @since 4.2.0
+	 */
+	public static function template_include_theme_compat( $template = '' ) {
+		if ( ap_current_page( 'tags' ) ) {
+			// Ask page.
+			$page_id = ap_main_pages_id( 'tags' );
+
+			$page = get_page( $page_id );
+
+			// Replace the content.
+			if ( empty( $page->post_content ) ) {
+				$new_content = $this->shortcode_tags();
+			} else {
+				$new_content = apply_filters( 'the_content', $page->post_content );
+			}
+
+			// Replace the title.
+			if ( empty( $page->post_title ) ) {
+				$new_title = __( 'Tags', 'anspress-question-answer' );
+			} else {
+				$new_title = apply_filters( 'the_title', $page->post_title );
+			}
+
+			ap_theme_compat_reset_post( array(
+				'ID'             => ! empty( $page->ID ) ? $page->ID : 0,
+				'post_title'     => $new_title,
+				'post_author'    => 0,
+				'post_date'      => 0,
+				'post_content'   => $new_content,
+				'post_type'      => 'page',
+				'post_status'    => 'publish',
+				'is_single'      => true,
+				'comment_status' => 'closed',
+			) );
+		} elseif ( ap_current_page( 'tag' ) ) {
+			$tag = get_queried_object();
+
+			ap_theme_compat_reset_post( array(
+				'ID'             => 0,
+				'post_title'     => $tag->name,
+				'post_author'    => 0,
+				'post_date'      => 0,
+				'post_content'   => $this->shortcode_tag(),
+				'post_type'      => 'question',
+				'post_status'    => 'publish',
+				'is_tax'         => true,
+				'is_archive'     => true,
+				'is_single'      => false,
+				'comment_status' => 'closed',
+			) );
+		}
+
+		return $template;
+	}
+
+	/**
+	 * Register shortcodes.
+	 *
+	 * @since 4.2.0
+	 */
+	private function register_shortcodes() {
+		add_shortcode( 'anspress_tag', [ self::$instance, 'shortcode_tag' ] );
+		add_shortcode( 'anspress_tags', [ self::$instance, 'shortcode_tags' ] );
+	}
+
+	/**
+	 * Register tags shortcode.
+	 *
+	 * @since 4.2.0
+	 */
+	public function shortcode_tags() {
+		$shortcode = Shortcodes::get_instance();
+		return $shortcode->display_custom_shortcode(
+			'tags',
+			self::$instance,
+			'display_shortcode_tags'
+		);
+	}
+
+	/**
+	 * Display tags shortcode.
+	 *
+	 * @since 4.2.0
+	 */
+	public function display_shortcode_tags() {
+		/**
+		 * Action called before tags page (shortcode) is rendered.
+		 *
+		 * @since 4.2.0
+		 */
+		do_action( 'ap_before_display_tags' );
+
+		ap_get_template_part( 'tags' );
+
+		/**
+		 * Action called after tags page (shortcode) is rendered.
+		 *
+		 * @since 4.2.0
+		 */
+		do_action( 'ap_after_display_tags' );
+	}
+
+	/**
+	 * Register tag shortcode.
+	 *
+	 * @since 4.2.0
+	 */
+	public function shortcode_tag() {
+		$shortcode = Shortcodes::get_instance();
+		return $shortcode->display_custom_shortcode(
+			'tag',
+			self::$instance,
+			'display_shortcode_tag'
+		);
+	}
+
+	/**
+	 * Tag page layout.
+	 */
+	public function display_shortcode_tag() {
+		/**
+		 * Action called before tag page (shortcode) is rendered.
+		 *
+		 * @since 4.2.0
+		 */
+		do_action( 'ap_before_display_tag' );
+
+		ap_get_template_part( 'content-archive-tag' );
+
+		/**
+		 * Action called after tag page (shortcode) is rendered.
+		 *
+		 * @since 4.2.0
+		 */
+		do_action( 'ap_after_display_tag' );
 	}
 }
 

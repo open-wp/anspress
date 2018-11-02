@@ -498,3 +498,18 @@ function ap_is_category() {
 
 	return false;
 }
+
+/**
+ * Checks if tag archive.
+ *
+ * @since 4.2.0
+ */
+function ap_is_tag() {
+	global $wp_query;
+
+	if ( ! empty( $wp_query->ap_is_tag ) && true === $wp_query->ap_is_tag ) {
+		return true;
+	}
+
+	return false;
+}

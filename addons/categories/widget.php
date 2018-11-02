@@ -16,6 +16,7 @@ namespace Anspress\Widgets;
  * Register AnsPress category widget.
  *
  * @since 4.1.8
+ * @todo fix category broken ul li.
  */
 class Categories extends \WP_Widget {
 	/**

@@ -84,6 +84,21 @@
 			}
 	}
 }
+.ap-flex-row{
+	display: flex;
+	.ap-col-main{
+		width: 100%;
+	}
+	&.ap-sidebar-active{
+		.ap-col-main{
+			width: 70%;
+		}
+		.ap-col-sidebar{
+			padding-left: 30px;
+			width: 30%;
+		}
+	}
+}
 
 // Text color and bg.
 @each $key, $value in $anspress-vars {

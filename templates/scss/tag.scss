@@ -1,37 +1,28 @@
-#anspress {
-  .ap-term-tag-box {
-    list-style: none;
-    padding: 0;
-    margin: 0 -1px -1px 0;
+.ap-tags {
+  &-items{
     display: flex;
     flex-wrap: wrap;
-    border: solid 1px #ddd;
-    >li {
-      margin: 0;
-      padding: 0;
-      border-right: solid 1px #ddd;
-      border-bottom: solid 1px #ddd;
-      flex: 1 0 33.33%;
-      .ap-tags-item {
-        padding: 20px 10px;
-        text-align: center;
-      }
-    }
-    .ap-tagq-count {
-      font-style: italic;
-      display: block;
-      font-size: 12px;
-      margin-top: 6px;
-      color: #777;
-    }
-    .ap-term-title {
-      text-decoration: none;
-      text-transform: lowercase;
-      font-size: inherit;
-    }
-    .ap-taxo-description {
-    }
   }
+  &-item{
+    flex-basis: 33.33%;
+    margin-bottom: 30px;
+  }
+  &-name{
+    @extend .ap-btn;
+    display: table;
+    padding: 1px 10px;
+    margin-bottom: 10px;
+  }
+  &-count{
+    font-size: var(--ap_fs-sm);
+    color: var(--ap_color5);
+  }
+  &-desc{
+    font-size: var( --ap_fs-md );
+  }
+}
+
+#anspress {
   .sub-taxo-label {
     font-size: 14px;
     font-weight: bold;

@@ -210,7 +210,7 @@ class AP_QA_Query_Hooks {
 			return;
 		}
 
-		if ( isset( $posts_query->query_vars[ 'ap_search' ] ) ) {
+		if ( isset( $posts_query->query_vars['ap_search'] ) ) {
 
 			// Check if there are search query args set
 			$search_terms = ap_get_search_terms();
@@ -225,12 +225,13 @@ class AP_QA_Query_Hooks {
 			$posts_query->ap_is_search = true;
 			$posts_query->is_search    = true;
 		} elseif ( isset( $posts_query->query_vars['question_category'] ) ) {
-
-			// Correct is_home variable
-			$posts_query->is_home = false;
-
-			// We are in a search query
+			$posts_query->is_home        = false;
 			$posts_query->ap_is_category = true;
+
+		} elseif ( isset( $posts_query->query_vars['question_tag'] ) ) {
+			$posts_query->is_home   = false;
+			$posts_query->ap_is_tag = true;
+			$posts_query->is_tax    = true;
 		}
 	}
 }

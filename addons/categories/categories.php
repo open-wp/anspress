@@ -888,6 +888,8 @@ class Categories extends \AnsPress\Singleton {
 	public function shortcode_fallback() {
 		if ( ap_current_page( 'categories' ) ) {
 			return $this->shortcode_categories();
+		} elseif ( ap_current_page( 'category' ) ) {
+			return $this->shortcode_category();
 		}
 
 		return false;

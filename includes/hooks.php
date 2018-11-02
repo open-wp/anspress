@@ -84,7 +84,7 @@ class AnsPress_Hooks {
 			anspress()->add_filter( 'ap_question_footer', 'AnsPress_Theme', 'question_footer' );
 			anspress()->add_filter( 'ap_answer_footer', 'AnsPress_Theme', 'answer_footer' );
 
-			anspress()->add_filter( 'template_include', 'AnsPress_Theme', 'anspress_basepage_template', 9999 );
+			//anspress()->add_filter( 'template_include', 'AnsPress_Theme', 'anspress_basepage_template', 9999 );
 			anspress()->add_filter( 'get_the_excerpt', 'AnsPress_Theme', 'get_the_excerpt', 9999, 2 );
 			anspress()->add_filter( 'post_class', 'AnsPress_Theme', 'remove_hentry_class', 10, 3 );
 			anspress()->add_action( 'ap_after_question_content', 'AnsPress_Theme', 'after_question_content' );

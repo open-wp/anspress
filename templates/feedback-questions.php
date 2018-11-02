@@ -50,6 +50,18 @@ $search_str = ap_isset_post_value( 'question_s' );
 			</div>
 		</div>
 
+	<?php elseif ( ap_current_page( 'tag' ) ) : ?>
+
+		<div class="ap-display-flex align-item-center">
+			<i class="ap-feedback-icon apicon-tag ap-text-muted"></i>
+			<div>
+				<strong class="ap-feedback-title"><?php esc_attr_e( 'No questions in this tag.', 'anspress-question-answer' ); ?></strong>
+				<p class="mb-0 ap-feedback-msg">
+					<?php esc_attr_e( 'Try browsing other tags.', 'anspress-question-answer' ); ?>
+				</p>
+			</div>
+		</div>
+
 	<?php else : ?>
 
 		<div class="ap-display-flex align-item-center">

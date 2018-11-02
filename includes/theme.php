@@ -686,8 +686,11 @@ function ap_get_list_filters() {
  * Output list filters form.
  *
  * @param string $current_url Current Url.
+ * @deprecated 4.2.0
  */
 function ap_list_filters( $current_url = '' ) {
+	_deprecated_function( __FUNCTION__, '4.2.0' );
+
 	$filters = ap_get_list_filters();
 
 	echo '<form id="ap-filters" class="ap-filters clearfix" method="GET">';
