@@ -68,9 +68,10 @@ class AnsPress_Rewrite {
 		$query_vars[] = 'ap_s';
 		$query_vars[] = 'parent';
 		$query_vars[] = 'ap_user';
-		$query_vars[] = 'user_page';
+		$query_vars[] = 'profile_page';
 		$query_vars[] = 'ap_paged';
 		$query_vars[] = 'ap_comment_id';
+		$query_vars[] = 'ap_user_name';
 
 		$query_vars[] = 'ap_search';
 
@@ -132,8 +133,8 @@ class AnsPress_Rewrite {
 			'answer/([^/]+)/?$'                                    => 'index.php?answer=$matches[#]',
 			'ap_comment/([^/]+)/?$'                                => 'index.php?ap_comment_id=$matches[#]',
 			$rule . '/answer/([0-9]+)/(feed|rdf|rss|rss2|atom)/?$' => $answer_rewrite . '&answer_id=$matches[#]&feed=$matches[#]',
-			$rule . '/answer-page-([0-9]{1,})/([^/]+)/?$'          => $rewrite . '&ap_paged=$matches[#]&answer_id=$matches[#]',
-			$rule . '/answer-page-([0-9]{1,})/?$'                  => $rewrite . '&ap_paged=$matches[#]',
+			$rule . '/answer-page-([0-9]{1,})/([^/]+)/?$'          => $rewrite . '&paged=$matches[#]&answer_id=$matches[#]',
+			$rule . '/answer-page-([0-9]{1,})/?$'                  => $rewrite . '&paged=$matches[#]',
 			$rule . '/(feed|rdf|rss|rss2|atom)/?$'                 => $rewrite . '&feed=$matches[#]',
 			$rule . '/embed/?$'                                    => $rewrite . '&embed=true',
 			$slug . 'page/([0-9]{1,})/?$'                          => 'index.php?post_type=question&paged=$matches[#]',

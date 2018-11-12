@@ -210,6 +210,8 @@ class AP_QA_Query_Hooks {
 			return;
 		}
 
+		$ap_user = $posts_query->get( 'ap_user_name' );
+
 		if ( isset( $posts_query->query_vars['ap_search'] ) ) {
 
 			// Check if there are search query args set
@@ -232,6 +234,31 @@ class AP_QA_Query_Hooks {
 			$posts_query->is_home   = false;
 			$posts_query->ap_is_tag = true;
 			$posts_query->is_tax    = true;
+		} elseif ( ! empty( $ap_user ) ) {
+			$the_user = false;
+			$the_user = get_user_by( 'slug', $ap_user );
+
+			if ( empty( $the_user->ID ) ) {
+				$posts_query->set_404();
+				return;
+			}
+
+			$posts_query->ap_is_profile = true;
+			$posts_query->is_404        = false;
+			$posts_query->is_home       = false;
+
+			if ( get_current_user_id() === $the_user->ID ) {
+				$posts_query->ap_is_user_home = true;
+			}
+
+			// Set bbp_user_id for future reference.
+			$posts_query->set( 'ap_user_id', $the_user->ID );
+
+			// Set author_name as current user's nicename to get correct posts.
+			$posts_query->set( 'author_name', $the_user->user_nicename );
+
+			// Set the displayed user global to this user.
+			anspress()->displayed_user = $the_user;
 		}
 	}
 }

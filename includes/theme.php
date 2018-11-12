@@ -1178,3 +1178,18 @@ function ap_is_search() {
 
 	return false;
 }
+
+/**
+ * Check if user profile.
+ *
+ * @since 4.2.0
+ */
+function ap_is_profile() {
+	global $wp_query;
+
+	if ( ! empty( $wp_query->ap_is_profile ) && true === $wp_query->ap_is_profile ) {
+		return true;
+	}
+
+	return false;
+}

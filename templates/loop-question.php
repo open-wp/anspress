@@ -12,7 +12,7 @@
 namespace AnsPress\Template;
 
 ?>
-<div id="question-<?php the_ID(); ?>" class="<?php post_classes(); ?>"" itemtype="https://schema.org/Question" itemscope="">
+<div id="question-<?php the_ID(); ?>" class="<?php post_classes( 'ap-questions-item' ); ?>"" itemtype="https://schema.org/Question" itemscope="">
 	<div class="ap-questions-inner">
 		<div class="ap-avatar ap-pull-left">
 			<a href="<?php ap_profile_link(); ?>">

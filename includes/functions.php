@@ -1418,6 +1418,8 @@ function ap_user_link( $user_id = false, $sub = false ) {
 		}
 	}
 
+	$link = user_trailingslashit( $link );
+
 	return apply_filters( 'ap_user_link', $link, $user_id, $sub );
 }
 
@@ -2258,8 +2260,8 @@ function ap_main_pages() {
 			'post_title' => __( 'Ask a question', 'anspress-question-answer' ),
 			'post_name'  => 'ask',
 		),
-		'user_page'       => array(
-			'label'      => __( 'User page', 'anspress-question-answer' ),
+		'profile_page'       => array(
+			'label'      => __( 'Profile page', 'anspress-question-answer' ),
 			'desc'       => __( 'Page used to display user profile.', 'anspress-question-answer' ),
 			'post_title' => __( 'Profile', 'anspress-question-answer' ),
 			'post_name'  => 'profile',
@@ -2319,27 +2321,6 @@ function ap_main_pages_id( $find = false ) {
 	}
 
 	return false;
-}
-
-/**
- * Get current user id for AnsPress profile.
- *
- * This function must be used only in AnsPress profile. This function checks for
- * user ID in queried object, hence if not in user page
- *
- * @return integer Always returns 0 if not in AnsPress profile page.
- * @since 4.1.1
- */
-function ap_current_user_id() {
-	if ( 'user' === ap_current_page() ) {
-		$query_object = get_queried_object();
-
-		if ( $query_object instanceof WP_User ) {
-			return $query_object->ID;
-		}
-	}
-
-	return 0;
 }
 
 /**
@@ -2676,4 +2657,25 @@ function ap_get_search_terms( $passed_terms = '' ) {
 	$search_terms = ! empty( $search_terms ) ? urldecode( trim( $search_terms ) ) : false;
 
 	return apply_filters( 'ap_get_search_terms', $search_terms, $passed_terms );
+}
+
+/**
+ * Get currently displayed user id in AnsPress profile.
+ *
+ * This function must be used only in AnsPress profile. This function checks for
+ * user ID in `displayed_user` property in `anspress()`.
+ *
+ * @return integer Always returns 0 if not in AnsPress profile page.
+ * @since 4.2.0
+ */
+function ap_get_displayed_user_id() {
+	if ( ap_current_page( 'profile' ) ) {
+		$user = anspress()->displayed_user;
+
+		if ( $user instanceof WP_User ) {
+			return $user->ID;
+		}
+	}
+
+	return 0;
 }

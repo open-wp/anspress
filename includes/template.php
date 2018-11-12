@@ -108,6 +108,19 @@ function answer_content( $post_id = 0 ) {
 }
 
 /**
+ * Get answer title.
+ *
+ * @param integer $post_id Answer id.
+ * @since 4.2.0
+ */
+function answer_title( $post_id = 0 ) {
+	$post     = get_post( $post_id );
+	$question = get_post( $post_id );
+
+	echo apply_filters( 'the_title', $question->post_title, $post_id );
+}
+
+/**
  * Get numbers of comment of a question or answer in a loop.
  *
  * @param integer $post_id Post id.
@@ -663,7 +676,7 @@ function is_moderate( $post_id = 0 ) {
  * @return array
  * @since 4.2.0
  */
-function get_post_classes( $post_id = 0 ) {
+function get_post_classes( $class = '', $post_id = 0 ) {
 	$_post = ap_get_post( $post_id );
 
 	if ( ! ap_is_cpt( $_post ) ) {
@@ -671,12 +684,12 @@ function get_post_classes( $post_id = 0 ) {
 	}
 
 	$classes = [];
+	$classes[] = esc_attr( $class );
 	$classes[] = $_post->post_type;
 	$classes[] = 'post-' . $_post->ID;
 	$classes[] = 'ap-status-' . $_post->post_status;
 
 	if ( 'question' === $_post->post_type ) {
-		$classes[] = 'ap-questions-item';
 		if ( ap_have_answer_selected( $_post->ID ) ) {
 			$classes[] = 'answer-selected';
 		}
@@ -716,8 +729,8 @@ function get_post_classes( $post_id = 0 ) {
  * @return array
  * @since 4.2.0
  */
-function post_classes( $post_id = 0 ) {
-	$list = get_post_classes( $post_id );
+function post_classes( $class = '', $post_id = 0 ) {
+	$list = get_post_classes( $class, $post_id );
 
 	if ( is_array( $list ) ) {
 		echo esc_attr( implode( ' ', $list ) );

@@ -18,11 +18,15 @@
  */
 
 namespace AnsPress\Addons;
+use AnsPress\Shortcodes;
 
 // If this file is called directly, abort.
 if ( ! defined( 'WPINC' ) ) {
 	die;
 }
+
+// Load helper functions.
+require_once ANSPRESS_ADDONS_DIR . '/profile/helpers.php';
 
 /**
  * User profile hooks.
@@ -43,25 +47,23 @@ class Profile extends \AnsPress\Singleton {
 	 * @since 4.0.0
 	 */
 	protected function __construct() {
-		ap_add_default_options(
-			[
-				'user_page_slug_questions'  => 'questions',
-				'user_page_slug_answers'    => 'answers',
-				'user_page_title_questions' => __( 'Questions', 'anspress-question-answer' ),
-				'user_page_title_answers'   => __( 'Answers', 'anspress-question-answer' ),
-			]
-		);
+		ap_add_default_options( [
+			'user_page_slug_questions'  => 'questions',
+			'user_page_slug_answers'    => 'answers',
+			'user_page_title_questions' => __( 'Questions', 'anspress-question-answer' ),
+			'user_page_title_answers'   => __( 'Answers', 'anspress-question-answer' ),
+		] );
 
 		anspress()->add_action( 'ap_form_addon-profile', $this, 'options' );
-		ap_register_page( 'user', __( 'User profile', 'anspress-question-answer' ), [ $this, 'user_page' ], true, true );
-
+		anspress()->add_action( 'init', $this, 'init_hook' );
 		anspress()->add_action( 'ap_rewrites', $this, 'rewrite_rules', 10, 3 );
 		anspress()->add_action( 'wp_ajax_user_more_answers', $this, 'load_more_answers', 10, 2 );
 		anspress()->add_action( 'wp_ajax_nopriv_user_more_answers', $this, 'load_more_answers', 10, 2 );
-		anspress()->add_filter( 'wp_title', $this, 'page_title' );
-		anspress()->add_action( 'the_post', $this, 'filter_page_title' );
+		anspress()->add_filter( 'wp_title_parts', $this, 'wp_title' );
+		//anspress()->add_action( 'the_post', $this, 'filter_page_title' );
 		anspress()->add_filter( 'ap_current_page', $this, 'ap_current_page' );
-		anspress()->add_filter( 'posts_pre_query', $this, 'modify_query_archive', 999, 2 );
+		anspress()->add_filter( 'ap_shortcode_display_current_page', $this, 'shortcode_fallback' );
+		anspress()->add_filter( 'ap_template_include_theme_compat', $this, 'template_include_theme_compat' );
 	}
 
 	/**
@@ -99,15 +101,41 @@ class Profile extends \AnsPress\Singleton {
 	}
 
 	/**
-	 * Layout of base page
+	 * Init actions.
+	 *
+	 * @since 4.2.0
 	 */
-	public function user_page() {
-		$this->user_pages();
-		dynamic_sidebar( 'ap-top' );
+	public function init_hook() {
+		add_shortcode( 'anspress_profile', [ self::$instance, 'shortcode_profile' ] );
+	}
 
-		echo '<div id="ap-user" class="ap-row">';
-		include ap_get_theme_location( 'addons/user/index.php' );
-		echo '</div>';
+	/**
+	 * Register profile shortcode.
+	 *
+	 * @since 4.2.0
+	 */
+	public function shortcode_profile( $attr = [], $content = '' ) {
+		$shortcode = Shortcodes::get_instance();
+
+		$shortcode->start( 'profile' );
+
+		/**
+		 * Action called before profile page (shortcode) is rendered.
+		 *
+		 * @since 4.2.0
+		 */
+		do_action( 'ap_after_display_profile' );
+
+		ap_get_template_part( 'profile/index' );
+
+		/**
+		 * Action called after profile page (shortcode) is rendered.
+		 *
+		 * @since 4.2.0
+		 */
+		do_action( 'ap_after_display_profile' );
+
+		return $shortcode->end();
 	}
 
 	/**
@@ -124,10 +152,10 @@ class Profile extends \AnsPress\Singleton {
 
 		$new_rules = [];
 		$new_rules = array(
-			$base_slug . '/([^/]+)/([^/]+)/page/?([0-9]{1,})/?' => 'index.php?author_name=$matches[#]&ap_page=user&user_page=$matches[#]&ap_paged=$matches[#]',
-			$base_slug . '/([^/]+)/([^/]+)/?' => 'index.php?author_name=$matches[#]&ap_page=user&user_page=$matches[#]',
-			$base_slug . '/([^/]+)/?'         => 'index.php?author_name=$matches[#]&ap_page=user',
-			$base_slug . '/?'                 => 'index.php?ap_page=user',
+			$base_slug . '/([^/]+)/([^/]+)/page/?([0-9]{1,})/?'               => 'index.php?ap_user_name=$matches[#]&profile_page=$matches[#]&paged=$matches[#]',
+			$base_slug . '/([^/]+)/([^/]+)/answer-page-([0-9]{1,})/?' => 'index.php?ap_user_name=$matches[#]&profile_page=$matches[#]&paged=$matches[#]',
+			$base_slug . '/([^/]+)/([^/]+)/?'                                 => 'index.php?ap_user_name=$matches[#]&profile_page=$matches[#]',
+			$base_slug . '/([^/]+)/?'                                         => 'index.php?ap_user_name=$matches[#]',
 		);
 
 		return $new_rules + $rules;
@@ -183,47 +211,9 @@ class Profile extends \AnsPress\Singleton {
 		anspress()->user_pages = ap_sort_array_by_order( anspress()->user_pages );
 	}
 
-	/**
-	 * Output user profile menu.
-	 */
-	public function user_menu( $user_id = false, $class = '' ) {
-		$user_id     = false !== $user_id ? $user_id : ap_current_user_id();
-		$current_tab = get_query_var( 'user_page', ap_opt( 'user_page_slug_questions' ) );
-		$ap_menu     = apply_filters( 'ap_user_menu_items', anspress()->user_pages, $user_id );
-
-		echo '<ul class="ap-tab-nav clearfix ' . esc_attr( $class ) . '">';
-
-		foreach ( (array) $ap_menu as $args ) {
-
-			if ( empty( $args['private'] ) || ( true === $args['private'] && get_current_user_id() === $user_id ) ) {
-				echo '<li class="ap-menu-' . esc_attr( $args['slug'] ) . ( $args['rewrite'] === $current_tab ? ' active' : '' ) . '">';
-
-				$url = isset( $args['url'] ) ? $args['url'] : ap_user_link( $user_id, $args['rewrite'] );
-				echo '<a href="' . esc_url( $url ) . '">';
-
-				// Show icon.
-				if ( ! empty( $args['icon'] ) ) {
-					echo '<i class="' . esc_attr( $args['icon'] ) . '"></i>';
-				}
-
-				echo esc_attr( $args['label'] );
-
-				// Show count.
-				if ( ! empty( $args['count'] ) ) {
-					echo '<span>' . esc_attr( number_format_i18n( $args['count'] ) ) . '</span>';
-				}
-
-				echo '</a>';
-				echo '</li>';
-			}
-		}
-
-		echo '</ul>';
-	}
-
 	public function user_page_title() {
 		$this->user_pages();
-		$title       = ap_user_display_name( ap_current_user_id() );
+		$title       = ap_user_display_name( ap_get_displayed_user_id() );
 		$current_tab = sanitize_title( get_query_var( 'user_page', ap_opt( 'user_page_slug_questions' ) ) );
 		$page        = ap_search_array( anspress()->user_pages, 'rewrite', $current_tab );
 
@@ -235,12 +225,12 @@ class Profile extends \AnsPress\Singleton {
 	/**
 	 * Add user page title.
 	 *
-	 * @param  string $title AnsPress page title.
+	 * @param  array $title AnsPress page title.
 	 * @return string
 	 */
-	public function page_title( $title ) {
-		if ( 'user' === ap_current_page() ) {
-			return $this->user_page_title() . ' | ';
+	public function wp_title( $title ) {
+		if ( ap_current_page( 'profile' ) ) {
+			$title[1] = $this->user_page_title();
 		}
 
 		return $title;
@@ -253,29 +243,8 @@ class Profile extends \AnsPress\Singleton {
 	 * @return void
 	 */
 	public function filter_page_title( $_post ) {
-		if ( 'user' === ap_current_page() && ap_opt( 'user_page' ) == $_post->ID && ! is_admin() ) {
+		if ( ap_current_page( 'profile' ) && ap_opt( 'user_page' ) == $_post->ID && ! is_admin() ) {
 			$_post->post_title = $this->user_page_title();
-		}
-	}
-
-	/**
-	 * Render sub page template.
-	 */
-	public function sub_page_template() {
-		$current      = get_query_var( 'user_page', ap_opt( 'user_page_slug_questions' ) );
-		$current_page = ap_search_array( anspress()->user_pages, 'rewrite', $current );
-
-		if ( ! empty( $current_page ) ) {
-			$current_page = $current_page[0];
-
-			// Callback.
-			if ( isset( $current_page['cb'] ) && is_array( $current_page['cb'] ) && method_exists( $current_page['cb'][0], $current_page['cb'][1] ) ) {
-				call_user_func( $current_page['cb'] );
-			} elseif ( function_exists( $current_page['cb'] ) ) {
-				call_user_func( $current_page['cb'] );
-			} else {
-				_e( 'Callback function not found for rendering this page', 'anspress-question-answer' ); // xss okay.
-			}
 		}
 	}
 
@@ -388,39 +357,13 @@ class Profile extends \AnsPress\Singleton {
 	 * @since 4.1.0
 	 */
 	public function ap_current_page( $query_var ) {
-		if ( is_author() && 'user' === get_query_var( 'ap_page' ) ) {
-			$query_var = 'user';
+		global $wp_query;
+
+		if ( ap_is_profile() || 'profile' === $query_var || 'user' === $query_var || 'user' === get_query_var( 'ap_page' ) || 'profile' === get_query_var( 'ap_page' ) ) {
+			$query_var = 'profile';
 		}
 
 		return $query_var;
-	}
-
-	/**
-	 * Modify main query.
-	 *
-	 * @param  array  $posts  Array of post object.
-	 * @param  object $query Wp_Query object.
-	 * @return void|array
-	 * @since 4.1.0
-	 * @since 4.1.1 Redirect to current user profile if no author set.
-	 * @since 4.1.2 Check for 404 error.
-	 */
-	public function modify_query_archive( $posts, $query ) {
-		if ( $query->is_main_query() && ! $query->is_404 && 'user' === get_query_var( 'ap_page' ) ) {
-			$query_object = get_queried_object();
-
-			if ( ! $query_object && ! get_query_var( 'author_name' ) && is_user_logged_in() ) {
-				wp_safe_redirect( ap_user_link( get_current_user_id() ) );
-				exit;
-			} elseif ( $query_object && $query_object instanceof \WP_User ) {
-				return [ get_post( ap_opt( 'user_page' ) ) ];
-			} else {
-				$query->set_404();
-				status_header( 404 );
-			}
-		}
-
-		return $posts;
 	}
 
 	/**
@@ -455,6 +398,69 @@ class Profile extends \AnsPress\Singleton {
 		}
 
 		return (int) $user_id;
+	}
+
+	/**
+	 * Fallback for old profile shortcode `[anspress page="profile"]`.
+	 *
+	 * @since 4.2.0
+	 */
+	public function shortcode_fallback() {
+		if ( ap_current_page( 'profile' ) ) {
+			return $this->shortcode_profile();
+		}
+
+		return false;
+	}
+
+	/**
+	 * Template compatibility.
+	 *
+	 * @since 4.2.0
+	 */
+	public static function template_include_theme_compat( $template = '' ) {
+		if ( ap_current_page( 'profile' ) ) {
+			// Ask page.
+			$page_id = ap_main_pages_id( 'profile' );
+
+			$page = get_page( $page_id );
+
+			// Replace the content.
+			if ( empty( $page->post_content ) ) {
+				$new_content = $this->shortcode_profile();
+			} else {
+				$new_content = apply_filters( 'the_content', $page->post_content );
+			}
+
+			// Replace the title.
+			if ( empty( $page->post_title ) ) {
+				$new_title = __( 'My Profile', 'anspress-question-answer' );
+			} else {
+				$new_title = apply_filters( 'the_title', $page->post_title );
+			}
+
+			ap_theme_compat_reset_post( array(
+				'ID'             => ! empty( $page->ID ) ? $page->ID : 0,
+				'post_title'     => $this->user_page_title(),
+				'post_author'    => 0,
+				'post_date'      => 0,
+				'post_content'   => $new_content,
+				'post_type'      => 'page',
+				'post_status'    => 'publish',
+				'is_single'      => true,
+				'comment_status' => 'closed',
+			) );
+
+			// Locate profile page template.
+			$new_template = locate_template( [ 'anspress-profile.php' ], false, false );
+
+			// Override default template.
+			if ( ! empty( $new_template ) ) {
+				$template = $new_template;
+			}
+		}
+
+		return $template;
 	}
 
 }

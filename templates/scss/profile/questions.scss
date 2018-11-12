@@ -1,0 +1,20 @@
+.ap-profile-question{
+    padding: 10px 15px;
+    border-bottom: solid 1px #eee;
+    display: flex;
+    &:last-child{
+        border-bottom: none;
+    }
+
+    .ap-question-title{
+        font-weight: bold;
+        display: block;
+        > a{
+            color: var(--ap_color3);
+        }
+    }
+    &-con{
+        width: calc( 100% - 135px );
+    }
+}
+

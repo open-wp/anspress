@@ -36,6 +36,13 @@ class Shortcodes {
 	private static $instance = null;
 
 	/**
+	 * Check if buffer on.
+	 *
+	 * @var boolean
+	 */
+	private static $buffer_on = false;
+
+	/**
 	 * Creates or returns an instance of this class.
 	 *
 	 * @return \AnsPress\Shortcodes A single instance of this class.
@@ -100,7 +107,9 @@ class Shortcodes {
 	 * than outputting the HTML at run-time. This allows shortcodes to appear
 	 * in the correct location in the_content() instead of when it's created.
 	 */
-	private function start( $query_name = '' ) {
+	public function start( $query_name = '' ) {
+		self::$buffer_on = true;
+
 		// Set query name
 		set_query_var( '_ap_query_name', $query_name );
 
@@ -112,7 +121,8 @@ class Shortcodes {
 	/**
 	 * Return the contents of the output buffer and flush its contents.
 	 */
-	private function end() {
+	public function end() {
+		self::$buffer_on = false;
 
 		// Unset globals
 		$this->unset_globals();
@@ -123,6 +133,19 @@ class Shortcodes {
 
 		// Return and flush the output buffer
 		return ob_get_clean();
+	}
+
+	/**
+	 * Warns if shortcode buffer was not ended.
+	 *
+	 * @since 4.2.0
+	 */
+	public function check_buffer_ended() {
+		if ( true === self::$buffer_on ) {
+			ob_get_clean();
+
+			wp_die( sprintf( esc_attr__( 'Shortcode buffer was not ended. Active query: %s', 'anspress-question-answer' ), get_query_var( '_ap_query_name' ) ) );
+		}
 	}
 
 	/**

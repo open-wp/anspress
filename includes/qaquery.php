@@ -709,15 +709,15 @@ function ap_latest_post_activity_html( $post_id = false, $answer_activities = fa
 function ap_get_answers( $args = '' ) {
 	global $wp_rewrite;
 
-	$paged    = (int) max( 1, get_query_var( 'ap_paged', 1 ) );
+	$paged    = (int) max( 1, get_query_var( 'paged', 1 ) );
 	$order_by = Template\get_current_answer_sorting();
-	$status   = [ 'publish', 'private_post' ];
+	$status   = [ 'publish', 'private' ];
 
 	// Default query args
 	$default = array(
-		'post_type'              => 'answer', // Only replies
-		'post_parent'            => ( is_question() ? get_question_id(): 'any' ), // Of this topic
-		'paged'                  => $paged, // On this page
+		'post_type'              => 'answer',                                       // Only replies
+		'post_parent'            => ( is_question() ? get_question_id(): 'any' ),   // Of this topic
+		'paged'                  => $paged,                                         // On this page
 		'ignore_sticky_posts'    => true,
 		'ap_query'               => true,
 		'ap_current_user_ignore' => false,
@@ -727,6 +727,7 @@ function ap_get_answers( $args = '' ) {
 		'ignore_selected_answer' => false,
 		'post_status'            => $status,
 		'ap_order_by'            => $order_by,
+		'pagination_base'        => '',
 	);
 
 	if ( 'unpublished' === $default['ap_order_by'] ) {
@@ -750,10 +751,13 @@ function ap_get_answers( $args = '' ) {
 
 	// Only add pagination if query returned results
 	if ( (int) $ap->answers_query->found_posts && (int) $ap->answers_query->posts_per_page ) {
+		if ( ! empty( $r['pagination_base'] ) && 'any' !== $r['post_parent'] ) {
+			$r['pagination_base'] = get_permalink( $r['post_parent'] );
+		}
 
 		// Make our pagination pretty.
 		if ( $wp_rewrite->using_permalinks() ) {
-			$base = get_permalink( $r['post_parent'] );
+			$base = $r['pagination_base'];
 			$base = trailingslashit( $base ) . user_trailingslashit( 'answer-page-%#%/' );
 		} else {
 			$base = add_query_arg( 'ap_paged', '%#%' );

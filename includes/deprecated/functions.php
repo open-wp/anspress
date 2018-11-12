@@ -585,3 +585,26 @@ function is_ap_search() {
 
 	return false;
 }
+
+/**
+ * Get current user id for AnsPress profile.
+ *
+ * This function must be used only in AnsPress profile. This function checks for
+ * user ID in queried object, hence if not in user page
+ *
+ * @return integer Always returns 0 if not in AnsPress profile page.
+ * @since 4.1.1
+ */
+function ap_current_user_id() {
+	_deprecated_function( __FUNCTION__, '4.2.0', 'ap_get_displayed_user_id' );
+
+	if ( ap_current_page( 'profile' ) ) {
+		$query_object = get_queried_object();
+
+		if ( $query_object instanceof WP_User ) {
+			return $query_object->ID;
+		}
+	}
+
+	return get_current_user_id();
+}

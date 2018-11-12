@@ -55,7 +55,7 @@ function ap_scripts_front() {
 	  echo 'disable_q_suggestion = "' . (bool) ap_opt( 'disable_q_suggestion' ) . '";';
 	echo '</script>';
 }
-add_action( 'wp_enqueue_scripts', 'ap_scripts_front', 1 );
+add_action( 'wp_enqueue_scripts', 'ap_scripts_front', 9999 );
 
 /**
  * Register widget positions.

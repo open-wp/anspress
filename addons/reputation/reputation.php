@@ -72,6 +72,7 @@ class Reputation extends \AnsPress\Singleton {
 		anspress()->add_filter( 'ap_bp_nav', $this, 'ap_bp_nav' );
 		anspress()->add_filter( 'ap_bp_page', $this, 'ap_bp_page', 10, 2 );
 		anspress()->add_filter( 'ap_all_options', $this, 'ap_all_options', 10, 2 );
+		anspress()->add_filter( 'ap_profile_vcard', $this, 'ap_profile_vcard' );
 	}
 
 	/**
@@ -543,6 +544,20 @@ class Reputation extends \AnsPress\Singleton {
 		);
 
 		return $all_options;
+	}
+
+	/**
+	 * Show reputation in profile vcard.
+	 *
+	 * @since 4.2.0
+	 */
+	public function ap_profile_vcard() {
+		$reputation = ap_get_user_reputation_meta( ap_get_displayed_user_id() );
+
+		echo '<a href="' . ap_user_link( ap_get_displayed_user_id() ) . '?tab=reputations" class="ap-profile-vcard-rep" title="' . __( 'Reputation', 'anspress-question-answer' ) . '">';
+		esc_attr_e( 'Reputation', 'anspress-question-answer' );
+		echo '<span>' . $reputation . '</span>';
+		echo '</a>';
 	}
 }
 

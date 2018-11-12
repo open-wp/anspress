@@ -36,7 +36,6 @@ $border-color: rgba(0, 0, 0, 0.15);
 //Border radius
 $border-radius       : 4px;
 $avatar-border-radius: 0;
-$user-nav-width      : 200px;
 
 $anspress-vars: () !default;
 $anspress-vars: map-merge((
@@ -52,8 +51,9 @@ $anspress-vars: map-merge((
   "border-radius": $border-radius,
   "border-color" : $border-color,
   "btn-hover"    : rgba(0, 0, 0, 0.05),
-  "fs-md"    : .88rem,
-  "fs-sm"    : .78rem,
+  "fs-normal"    : 1rem,
+  "fs-md"        : .88rem,
+  "fs-sm"        : .78rem,
 ), $anspress-vars);
 
 $space-breaks: (

@@ -851,10 +851,10 @@ class AnsPress_Admin {
 					'validate' => 'required',
 				),
 				'question_page_permalink' => array(
-					'label'    => __( 'Question permalink', 'anspress-question-answer' ),
-					'desc'     => __( 'Select single question permalink structure.', 'anspress-question-answer' ),
-					'type'     => 'radio',
-					'options'  => [
+					'label'   => __( 'Question permalink', 'anspress-question-answer' ),
+					'desc'    => __( 'Select single question permalink structure.', 'anspress-question-answer' ),
+					'type'    => 'radio',
+					'options' => [
 						'question_perma_1' => home_url( '/' . ap_base_page_slug() ) . '/<b class="ap-base-slug">' . ap_opt( 'question_page_slug' ) . '</b>/question-name/',
 						'question_perma_2' => home_url( '/' ) . '<b class="ap-base-slug">' . ap_opt( 'question_page_slug' ) . '</b>/question-name/',
 						'question_perma_3' => home_url( '/' ) . '<b class="ap-base-slug">' . ap_opt( 'question_page_slug' ) . '</b>/213/',
@@ -878,10 +878,10 @@ class AnsPress_Admin {
 					'value'    => $opt['search_page_title'],
 					'validate' => 'required',
 				),
-				'author_page_title'       => array(
-					'label'    => __( 'Author page title', 'anspress-question-answer' ),
-					'desc'     => __( 'Title of the author page', 'anspress-question-answer' ),
-					'value'    => $opt['author_page_title'],
+				'profile_page_title'       => array(
+					'label'    => __( 'Profile page title', 'anspress-question-answer' ),
+					'desc'     => __( 'Title of the profile page', 'anspress-question-answer' ),
+					'value'    => $opt['profile_page_title'],
 					'validate' => 'required',
 				),
 			),

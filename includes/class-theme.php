@@ -230,7 +230,7 @@ class AnsPress_Theme {
 			) );
 		}
 
-		do_action( 'ap_template_include_theme_compat' );
+		$template = apply_filters( 'ap_template_include_theme_compat', $template );
 
 		if ( true === anspress()->theme_compat->active ) {
 			ap_remove_all_filters( 'the_content' );

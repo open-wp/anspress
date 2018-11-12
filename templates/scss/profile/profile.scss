@@ -1,0 +1,97 @@
+//
+// Profile styles
+// --------------------------------------------------
+.ap-profile{
+	.ap-col-main{
+		width: calc( 100% - 200px );
+		padding-left: 20px;
+	}
+	&-avatar{
+		margin: 0 auto 5px;
+		display: table;
+		> img{
+			border-radius: 50%;
+		}
+	}
+	&-vcard{
+		margin-bottom: 20px;
+		border-bottom: solid 1px #eee;
+		padding-bottom: 20px;
+		&-name{
+			text-align: center;
+			font-size: 16px;
+			font-weight: bold;
+		}
+		&-rep{
+			margin-left: 5px;
+			text-align: center;
+			display: block;
+			span{
+				background: var(--ap_color9);
+				margin-left: 5px;
+				border-radius: 2px;
+				padding: 0px 4px;
+				font-size: 11px;
+				font-weight: bold;
+				color: #fff;
+			}
+		}
+	}
+}
+
+.ap-user-reputation {
+	margin-left: 5px;
+	background: #FFC107;
+	padding: 1px 4px;
+	font-size: 11px;
+	border-radius: 2px;
+	font-weight: bold;
+	margin-right: 5px;
+	vertical-align: text-bottom;
+}
+
+// ----------------
+// User profile nav
+//-----------------
+
+.ap-profile-nav{
+    width: 200px;
+    border: solid 1px var(--ap_border-color);
+    padding: 20px;
+    align-self: baseline;
+    border-radius: 4px;
+
+	ul{
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		li{
+			padding: 0;
+			margin: 0 0 2px;
+			&.ap-nav-active{
+				a{
+					background: #eee;
+					font-weight: bold;
+				}
+			}
+			a{
+				display: block;
+				padding: 8px;
+				border-radius: 2px;
+				transition: all .3s;
+				color: var(--ap_color3);
+				&:hover{
+					background: #eee;
+				}
+			}
+			.ap-profile-nav-count{
+				float: right;
+				font-size: 12px;
+				background: var(--ap_color1);
+				color: #fff;
+				border-radius: var(--ap_border-radius);
+				padding: 0 4px;
+			}
+		}
+	}
+}

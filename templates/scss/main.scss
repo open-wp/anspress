@@ -15,7 +15,7 @@
 @import "buttons";
 @import "form";
 @import "comment";
-@import "user";
+
 @import "widget";
 @import "user-posts";
 @import "dropdown";
@@ -38,3 +38,6 @@
 @import "feedback";
 @import "tab";
 
+@import "profile/profile";
+@import "profile/questions";
+@import "profile/answers";
