@@ -41,6 +41,10 @@ function pages() {
 		'activities' => array(
 			'title' => __( 'Activities', 'anspress-question-answer' ),
 		),
+		'settings' => array(
+			'title'   => __( 'Settings', 'anspress-question-answer' ),
+			'private' => true,
+		),
 	);
 
 	/**
@@ -103,6 +107,11 @@ function nav_links( $user_id = false ) {
 	$nav = [];
 
 	foreach ( pages() as $slug => $args ) {
+		// If user cannot view page than continue.
+		if ( ! can_view_page( $slug ) ) {
+			continue;
+		}
+
 		$active_class = current_page( $slug ) ? ' ap-nav-active' : '';
 
 		$nav[ $slug ] = array(
@@ -131,21 +140,54 @@ function nav_links( $user_id = false ) {
 	return apply_filters( 'ap_profile_nav_links', $nav, $user_id );
 }
 
+function is_private_page( $page_to_check ) {
+	$pages        = pages();
+	$current_page = get_query_var( 'profile_page', 'overview' );
+
+	if ( ! isset( $pages[ $page_to_check ] ) ) {
+		return false;
+	}
+
+	return isset( $pages[ $page_to_check ]['private'] ) && true === $pages[ $page_to_check ]['private'];
+}
+
+function can_view_page( $page_to_check ) {
+	$pages = pages();
+	$can   = true;
+
+	if ( ! isset( $pages[ $page_to_check ] ) ) {
+		$can = false;
+	} elseif ( is_private_page( $page_to_check ) && ( ! is_user_logged_in() || ap_get_displayed_user_id() != get_current_user_id() ) ) { // wpcs: loose comparison okay.
+		$can = false;
+	}
+
+	return $can;
+}
+
 /**
  * Load profile page content.
  *
  * @since 4.2.0
  */
 function profile_page_content() {
+	$pages         = pages();
 	$user_page     = get_query_var( 'profile_page', 'overview' );
 	$template_file = ap_get_theme_location( 'profile/' . $user_page . '.php' );
 
 	echo '<div class="ap-profile-content">';
 
-	if ( file_exists( $template_file ) ) {
-		ap_get_template_part( 'profile/' . trim( $user_page ) );
+	$is_private = isset( $pages[ $user_page ]['private'] ) && true === $pages[ $user_page ]['private'];
+
+	if ( ! can_view_page( $user_page ) ) {
+		esc_attr_e( 'You are not permitted to view this page.', 'anspress-question-answer' );
 	} else {
-		printf( esc_attr__( 'No template file exists for profile page "%s".', 'anspress-question-answer' ), $user_page );
+
+		if ( file_exists( $template_file ) ) {
+			ap_get_template_part( 'profile/' . trim( $user_page ) );
+		} else {
+			printf( esc_attr__( 'No template file exists for profile page "%s".', 'anspress-question-answer' ), $user_page );
+		}
+
 	}
 
 	echo '</div>';

@@ -488,3 +488,9 @@ ul{
 .no-read-permission{
 	opacity: 0.6;
 }
+
+h2.ap-subheading{
+	border-bottom: solid 1px var(--ap_border-color);
+    margin-top: 0;
+    padding-bottom: 10px;
+}

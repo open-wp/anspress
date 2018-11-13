@@ -19,6 +19,8 @@
 
 namespace AnsPress\Addons;
 use AnsPress\Shortcodes;
+use AnsPress\Addons\Profile;
+use AnsPress\Template;
 
 // If this file is called directly, abort.
 if ( ! defined( 'WPINC' ) ) {
@@ -64,6 +66,8 @@ class Profile extends \AnsPress\Singleton {
 		anspress()->add_filter( 'ap_current_page', $this, 'ap_current_page' );
 		anspress()->add_filter( 'ap_shortcode_display_current_page', $this, 'shortcode_fallback' );
 		anspress()->add_filter( 'ap_template_include_theme_compat', $this, 'template_include_theme_compat' );
+		anspress()->add_filter( 'ap_before_profile_settings', $this, 'process_public_profile_form' );
+		anspress()->add_filter( 'ap_before_profile_settings', $this, 'process_change_password_form' );
 	}
 
 	/**
@@ -162,64 +166,20 @@ class Profile extends \AnsPress\Singleton {
 	}
 
 	/**
-	 * Register user profile pages.
+	 * Modify user page titles.
+	 *
+	 * @return string
 	 */
-	public function user_pages() {
-		if ( ! empty( anspress()->user_pages ) ) {
-			return;
-		}
-
-		anspress()->user_pages = array(
-			array(
-				'slug'  => 'questions',
-				'label' => __( 'Questions', 'anspress-question-answer' ),
-				'icon'  => 'apicon-question',
-				'cb'    => [ $this, 'question_page' ],
-				'order' => 2,
-			),
-			array(
-				'slug'  => 'answers',
-				'label' => __( 'Answers', 'anspress-question-answer' ),
-				'icon'  => 'apicon-answer',
-				'cb'    => [ $this, 'answer_page' ],
-				'order' => 2,
-			),
-		);
-
-		do_action( 'ap_user_pages' );
-
-		foreach ( (array) anspress()->user_pages as $key => $args ) {
-			$rewrite = ap_opt( 'user_page_slug_' . $args['slug'] );
-			$title   = ap_opt( 'user_page_title_' . $args['slug'] );
-
-			// Override user page slug.
-			if ( empty( $args['rewrite'] ) ) {
-				anspress()->user_pages[ $key ]['rewrite'] = ! empty( $rewrite ) ? sanitize_title( $rewrite ) : $args['slug'];
-			}
-
-			// Override user page title.
-			if ( ! empty( $title ) ) {
-				anspress()->user_pages[ $key ]['label'] = $title;
-			}
-
-			// Add default order.
-			if ( ! isset( $args['order'] ) ) {
-				anspress()->user_pages[ $key ]['order'] = 10;
-			}
-		}
-
-		anspress()->user_pages = ap_sort_array_by_order( anspress()->user_pages );
-	}
-
 	public function user_page_title() {
-		$this->user_pages();
-		$title       = ap_user_display_name( ap_get_displayed_user_id() );
-		$current_tab = sanitize_title( get_query_var( 'user_page', ap_opt( 'user_page_slug_questions' ) ) );
-		$page        = ap_search_array( anspress()->user_pages, 'rewrite', $current_tab );
+		$title     = ap_user_display_name( ap_get_displayed_user_id() );
+		$user_page = Profile\current_page();
+		$pages     = Profile\pages();
 
-		if ( ! empty( $page ) ) {
-			return $title . ' | ' . $page[0]['label'];
+		if ( ! empty( $pages[ $user_page ]['title'] ) ) {
+			$title = $title . ' | ' . esc_attr( $pages[ $user_page ]['title'] );
 		}
+
+		return $title;
 	}
 
 	/**
@@ -461,6 +421,113 @@ class Profile extends \AnsPress\Singleton {
 		}
 
 		return $template;
+	}
+
+	/**
+	 * Process update public profile form.
+	 *
+	 * @return void
+	 * @since 4.2.0
+	 */
+	public function process_public_profile_form() {
+		if ( ! ap_isset_post_value( '__update_nonce' ) ) {
+			return;
+		}
+
+		// Show error if nonce not verified.
+		if ( ! wp_verify_nonce( ap_isset_post_value( '__update_nonce' ), 'update_profile' ) ) {
+			Template\alert(
+				__( 'Failed to update public profile', 'anspress-question-answer' ),
+				__( 'Nonce did not matched. Please try again.', 'anspress-question-answer' ),
+				'error'
+			);
+			return;
+		}
+
+		$public_profile = ap_isset_post_value( 'public_profile' );
+
+		$user_id = wp_update_user( [
+			'ID'           => get_current_user_id(),
+			'first_name'   => $public_profile['first_name'],
+			'last_name'    => $public_profile['last_name'],
+			'display_name' => $public_profile['nickname'],
+			'nickname'     => $public_profile['nickname'],
+			'description'  => $public_profile['bio'],
+			'user_url'     => $public_profile['user_url'],
+		] );
+
+		if ( is_wp_error( $user_id ) ) {
+			Template\alert(
+				__( 'Failed to update public profile', 'anspress-question-answer' ),
+				$user_id->get_error_message(),
+				'error'
+			);
+		} else {
+			Template\alert(
+				__( 'Successfully updated public profile', 'anspress-question-answer' )
+			);
+		}
+
+	}
+
+	public function process_change_password_form() {
+		if ( ! ap_isset_post_value( '__nonce_password' ) ) {
+			return;
+		}
+
+		// Show error if nonce not verified.
+		if ( ! wp_verify_nonce( ap_isset_post_value( '__nonce_password' ), 'password_nonce' ) ) {
+			Template\alert(
+				__( 'Failed to update password.', 'anspress-question-answer' ),
+				__( 'Nonce did not matched. Please try again.', 'anspress-question-answer' ),
+				'error'
+			);
+			return;
+		}
+
+		$user = get_user_by( 'id', get_current_user_id() );
+
+		$old_password = ap_isset_post_value( 'ap-old-password' );
+		$password1    = ap_isset_post_value( 'ap-password1' );
+		$password2    = ap_isset_post_value( 'ap-password2' );
+
+		if ( empty( $old_password ) || empty( $password1 ) || empty( $password2 ) ) {
+			Template\alert(
+				__( 'Failed to update password.', 'anspress-question-answer' ),
+				__( 'Password field must not be empty.', 'anspress-question-answer' ),
+				'error'
+			);
+			return;
+		}
+
+		if ( $user && wp_check_password( $old_password, $user->data->user_pass, $user->ID ) ) {
+
+			// Check password 1 and 2 are matching.
+			if ( $password1 !== $password2 ) {
+				Template\alert(
+					__( 'Failed to update password.', 'anspress-question-answer' ),
+					__( 'Confirm password did not matched, please try again.', 'anspress-question-answer' ),
+					'error'
+				);
+				return;
+			}
+
+			// All done now update password.
+			wp_set_password( $password1, get_current_user_id() );
+
+			Template\alert(
+				__( 'Successfully updated password.', 'anspress-question-answer' )
+			);
+
+		} else {
+			Template\alert(
+				__( 'Failed to update password.', 'anspress-question-answer' ),
+				__( 'Old password did not matched.', 'anspress-question-answer' ),
+				'error'
+			);
+
+			return;
+		}
 	}
 
 }

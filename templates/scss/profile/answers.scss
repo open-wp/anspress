@@ -2,6 +2,11 @@
     .ap-answers{
         border: solid 1px #eee;
     }
+    &-content{
+        .ap-btn-group-sort{
+            margin-bottom: 15px;
+        }
+    }
 }
 .ap-profile-answer{
     padding: 10px 15px;
@@ -10,6 +15,7 @@
     &:last-child{
         border-bottom: none;
     }
+
 
     .ap-answer-title{
         font-weight: bold;

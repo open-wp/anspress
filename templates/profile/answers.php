@@ -41,6 +41,8 @@ $answers_args = array(
 
 <?php if ( ap_get_answers( $answers_args ) ) : ?>
 
+	<?php ap_get_template_part( 'answers-sort' ); ?>
+
 	<div class="ap-answers">
 
 		<?php if ( ap_have_answers() ) : ?>
@@ -61,8 +63,17 @@ $answers_args = array(
 
 <?php else : ?>
 
-	<?php ap_get_template_part( 'feedback-questions' ); ?>
-	<?php ap_get_template_part( 'login-signup' ); ?>
+	<div class="ap-feedback ap-feedback-questions">
+		<div class="ap-display-flex align-item-center">
+			<i class="ap-feedback-icon apicon-answer ap-text-muted"></i>
+			<div>
+				<strong class="ap-feedback-title"><?php esc_attr_e( 'No published answers yet!', 'anspress-question-answer' ); ?></strong>
+				<p class="mb-0 ap-feedback-msg">
+					<?php esc_attr_e( 'This user have not posted any answers yet.', 'anspress-question-answer' ); ?>
+				</p>
+			</div>
+		</div>
+	</div>
 
 <?php endif; ?>
 

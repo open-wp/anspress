@@ -1,0 +1,31 @@
+.ap-profile{
+    &-edit-avatar{
+        flex: 0 0 180px;
+    }
+    &-edit{
+        flex-basis: 100%;
+    }
+
+    &-settings{
+        .ap-form-control{
+            width: 80%;
+        }
+    }
+}
+.ap-form-avatar{
+    position: relative;
+    .ap-field-avatar {
+        visibility: hidden;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+    .ap-btn{
+        margin-top: 10px;
+        display: block;
+        text-align: center;
+        cursor: pointer;
+    }
+}

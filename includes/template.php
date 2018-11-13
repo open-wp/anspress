@@ -821,3 +821,25 @@ function get_current_questions_filters() {
 
 	return apply_filters( 'get_current_questions_filters', $filters );
 }
+
+/**
+ * Show alert message.
+ *
+ * @param string  $title      Alert title.
+ * @param string  $message    Alert message.
+ * @param boolean $show_close Show close button.
+ * @return void
+ * @since 4.2.0
+ */
+function alert( $title, $message = '', $class = 'success', $show_close = true ) {
+	?>
+	<div class="ap-alert <?php echo esc_attr( $class ); ?>">
+		<?php if ( $show_close ) : ?>
+			<button class="ap-alert-close ap-remove-parent">&times;</button>
+		<?php endif; ?>
+
+		<strong><?php echo esc_html( $title ); ?></strong>
+		<?php echo esc_html( $message ); ?>
+	</div>
+	<?php
+}
