@@ -914,6 +914,26 @@ i.noti-count{font-style:normal;background:#f44336;color:#fff;width:10px;display:
 .ap-form-avatar{position:relative}
 .ap-form-avatar .ap-field-avatar{visibility:hidden;position:absolute;top:0;left:0;width:100%;height:100%}
 .ap-form-avatar .ap-btn,.ap-form-avatar .ap-tags-name{margin-top:10px;display:block;text-align:center;cursor:pointer}
+.ap-profile-overview .ap__counts{margin:-10px}
+.ap-profile-overview .ap__counts>div{-webkit-flex-basis:25%;-ms-flex-preferred-size:25%;flex-basis:25%;margin:10px;border:solid 1px #eee;border-radius:var(--ap_border-radius);padding:10px;text-align:center}
+.ap-profile-overview .ap__counts>div span{display:block;font-size:12px}
+.ap-profile-overview .ap__counts>div span:first-of-type{font-size:inherit;font-weight:bold}
+.ap-profile-overview .ap__counts i{display:block;text-align:center;font-size:20px;color:#999;margin-bottom:10px}
+.ap-overview-block{margin-top:30px}
+.ap-overview-block-in{border:solid 1px #eee;padding:15px;border-radius:var(--ap_border-radius)}
+.ap-overview-activities .ap__item{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;padding:10px 15px;border-bottom:solid 1px #eee}
+.ap-overview-activities .ap__left{width:100%}
+.ap-overview-activities .ap__heading{margin-top:0;margin-bottom:10px}
+.ap-overview-activities .ap__when{text-transform:uppercase;font-size:12px;color:var(--ap_color4);margin-top:15px}
+.ap-overview-activities .ap__when:first-of-type{margin-top:0}
+.ap-overview-activities .ap__icon{color:var(--ap_color1);font-size:25px;margin-right:30px;-webkit-align-self:baseline;-ms-flex-item-align:baseline;align-self:baseline;text-align:center;width:40px;opacity:.7}
+.ap-overview-activities .ap__verb{font-weight:bold}
+.ap-overview-activities .ap__date{font-size:var(--ap_fs-md)}
+.ap-overview-activities .ap__action-new_q .ap__icon{color:var(--ap_color2)}
+.ap-overview-activities .ap__action-new_c .ap__icon{color:var(--ap_color6)}
+.ap-overview-activities .ap__action-selected .ap__icon{color:var(--ap_color9)}
+.ap-overview-activities .ap__body{font-size:13px}
+.ap-overview-activities .ap__head{margin-bottom:3px}
 @media(min-width:640px){.ap-snackbar{min-width:288px;max-width:568px;display:-webkit-inline-box;display:-webkit-inline-flex;display:-ms-inline-flexbox;display:inline-flex;border-radius:2px;margin:24px;bottom:-100px}
 }@media only screen and (min-width:768px){.ap-col-12{width:100%;vertical-align:top}
 .ap-col-11{width:91.6666666667%;vertical-align:top}
