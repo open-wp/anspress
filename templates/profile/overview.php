@@ -1,6 +1,6 @@
 <?php
 /**
- * Profile overview template.
+ * Profile reputations template.
  *
  * @license    https://www.gnu.org/licenses/gpl-2.0.txt GNU Public License
  * @author     Rahul Aryan <support@anspress.io>

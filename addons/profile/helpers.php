@@ -35,15 +35,13 @@ function pages() {
 		'answers' => array(
 			'title' => __( 'Answers', 'anspress-question-answer' ),
 		),
-		'reputations' => array(
-			'title' => __( 'Reputations', 'anspress-question-answer' ),
-		),
 		'activities' => array(
 			'title' => __( 'Activities', 'anspress-question-answer' ),
 		),
 		'settings' => array(
 			'title'   => __( 'Settings', 'anspress-question-answer' ),
 			'private' => true,
+			'order'   => 99,
 		),
 	);
 
@@ -53,7 +51,9 @@ function pages() {
 	 * @param array $pages Profile pages.
 	 * @since 4.2.0
 	 */
-	return apply_filters( 'ap_profile_page', $pages );
+	$pages = apply_filters( 'ap_profile_pages', $pages );
+
+	return ap_sort_array_by_order( $pages );
 }
 
 /**

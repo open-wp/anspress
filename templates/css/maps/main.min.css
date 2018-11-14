@@ -781,44 +781,28 @@ div.mce-toolbar-grp{border-bottom:2px solid #eee}
 #anspress .ap-bp-head .ap-filters{float:right}
 #anspress .ap-bp-loadmore{display:table;margin:0 auto;font-size:12px}
 .ap-user-meta-reputation{background:#f4ac20;font-size:12px;padding:3px 10px;border-radius:2px}
-.ap-reputations{border:0;border-spacing:0}
-.ap-reputations td{border-width:0 0 1px 0;border-color:#eee;border-style:solid;padding:10px 5px;vertical-align:top}
-.ap-reputations td.col-icon{width:50px;color:#b5b5b5}
-.ap-reputations td.col-icon i{font-size:18px;background:#9e9e9e;width:35px;display:block;height:35px;padding:5px;text-align:center;border-radius:50%;color:#fff}
-.ap-reputations td.col-icon i.answer{background:#4cbc67}
-.ap-reputations td.col-icon i.ask{background:#f44336}
-.ap-reputations td.col-icon i.comment{background:#673ab7}
-.ap-reputations td.col-icon i.select_answer{background:#00c853}
-.ap-reputations td.col-icon i.best_answer{background:#00bcd4}
-.ap-reputations td.col-icon i.received_vote_up{background:#ab47bc}
-.ap-reputations td.col-icon i.received_vote_down{background:#ff9800}
-.ap-reputations td.col-icon i.given_vote_down{background:#8d6e63}
-.ap-reputations td.col-icon i.given_vote_up{background:#ec407a}
-.ap-reputations td.col-points{text-align:right;width:55px}
-.ap-reputations td.col-points span{background:#f4ac20;color:#fff;width:40px;display:block;float:right;text-align:center;border-radius:2px;padding:2px}
-.ap-reputations td.col-date{width:100px;font-size:12px}
 .ap-reputation-ref{margin-top:5px;display:block;margin-top:5px;font-size:12px;color:#777}
 .ap-reputation-ref strong{display:block;color:#444}
 .ap-reputation-activity{font-weight:bold}
-.ap-reputations{border:0;border-spacing:0}
-.ap-reputations td{border-width:0 0 1px 0;border-color:#eee;border-style:solid;padding:10px 5px;vertical-align:top}
-.ap-reputations td.col-icon{width:50px;color:#b5b5b5}
-.ap-reputations td.col-icon i{font-size:18px;background:#9e9e9e;width:35px;display:block;height:35px;padding:5px;text-align:center;border-radius:50%;color:#fff}
-.ap-reputations td.col-icon i.answer{background:#4cbc67}
-.ap-reputations td.col-icon i.ask{background:#f44336}
-.ap-reputations td.col-icon i.comment{background:#673ab7}
-.ap-reputations td.col-icon i.select_answer{background:#00c853}
-.ap-reputations td.col-icon i.best_answer{background:#00bcd4}
-.ap-reputations td.col-icon i.received_vote_up{background:#ab47bc}
-.ap-reputations td.col-icon i.received_vote_down{background:#ff9800}
-.ap-reputations td.col-icon i.given_vote_down{background:#8d6e63}
-.ap-reputations td.col-icon i.given_vote_up{background:#ec407a}
-.ap-reputations td.col-points{text-align:right;width:55px}
-.ap-reputations td.col-points span{background:#f4ac20;color:#fff;width:40px;display:block;float:right;text-align:center;border-radius:2px;padding:2px}
-.ap-reputations td.col-date{width:100px;font-size:12px}
+.ap-reps{border:solid 1px #eee}
+.ap-reps-item{border-bottom:solid 1px #eee;padding:15px;display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex}
+.ap-reps-item-icon{background:var(--ap_color4);-webkit-align-self:baseline;-ms-flex-item-align:baseline;align-self:baseline;margin-right:15px;padding:8px 10px;border-radius:4px;font-size:17px;-webkit-box-flex:0;-webkit-flex:0 0 45px;-ms-flex:0 0 45px;flex:0 0 45px;text-align:center;color:#fff}
+.ap-reps-item-event{width:100%}
+.ap-reps-item-points{background:var(--ap_color9);padding:1px;width:40px;margin-top:10px;text-align:center;height:25px;font-weight:bold;border-radius:var(--ap_border-radius);color:#fff}
+.ap-reps-item-date{font-size:var(--ap_fs-md)}
+.ap-reps a.ap-reputation-ref{border:solid 1px #eee;padding:10px;border-radius:4px}
+.ap-reps a.ap-reputation-ref p{margin-bottom:0}
 .ap-reputation-ref{margin-top:5px;display:block;margin-top:5px;font-size:12px;color:#777}
 .ap-reputation-ref strong{display:block;color:#444}
 .ap-reputation-activity{font-weight:bold}
+.ap-reps{border:solid 1px #eee}
+.ap-reps-item{border-bottom:solid 1px #eee;padding:15px;display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex}
+.ap-reps-item-icon{background:var(--ap_color4);-webkit-align-self:baseline;-ms-flex-item-align:baseline;align-self:baseline;margin-right:15px;padding:8px 10px;border-radius:4px;font-size:17px;-webkit-box-flex:0;-webkit-flex:0 0 45px;-ms-flex:0 0 45px;flex:0 0 45px;text-align:center;color:#fff}
+.ap-reps-item-event{width:100%}
+.ap-reps-item-points{background:var(--ap_color9);padding:1px;width:40px;margin-top:10px;text-align:center;height:25px;font-weight:bold;border-radius:var(--ap_border-radius);color:#fff}
+.ap-reps-item-date{font-size:var(--ap_fs-md)}
+.ap-reps a.ap-reputation-ref{border:solid 1px #eee;padding:10px;border-radius:4px}
+.ap-reps a.ap-reputation-ref p{margin-bottom:0}
 #anspress .ap-noti{border:solid 1px #eee;border-radius:2px}
 #anspress .ap-noti-item{border-bottom:solid 1px #eee;padding:10px 15px}
 #anspress .ap-noti-icon{float:left;width:40px;height:40px;background:#eee;padding:8px;text-align:center;font-size:18px;border-radius:2px}

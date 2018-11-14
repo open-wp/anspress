@@ -67,12 +67,16 @@ class Reputation extends \AnsPress\Singleton {
 		anspress()->add_filter( 'ap_pre_fetch_question_data', $this, 'pre_fetch_post' );
 		anspress()->add_filter( 'ap_pre_fetch_answer_data', $this, 'pre_fetch_post' );
 		anspress()->add_filter( 'bp_before_member_header_meta', $this, 'bp_profile_header_meta' );
-		anspress()->add_filter( 'ap_user_pages', $this, 'ap_user_pages' );
-		anspress()->add_filter( 'ap_ajax_load_more_reputation', $this, 'load_more_reputation' );
+
+		anspress()->add_filter( 'wp_ajax_load_more_reputation', $this, 'load_more_reputation' );
+		anspress()->add_filter( 'wp_ajax_nopriv_load_more_reputation', $this, 'load_more_reputation' );
 		anspress()->add_filter( 'ap_bp_nav', $this, 'ap_bp_nav' );
 		anspress()->add_filter( 'ap_bp_page', $this, 'ap_bp_page', 10, 2 );
 		anspress()->add_filter( 'ap_all_options', $this, 'ap_all_options', 10, 2 );
 		anspress()->add_filter( 'ap_profile_vcard', $this, 'ap_profile_vcard' );
+
+		anspress()->add_filter( 'ap_profile_pages', $this, 'ap_profile_pages' );
+
 	}
 
 	/**
@@ -433,29 +437,6 @@ class Reputation extends \AnsPress\Singleton {
 	}
 
 	/**
-	 * Adds reputations tab in AnsPress authors page.
-	 */
-	public function ap_user_pages() {
-		anspress()->user_pages[] = array(
-			'slug'  => 'reputations',
-			'label' => __( 'Reputations', 'anspress-question-answer' ),
-			'icon'  => 'apicon-reputation',
-			'cb'    => [ $this, 'reputation_page' ],
-			'order' => 5,
-		);
-	}
-
-	/**
-	 * Display reputation tab content in AnsPress author page.
-	 */
-	public function reputation_page() {
-		$user_id = get_queried_object_id();
-
-		$reputations = new \AnsPress_Reputation_Query( [ 'user_id' => $user_id ] );
-		include ap_get_theme_location( 'addons/reputation/index.php' );
-	}
-
-	/**
 	 * Ajax callback for loading more reputations.
 	 */
 	public function load_more_reputation() {
@@ -471,10 +452,12 @@ class Reputation extends \AnsPress\Singleton {
 				'paged'   => $paged,
 			]
 		);
+
 		while ( $reputations->have() ) :
 			$reputations->the_reputation();
-			include ap_get_theme_location( 'addons/reputation/item.php' );
+			ap_get_template_part( 'profile/reputation', [ 'reputations' => $reputations ] );
 		endwhile;
+
 		$html = ob_get_clean();
 
 		$paged = $reputations->total_pages > $paged ? $paged : 0;
@@ -483,13 +466,13 @@ class Reputation extends \AnsPress\Singleton {
 			array(
 				'success' => true,
 				'args'    => [
-					'ap_ajax_action' => 'load_more_reputation',
+					'action' => 'load_more_reputation',
 					'__nonce'        => wp_create_nonce( 'load_more_reputation' ),
 					'current'        => (int) $paged,
 					'user_id'        => $user_id,
 				],
 				'html'    => $html,
-				'element' => '.ap-reputations tbody',
+				'element' => '.ap-reps',
 			)
 		);
 	}
@@ -558,6 +541,21 @@ class Reputation extends \AnsPress\Singleton {
 		esc_attr_e( 'Reputation', 'anspress-question-answer' );
 		echo '<span>' . $reputation . '</span>';
 		echo '</a>';
+	}
+
+	/**
+	 * Add reputation page in profile.
+	 *
+	 * @param array $pages Profile pages.
+	 * @return array
+	 * @since 4.2.0
+	 */
+	public function ap_profile_pages( $pages ) {
+		$pages['reputations'] = array(
+			'title' => __( 'Reputations', 'anspress-question-answer' ),
+		);
+
+		return $pages;
 	}
 }
 

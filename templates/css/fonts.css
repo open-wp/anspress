@@ -239,15 +239,12 @@
 }
 .apicon-thumbs-up-down:before {
   content: "\e93a";
-  color: #444;
 }
 .apicon-thumb-up:before {
   content: "\e93b";
-  color: #444;
 }
 .apicon-thumb-down:before {
   content: "\e93c";
-  color: #444;
 }
 .apicon-x:before {
   content: "\e92e";
