@@ -127,7 +127,8 @@ function ap_activity_parse( $activity ) {
 
 	// Append actions data if exists.
 	if ( ap_activity_object()->action_exists( $new->action ) ) {
-		$new->action = ap_activity_object()->get_action( $new->action );
+		$new->action_type = $new->action;
+		$new->action      = ap_activity_object()->get_action( $new->action );
 	}
 
 	return $new;

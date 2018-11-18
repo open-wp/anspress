@@ -3,37 +3,63 @@
 // --------------------------------------------------
 .ap-profile{
 	.ap-col-main{
-		width: calc( 100% - 200px );
-		padding-left: 35px;
+		width: 100%;
+	}
+	&-info{
+		background: #f9f9f9;
+		padding: 25px 25px 0;
 	}
 	&-avatar{
-		margin: 0 auto 5px;
-		display: table;
+		margin-right: 40px;
+		flex-basis: 140px;
 		> img{
 			border-radius: 50%;
 		}
 	}
 	&-vcard{
-		margin-bottom: 20px;
-		border-bottom: solid 1px #eee;
-		padding-bottom: 20px;
+		width: 100%;
 		&-name{
-			text-align: center;
-			font-size: 16px;
+			font-size: 18px;
 			font-weight: bold;
+			text-transform: uppercase;
+		}
+		&-metas{
+			font-size: 13px;
+			> span{
+				margin-right: 10px;
+				&:first-child b{
+					display: none;
+				}
+			}
+			b{
+				color: #aaa;
+				margin-right: 5px;
+			}
 		}
 		&-rep{
-			margin-left: 5px;
-			text-align: center;
-			display: block;
-			span{
-				background: var(--ap_color9);
-				margin-left: 5px;
-				border-radius: 2px;
-				padding: 0px 4px;
-				font-size: 11px;
-				font-weight: bold;
-				color: #fff;
+		}
+	}
+	&-counts{
+		margin-top: 20px;
+		> div{
+			margin-right: 40px;
+			&:last-child{
+				margin-right: 0;
+			}
+		}
+		.ap__{
+			&dt{
+				font-size: 10px;
+				color: #888;
+				text-transform: uppercase;
+				display: block;
+			}
+			&dd{
+				font-size: 13px;
+			}
+			&ask-btn{
+				margin-left: auto;
+				align-self: center;
 			}
 		}
 	}
@@ -55,43 +81,13 @@
 //-----------------
 
 .ap-profile-nav{
-    width: 200px;
-    border: solid 1px var(--ap_border-color);
-    padding: 20px;
-    align-self: baseline;
-    border-radius: 4px;
-
-	ul{
-		list-style: none;
-		margin: 0;
-		padding: 0;
-		li{
-			padding: 0;
-			margin: 0 0 2px;
-			&.ap-nav-active{
-				a{
-					background: #eee;
-					font-weight: bold;
-				}
-			}
-			a{
-				display: block;
-				padding: 8px;
-				border-radius: 2px;
-				transition: all .3s;
-				color: var(--ap_color3);
-				&:hover{
-					background: #eee;
-				}
-			}
-			.ap-profile-nav-count{
-				float: right;
-				font-size: 12px;
-				background: var(--ap_color1);
-				color: #fff;
-				border-radius: var(--ap_border-radius);
-				padding: 0 4px;
-			}
-		}
+	margin-top: 50px;
+    margin-bottom: 30px;
+    margin-left: -25px;
+    margin-right: -25px;
+	.ap-tab{
+		width: 100%;
+		padding: 0 20px;
+		font-weight: bold;
 	}
 }

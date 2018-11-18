@@ -26,7 +26,18 @@ if ( 'answer' === $type && ! empty( $this->object->a_id ) ) {
 }
 
 if ( 'comment' === $type && ap_user_can_read_comment( $this->object->c_id ) ) {
+
+	echo '<div class="ap__ref-content">';
 	echo get_comment_excerpt( $this->object->c_id ) . '<a href="' . ap_get_short_link( [ 'ap_c' => $this->object->c_id ] ) . '">' . __( 'View comment', 'anspress-question-answer' ) . '</a>';
+	echo '</div>';
+
 } elseif ( ! empty( $post_id ) && ! $this->in_group ) {
-	echo '<a href="' . get_permalink( $post_id ) . '">' . get_the_title( $post_id ) . '</a>';
+
+	echo '<div class="ap__ref-content">';
+	echo '<div class="ap__ref-content-post">';
+	echo '<a href="' . get_permalink( $post_id ) . '" class="ap__title">' . get_the_title( $post_id ) . '</a>';
+	echo '<div class="ap__content">' . wp_trim_words( get_post_field( 'post_content', $post_id ), 25, '...' ) . '</div>';
+	echo '</div>';
+	echo '</div>';
 }
+

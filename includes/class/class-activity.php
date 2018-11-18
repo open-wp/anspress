@@ -498,7 +498,7 @@ class Activity extends AnsPress_Query {
 		} elseif ( $date >= strtotime( '-48 hours' ) ) {
 			$when = __( 'Yesterday', 'anspress-question-answer' );
 		} elseif ( $date <= strtotime( '1 year' ) ) {
-			$when = date_i18n( 'M', $date );
+			$when = date_i18n( 'F', $date );
 		} else {
 			$when = date_i18n( 'M Y', $date );
 		}
@@ -514,7 +514,7 @@ class Activity extends AnsPress_Query {
 	 *
 	 * @return void
 	 */
-	public function the_when() {
+	public function the_when( $class = 'ap-activity-when' ) {
 		$current_when = $this->when( $this->object );
 
 		if ( $this->current > 0 && isset( $this->objects[ $this->current - 1 ] ) ) {
@@ -525,7 +525,7 @@ class Activity extends AnsPress_Query {
 			}
 		}
 
-		echo '<div class="ap-activity-when">' . esc_html( $current_when ) . '</div>';
+		echo '<div class="' . esc_attr( $class ) . '">' . esc_html( $current_when ) . '</div>';
 	}
 
 	/**
@@ -556,5 +556,14 @@ class Activity extends AnsPress_Query {
 		);
 
 		echo '<a href="#" class="ap-btn" apajaxbtn apquery="' . esc_js( $args ) . '">' . __( 'Load More', 'anspress-question-answer' ) . '</a>';
+	}
+
+	/**
+	 * Print current activity action.
+	 *
+	 * @return void
+	 */
+	public function the_action_type() {
+		echo $this->object->action_type;
 	}
 }

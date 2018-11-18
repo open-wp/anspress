@@ -39,7 +39,7 @@ function pages() {
 			'title' => __( 'Activities', 'anspress-question-answer' ),
 		),
 		'settings' => array(
-			'title'   => __( 'Settings', 'anspress-question-answer' ),
+			'title'   => __( 'Edit Profile', 'anspress-question-answer' ),
 			'private' => true,
 			'order'   => 99,
 		),
@@ -112,7 +112,7 @@ function nav_links( $user_id = false ) {
 			continue;
 		}
 
-		$active_class = current_page( $slug ) ? ' ap-nav-active' : '';
+		$active_class = current_page( $slug ) ? ' ap-nav-active ap-tab__active' : '';
 
 		$nav[ $slug ] = array(
 			'id'    => "ap-nav-item-$slug",

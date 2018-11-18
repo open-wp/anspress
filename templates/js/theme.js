@@ -2,11 +2,12 @@
     AnsPress = AnsPress||{};
     AnsPress.theme = {
         events: {
-            'click [data-toggleclassof]'  : 'toggleClassOf',
-            'change [ap="submitOnChange"]': 'autoSubmitForm',
-            'submit [apDisableEmptyFields]': 'disableEmptyFields',
-            'click [ap="removeQFilter"]'  : 'removeFilter',
-            'click [ap="toggleAnswer"]'   : 'toggleAnswer'
+            'click [data-toggleclassof]'     : 'toggleClassOf',
+            'change [ap="submitOnChange"]'   : 'autoSubmitForm',
+            'submit [apDisableEmptyFields]'  : 'disableEmptyFields',
+            'click [ap="removeQFilter"]'     : 'removeFilter',
+            'click [ap="toggleAnswer"]'      : 'toggleAnswer',
+            'click [ap="loadMoreActivities"]': 'loadedMoreActivities'
         },
 
         bindEvents: function() {
@@ -56,7 +57,21 @@
 					}
 				}
 			});
-		},
+        },
+        loadedMoreActivities: function(e){
+            e.preventDefault();
+            var query = JSON.parse($(this).attr('apquery'));
+
+            AnsPress.showLoading(this);
+            AnsPress.ajax({
+                data: query,
+                success: function(data){
+                    AnsPress.hideLoading(e.target);
+                    $(e.target).remove();
+                    $('.ap-overview-activities').append(data.html);
+                }
+            })
+        }
     }
 
     $(document).ready(function () {

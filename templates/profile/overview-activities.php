@@ -15,72 +15,108 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
-
-$args  = [
-	'number'        => 10,
-	'user_id'       => ap_get_displayed_user_id(),
-	'exclude_roles' => [],
-];
-
-$activities = new AnsPress\Activity( $args );
-
 ?>
-<div class="ap-overview-activities ap-overview-block">
-	<h2 class="ap__heading"><?php esc_attr_e( 'Activities', 'anspress-question-answer' ); ?></h2>
 
-	<div class="ap-overview-block-in">
-		<?php if ( $activities->have() ) : ?>
+<?php if ( $activities->have() ) : ?>
 
-			<?php
-			// Loop for getting activities.
-			while ( $activities->have() ) :
-				$activities->the_object();
-				// Shows date and time for timeline.
-				$activities->the_when( 'ap__when' );
+	<?php
+	// Loop for getting activities.
+	while ( $activities->have() ) :
+		$activities->the_object();
+		// Shows date and time for timeline.
+		$activities->the_when( 'ap__when' );
 
-				?>
+		?>
 
-				<div class="ap__item ap__action-<?php $activities->the_action_type(); ?>">
+		<?php if ( $activities->have_group_items() ) : ?>
 
-					<div class="ap__icon">
-						<i class="<?php $activities->the_icon(); ?>"></i>
-					</div>
-
+			<div class="ap__item ap-display-flex justify-space-betw ap__action-<?php $activities->the_action_type(); ?>">
+				<div class="ap__icon">
+					<i class="apicon-pulse"></i>
+				</div>
+				<div>
 					<div class="ap__left">
-						<div class="ap__body">
-							<div class="ap__head">
-								<span class="ap__verb"><?php $activities->the_verb(); ?></span> <time class="ap__date"><?php echo ap_human_time( $activities->get_the_date(), false ); ?></time>
-							</div>
-
-							<?php $activities->the_ref_content(); ?>
+						<div class="ap__head">
+							<span class="ap__verb"><?php printf( esc_attr__( 'Performed %s activity', 'anspress-question-answer' ), '<b>' . number_format_i18n( $activities->count_group() ) . '</b>' ); ?></span>
+							<time class="ap__date"><?php echo ap_human_time( $activities->get_the_date(), false ); ?></time>
 						</div>
+
+						<?php $activities->the_ref_content(); ?>
 					</div>
 
-				</div>
+					<div class="ap__subactivities">
+						<?php $activities->group_start(); ?>
 
-			<?php endwhile; ?>
+						<?php
+						while ( $activities->have_group() ) :
+							$activities->the_object();
+							?>
+							<div class="ap__subactivity ap-display-flex ap__action-<?php $activities->the_action_type(); ?>">
+								<div class="ap__subactivity-icon">
+									<i class="<?php $activities->the_icon(); ?>"></i>
+								</div>
 
-			<?php
-			// Wether to show load more button or not.
-			if ( $activities->have_pages() ) :
-			?>
-				<div class="ap-activity-more ap-activity-item mt-20">
-					<div>
-						<?php $activities->more_button(); ?>
+								<div class="ap__subactivity-right">
+									<div>
+										<span class="ap__subactivity-verb"><?php $activities->the_verb(); ?></span> <time class="ap__subactivity-date"><?php echo ap_human_time( $activities->get_the_date(), false ); ?></time>
+									</div>
+
+									<?php $activities->the_ref_content(); ?>
+								</div>
+
+							</div>
+						<?php endwhile; ?>
+
+						<?php $activities->group_end(); ?>
 					</div>
 				</div>
-			<?php endif; ?>
+			</div>
 
 		<?php else : ?>
 
-			<div class="ap-display-flex align-item-center">
-				<i class="ap-feedback-icon apicon-pulse ap-text-muted"></i>
-				<div>
-					<strong class="ap-feedback-title"><?php esc_attr_e( 'No activities yet!', 'anspress-question-answer' ); ?></strong>
+			<div class="ap__item ap-display-flex justify-space-betw ap__action-<?php $activities->the_action_type(); ?>">
+				<div class="ap__icon">
+					<i class="<?php $activities->the_icon(); ?>"></i>
+				</div>
+
+				<div class="ap__left">
+					<div class="ap__head">
+						<span class="ap__verb"><?php $activities->the_verb(); ?></span>
+						<time class="ap__date"><?php echo ap_human_time( $activities->get_the_date(), false ); ?></time>
+					</div>
+
+					<?php $activities->the_ref_content(); ?>
 				</div>
 			</div>
 
 		<?php endif; ?>
+
+	<?php endwhile; ?>
+
+	<?php
+	// Wether to show load more button or not.
+	if ( $activities->have_pages() ) :
+
+		$paged = max( 1, get_query_var( 'paged' ) );
+
+		$args = wp_json_encode( [
+			'action'  => 'ap_load_more_activities_profile',
+			'__nonce' => wp_create_nonce( 'load_more_activities_' . ap_get_displayed_user_id() ),
+			'paged'   => $activities->paged + 1,
+			'user_id' => ap_get_displayed_user_id(),
+		] );
+	?>
+		<a href="#" class="ap-btn" ap="loadMoreActivities" apquery="<?php echo esc_js( $args ); ?>"><?php esc_attr_e( 'Load more', 'anspress-question-answer' ); ?></a>
+
+	<?php endif; ?>
+
+<?php else : ?>
+
+	<div class="ap-display-flex align-item-center">
+		<i class="ap-feedback-icon apicon-pulse ap-text-muted"></i>
+		<div>
+			<strong class="ap-feedback-title"><?php esc_attr_e( 'No activities yet!', 'anspress-question-answer' ); ?></strong>
+		</div>
 	</div>
 
-</div>
+<?php endif; ?>

@@ -38,7 +38,7 @@
 							'full_details' => true,
 						]
 					);
-?>
+					?>
 					<span class="ap-activity-verb"><?php $activities->the_verb(); ?></span>
 					<span>
 					<?php
@@ -62,7 +62,7 @@
 					<?php
 					while ( $activities->have_group() ) :
 						$activities->the_object();
-?>
+						?>
 						<div class="ap-activity-same">
 							<div class="ap-activity-avatar">
 								<?php echo $activities->get_avatar( 35 ); ?>
@@ -78,7 +78,7 @@
 											'full_details' => true,
 										]
 									);
-?>
+									?>
 								</div>
 
 								<div class="ap-activity-ref">

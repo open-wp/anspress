@@ -17,34 +17,54 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 use AnsPress\Addons\Profile;
+
+$bio = get_the_author_meta( 'description', ap_get_displayed_user_id() );
 ?>
 
-<div class="ap-profile-overview">
-	<div class="ap__counts ap-display-flex justify-space-betw">
+<div class="ap-profile-overview ap-display-flex">
+	<div class="ap-overview-right">
 
-		<div class="ap__question">
-			<i class="apicon-question"></i>
-			<span>20 Questions</span>
-			<span class="ap-text-color1">3 Solved</span>
+		<?php if ( ! empty( $bio ) ) : ?>
+			<div class="ap-overview-about ap-overview-block">
+				<h2 class="ap__heading"><?php esc_attr_e( 'About', 'anspress-question-answer' ); ?></h2>
+
+				<div class="ap-overview-block-in">
+					<div class="ap__bio">
+						<?php echo wp_kses_post( $bio ); ?>
+					</div>
+				</div>
+			</div>
+		<?php endif; ?>
+
+		<div class="ap-overview-questions ap-overview-qa ap-overview-block">
+			<h2 class="ap__heading"><?php esc_attr_e( 'Popular Questions', 'anspress-question-answer' ); ?></h2>
+
+			<div class="ap-overview-block-in">
+				<?php ap_get_template_part( 'profile/overview-popular-questions' ); ?>
+			</div>
 		</div>
 
-		<div class="ap__answer">
-			<i class="apicon-answer"></i>
-			<span>20 Answers</span>
-			<span class="ap-text-color1">5 Best Answers</span>
-		</div>
+		<div class="ap-overview-bestans ap-overview-qa ap-overview-block">
+			<h2 class="ap__heading"><?php esc_attr_e( 'Best Answers', 'anspress-question-answer' ); ?></h2>
 
-		<div class="ap__reputation">
-			<i class="apicon-reputation"></i>
-			<span>4.2k Reputation</span>
+			<div class="ap-overview-block-in">
+				<?php ap_get_template_part( 'profile/overview-best-answers' ); ?>
+			</div>
 		</div>
-
-		<div class="ap__comments">
-			<i class="apicon-comments"></i>
-			<span>26 Comments</span>
-		</div>
-
 	</div>
 
-	<?php ap_get_template_part( 'profile/overview-activities' ); ?>
+	<div class="ap-overview-activities">
+		<?php
+			$args  = [
+				'number'        => 20,
+				'user_id'       => ap_get_displayed_user_id(),
+				'exclude_roles' => [],
+			];
+
+			$activities = new AnsPress\Activity( $args );
+		?>
+		<?php ap_get_template_part( 'profile/overview-activities', [ 'activities' => $activities ] ); ?>
+	</div>
+	<!-- /.ap-overview-activities -->
+
 </div>

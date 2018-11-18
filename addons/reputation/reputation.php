@@ -73,7 +73,7 @@ class Reputation extends \AnsPress\Singleton {
 		anspress()->add_filter( 'ap_bp_nav', $this, 'ap_bp_nav' );
 		anspress()->add_filter( 'ap_bp_page', $this, 'ap_bp_page', 10, 2 );
 		anspress()->add_filter( 'ap_all_options', $this, 'ap_all_options', 10, 2 );
-		anspress()->add_filter( 'ap_profile_vcard', $this, 'ap_profile_vcard' );
+		anspress()->add_filter( 'ap_profile_vcard_meta_before', $this, 'ap_profile_vcard_meta' );
 
 		anspress()->add_filter( 'ap_profile_pages', $this, 'ap_profile_pages' );
 
@@ -534,13 +534,13 @@ class Reputation extends \AnsPress\Singleton {
 	 *
 	 * @since 4.2.0
 	 */
-	public function ap_profile_vcard() {
+	public function ap_profile_vcard_meta() {
 		$reputation = ap_get_user_reputation_meta( ap_get_displayed_user_id() );
 
-		echo '<a href="' . ap_user_link( ap_get_displayed_user_id() ) . '?tab=reputations" class="ap-profile-vcard-rep" title="' . __( 'Reputation', 'anspress-question-answer' ) . '">';
+		echo '<span><b>&bull;</b> <a href="' . ap_user_link( ap_get_displayed_user_id() ) . '?tab=reputations" class="ap-profile-vcard-rep" title="' . __( 'Reputation', 'anspress-question-answer' ) . '">';
 		esc_attr_e( 'Reputation', 'anspress-question-answer' );
-		echo '<span>' . $reputation . '</span>';
-		echo '</a>';
+		echo ' <span>' . $reputation . '</span>';
+		echo '</a></span>';
 	}
 
 	/**
