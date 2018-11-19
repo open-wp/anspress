@@ -712,11 +712,12 @@ jQuery(document).ready(function($){
 		e.preventDefault();
 		var self = $(this);
 		var submitBtn = $(this).find('button[type="submit"]');
+		var formCb = $(this).attr('apform');
 
 		if(submitBtn.length>0)
 			AnsPress.showLoading(submitBtn);
 
-    $(this).ajaxSubmit({
+    	$(this).ajaxSubmit({
 			url: ajaxurl,
 			beforeSerialize: function() {
 				if(typeof tinymce !== 'undefined')
@@ -738,6 +739,10 @@ jQuery(document).ready(function($){
 					grecaptcha.reset(widgetId1);
 
 				AnsPress.trigger('formPosted', data);
+
+				// Invoke callback defined in attribute.
+				if ( $.isFunction(AnsPress.theme[formCb]) )
+					AnsPress.theme[formCb](data);
 
 				if(typeof data.form_errors !== 'undefined'){
 					$formError = $('<div class="ap-form-errors"></div>').prependTo(self);
@@ -860,4 +865,4 @@ window.AnsPress.Helper = {
 	toggleNextClass: function(el){
 		jQuery(el).closest('.ap-field-type-group').find('.ap-fieldgroup-c').toggleClass('show');
 	}
-}
+};

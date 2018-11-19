@@ -40,6 +40,7 @@ class AnsPress_Ajax {
 		anspress()->add_action( 'wp_ajax_ap_load_more_activities_profile', 'AnsPress\Ajax\More_Activities_Profile', 'init' );
 		anspress()->add_action( 'wp_ajax_nopriv_ap_load_more_activities_profile', 'AnsPress\Ajax\More_Activities_Profile', 'init' );
 
+		anspress()->add_action( 'wp_ajax_ap_upload_user_avatar', 'AnsPress\Ajax\Upload_Avatar', 'init' );
 
 		// Post actions.
 		anspress()->add_action( 'ap_ajax_post_actions', 'AnsPress_Theme', 'post_actions' );

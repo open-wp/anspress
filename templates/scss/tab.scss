@@ -14,7 +14,7 @@
         display: block;
         padding: 6px 15px;
         text-decoration: none;
-        border-radius: 2px 2px 0 0;
+
         cursor: pointer;
         &:hover {
             border-bottom-color: #ddd;
@@ -27,6 +27,7 @@
         border-color: var(--ap_border-color);
         border-bottom-color: #fff;
         background: #fff;
+        border-radius: 2px 2px 0 0;
     }
     .ap-tab-unpublished a{
         color: $color9;

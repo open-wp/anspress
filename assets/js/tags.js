@@ -23,7 +23,7 @@
 		str = str.replace(/,/g, '');
 		str = str.trim();
 		str = apSanitizeTitle(str);
-		
+
 		if( str.length > 0 ){
 
 			var htmlTag = {
@@ -37,17 +37,17 @@
 				input : '',
 				accessibilityText : apTagsTranslation.addTag
 			}
-			
-			// Add tag to the main container (holder list), 
+
+			// Add tag to the main container (holder list),
 			// Else add tag to a specific container (suggestion list)
 			if(!container){
-				
+
 				var container = '#ap-tags-holder';
 				htmlTag.button.class = 'ap-tag-remove';
 				htmlTag.button.icon = 'apicon-x';
 				htmlTag.input = '<input type="hidden" name="tags[]" value="'+str+'" />';
 				htmlTag.accessibilityText = apTagsTranslation.deleteTag;
-				
+
 				var exist_el = false;
 				$(container).find('.'+htmlTag.class).find('.'+htmlTag.itemValueClass).each(function(index, el) {
 					if(apSanitizeTitle($(this).text()) == str)
@@ -57,24 +57,24 @@
 					exist_el.animate({opacity: 0}, 100, function(){
 						exist_el.animate({opacity: 1}, 400);
 					});
-					return; 
+					return;
 				}
-				
+
 				if (!$('#tags').is(':focus'))
 					$('#tags').val('').focus();
-					
+
 				$('#ap-tags-suggestion').hide();
-				
+
 				// Message for screen reader
 				// Timeout used to resolve a bug with JAWS and IE...
 				setTimeout(function() {
 					$('#ap-tags-aria-message').text(str + " " + apTagsTranslation.tagAdded);
 				}, 250);
 			}
-			
+
 			var html = $('<'+htmlTag.element+' class="'+htmlTag.class+'" title="'+htmlTag.accessibilityText+'"><button role="button" class="'+htmlTag.button.class+'"><span class="'+htmlTag.itemValueClass+'">'+str+'</span><i class="'+htmlTag.button.icon+'"></i></button>'+htmlTag.input+'</'+htmlTag.element+'>');
 			html.appendTo(container).fadeIn(300);
-			
+
 		}
 	}
 
@@ -93,18 +93,18 @@
 			dataType:'json',
 			success: function(data){
 				AnsPress.hideLoading(this);
-				
+
 				console.log(data);
-				
+
 				$('#ap-tags-suggestion').html('');
-				
+
 				if(!data.status)
 					return;
 
 				if (!$('#ap-tags-suggestion').is(':visible')) {
 					$('#ap-tags-suggestion').show();
 				}
-						
+
 				if(data['items']){
 					$.each(data['items'], function(index, val) {
 						val = decodeURIComponent(val);
@@ -116,7 +116,7 @@
 							apAddTag(val, '#ap-tags-suggestion');
 					});
 				}
-				
+
 				// Message for screen reader
 				// Timeout used to resolve a bug with JAWS and IE...
 				setTimeout(function() {
@@ -143,7 +143,7 @@
 				var inputs = $('#ap-tags-suggestion').find('.ap-tag-add');
 				var focused = $('#ap-tags-suggestion').find('.focus');
 				var index = inputs.index(focused);
-				
+
 				if(index != -1) {
 					if(e.keyCode == 38) // up arrow
 						index--;
@@ -156,16 +156,16 @@
 					if(e.keyCode == 40) // down arrow
 						index = 0;
 				}
-				
+
 				if (index >= inputs.length)
 					index = -1;
-				
+
 				inputs.removeClass('focus');
-				
+
 				if(index != -1) {
 					inputs.eq(index).addClass('focus');
 					$(this).val(inputs.eq(index).find('.ap-tag-item-value').text());
-				} 
+				}
 				else {
 					$(this).val($(this).attr('data-original-value'));
 				}
@@ -188,7 +188,7 @@
 				}
 			}
 		});
-		
+
 		$('#ap-tags-suggestion').on('click', '.ap-tagssugg-item', function(e) {
 			apAddTag($(this).find('.ap-tag-item-value').text());
 			$(this).remove();
@@ -198,22 +198,22 @@
 			if ($('#ap-tags-suggestion').is(':visible') && $(e.target).parents('#ap-tags-add').length <= 0)
 			  	$('#ap-tags-suggestion').hide();
 		});
-		
+
 		$('body').on('click', '.ap-tagssugg-item', function(event) {
 			var itemValue = $(this).find('.ap-tag-item-value').text();
-			
+
 			// Message for screen reader
 			// Timeout used to resolve a bug with JAWS and IE...
 			setTimeout(function() {
 				$('#ap-tags-aria-message').text(itemValue + " " + apTagsTranslation.tagRemoved);
 			}, 250);
-			
+
 			$(this).remove();
 			$('#ap-tags-list-title').focus();
 		});
-		
+
 		// Message used by screen reader to get suggestions list or a confirmation when a tag is added
 		$('body').append('<div role="status" id="ap-tags-aria-message" aria-live="polite" aria-atomic="true" class="sr-only"></div>');
 	})
 
-})(jQuery)
+})(jQuery);

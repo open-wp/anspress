@@ -137,7 +137,30 @@ gulp.task( 'translate', function () {
 
 });
 
-gulp.task( 'default', ['styles', 'browser-sync'], function () {
+gulp.task( 'js', function() {
+  gulp.src( [
+    './assets/js/common.js',
+    './assets/js/ask.js',
+    './assets/js/list.js',
+    './assets/js/notifications.js',
+    './assets/js/question.js',
+    './assets/js/tags.js'
+  ] )
+  .pipe( concat( 'main.js' ) )
+  .pipe( lineec() ) // Consistent Line Endings for non UNIX systems.
+  .pipe( gulp.dest( './assets/js/' ) )
+  // .pipe( rename( {
+  //   basename: jsVendorFile,
+  //   suffix: '.min'
+  // }))
+  // .pipe( uglify() )
+  .pipe( lineec() ) // Consistent Line Endings for non UNIX systems.
+  .pipe( gulp.dest( './assets/js/' ) )
+  //.pipe( notify( { message: 'TASK: "js" Completed! 💯', onLast: true } ) );
+});
+
+gulp.task( 'default', ['styles', 'js', 'browser-sync'], function () {
   gulp.watch( projectPHPWatchFiles, reload ); // Reload on PHP file changes.
   gulp.watch( styleWatchFiles, [ 'styles' ] ); // Reload on SCSS file changes.
+  gulp.watch( './assets/js/*.js', [ 'js' ] ); // Reload on JS file changes.
 });

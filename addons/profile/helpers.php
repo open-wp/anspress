@@ -35,9 +35,6 @@ function pages() {
 		'answers' => array(
 			'title' => __( 'Answers', 'anspress-question-answer' ),
 		),
-		'activities' => array(
-			'title' => __( 'Activities', 'anspress-question-answer' ),
-		),
 		'settings' => array(
 			'title'   => __( 'Edit Profile', 'anspress-question-answer' ),
 			'private' => true,
@@ -121,9 +118,9 @@ function nav_links( $user_id = false ) {
 			'slug'  => $slug,
 		);
 
-		if ( 'questions' === $slug ) {
-			$nav[ $slug ]['count'] = '1.4k';
-		}
+		// if ( 'questions' === $slug ) {
+		// 	$nav[ $slug ]['count'] = '1.4k';
+		// }
 
 		$page_slug = $slug;
 		if ( 'overview' === $slug ) {

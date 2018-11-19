@@ -113,9 +113,11 @@ $user_meta = array_map( function( $a ) {
 
 		<div class="ap-profile-edit-avatar">
 			<?php echo get_avatar( get_current_user_id(), 180 ); ?>
-			<form method="POST" class="ap-form-avatar">
+			<form id="ap-avatar-upload" ap="submitOnChange" method="POST" class="ap-form-avatar" apform="reloadPage" enctype="multipart/form-data">
 				<input type="file" name="avatar" class="ap-field-avatar" />
 				<span class="ap-btn"><?php _e( 'Upload new picture', 'anspress-question-answer' ); ?></span>
+				<input type="hidden" name="action" value="ap_upload_user_avatar" />
+				<input type="hidden" name="__nonce" value="<?php echo esc_attr( wp_create_nonce( 'upload_avatar_' . get_current_user_id() ) ); ?>" />
 			</form>
 		</div>
 

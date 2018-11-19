@@ -196,6 +196,7 @@ if ( ! class_exists( 'AnsPress' ) ) {
 
 		public $current_question_id;
 		public $current_answer_id;
+		public $wp_handle_upload = false;
 
 		/**
 		 * Initializes the plugin by setting localization, hooks, filters, and administrative functions.

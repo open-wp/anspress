@@ -249,7 +249,11 @@ class AnsPress_Uploader {
  * @since  3.0.0 Added new argument `$post_parent`.
  * @since  4.1.5 Added new argument `$mimes` so that default mimes can be overridden.
  */
-function ap_upload_user_file( $file = array(), $temp = true, $parent_post = '', $mimes = false ) {
+function ap_upload_user_file( $file = array(), $temp = true, $parent_post = '', $mimes = false, $author = false ) {
+	if ( false === $author ) {
+		$author = get_current_user_id();
+	}
+
 	require_once ABSPATH . 'wp-admin/includes/admin.php';
 
 	// Check if file is greater then allowed size.
@@ -257,12 +261,14 @@ function ap_upload_user_file( $file = array(), $temp = true, $parent_post = '', 
 		return new WP_Error( 'file_size_error', sprintf( __( 'File cannot be uploaded, size is bigger than %s MB', 'anspress-question-answer' ), round( ap_opt( 'max_upload_size' ) / ( 1024 * 1024 ), 2 ) ) );
 	}
 
+	anspress()->wp_handle_upload = true;
 	$file_return = wp_handle_upload(
 		$file, array(
 			'test_form' => false,
 			'mimes'     => false === $mimes ? ap_allowed_mimes() : $mimes,
 		)
 	);
+	anspress()->wp_handle_upload = false;
 
 	if ( isset( $file_return['error'] ) || isset( $file_return['upload_error_handler'] ) ) {
 		return new WP_Error( 'upload_error', $file_return['error'], $file_return );
@@ -273,6 +279,7 @@ function ap_upload_user_file( $file = array(), $temp = true, $parent_post = '', 
 		'post_mime_type' => $file_return['type'],
 		'post_content'   => '',
 		'guid'           => $file_return['url'],
+		'post_author'    => $author,
 	);
 
 	// Add special post status if is temporary attachment.

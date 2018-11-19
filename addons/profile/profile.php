@@ -68,6 +68,8 @@ class Profile extends \AnsPress\Singleton {
 		anspress()->add_filter( 'ap_template_include_theme_compat', $this, 'template_include_theme_compat' );
 		anspress()->add_filter( 'ap_before_profile_settings', $this, 'process_public_profile_form' );
 		anspress()->add_filter( 'ap_before_profile_settings', $this, 'process_change_password_form' );
+
+		anspress()->add_filter( 'pre_get_avatar_data', $this, 'get_avatar', 1000, 2 );
 	}
 
 	/**
@@ -528,6 +530,39 @@ class Profile extends \AnsPress\Singleton {
 
 			return;
 		}
+	}
+
+	/**
+	 * Replace gravatar with locally uploaded avatar.
+	 *
+	 * @param array $args Arguments.
+	 * @param mixed $id_or_email User identifier.
+	 * @return array
+	 * @since 4.2.0
+	 */
+	public function get_avatar( $args, $id_or_email ) {
+		if ( is_object( $id_or_email ) && ! empty( $id_or_email->user_id ) ) {
+			$user_id = (int) $id_or_email->user_id;
+		} elseif ( is_object( $id_or_email ) && $id_or_email instanceof WP_user ) {
+			$user_id = $id_or_email->ID;
+		} elseif ( is_object( $id_or_email ) && $id_or_email instanceof WP_Comment ) {
+			$user_id = $id_or_email->user_id;
+		} elseif ( is_numeric( $id_or_email ) && ! empty( $id_or_email ) ) {
+			$user_id = $id_or_email;
+		} else {
+			return $args;
+		}
+
+		$meta = get_user_meta( $user_id, 'ap_avatar', true );
+
+		if ( empty( $meta ) ) {
+			return $args;
+		}
+
+		$upload_dir = wp_upload_dir();
+		$args['url'] = $upload_dir['baseurl'] . '/' . $meta;
+
+		return $args;
 	}
 
 }

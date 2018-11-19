@@ -1,3 +1,1963 @@
-window.AnsPress=_.extend({models:{},views:{},collections:{},modals:{},loadTemplate:function(a){0==jQuery("#apTemplate").length&&jQuery('<script id="apTemplate" type="text/html"></script>').appendTo("body"),jQuery.get(apTemplateUrl+"/"+a+".html",function(a){var b=jQuery("#apTemplate");b.text(a+b.text()),AnsPress.trigger("templateLoaded")})},getTemplate:function(a){return function(){if(0==jQuery("#apTemplate").length)return"";var b=new RegExp("#START BLOCK "+a+" #([\\S\\s]*?)#END BLOCK "+a+" #","g"),c=b.exec(jQuery("#apTemplate").text());return null==c?"":c[1]?c[1]:void 0}},isJSONString:function(a){try{return jQuery.parseJSON(a)}catch(a){return!1}},ajaxResponse:function(a){if(a=jQuery(a),"undefined"==typeof a.filter("#ap-response"))return console.log("Not a valid AnsPress ajax response."),{};var b=this.isJSONString(a.filter("#ap-response").html());return b&&"undefined"!==b&&_.isObject(b)?b:{}},ajax:function(a){var b=this;a=_.defaults(a,{url:ajaxurl,method:"POST"}),_.isString(a.data)&&(a.data=jQuery.apParseParams(a.data)),"undefined"==typeof a.data.action&&(a.data.action="ap_ajax");var c=a.success;return delete a.success,a.success=function(d){var e=a.context||null,f=b.ajaxResponse(d);f.snackbar&&AnsPress.trigger("snackbar",f),"function"==typeof c&&(d=jQuery.isEmptyObject(f)?d:f,c(d,e))},jQuery.ajax(a)},uniqueId:function(){return jQuery(".ap-uid").length},showLoading:function(a){AnsPress.hideLoading(a);var b=jQuery(a).data("loadclass")||"",c=jQuery(a).is('input[type="text"]'),d=this.uniqueId();if(!jQuery(a).is("button")&&!jQuery(a).is(".ap-btn")){var e=jQuery('<div class="ap-loading-icon ap-uid '+b+(c?" is-text":"")+'" id="apuid-'+d+'"><i></i></div>');jQuery("body").append(e);var f=jQuery(a).offset(),g=jQuery(a).outerHeight(),h=c?40:jQuery(a).outerWidth();return e.css({top:f.top,left:c?f.left+jQuery(a).outerWidth()-40:f.left,height:g,width:h}),jQuery(a).data("loading","#apuid-"+d),"#apuid-"+d}jQuery(a).addClass("show-loading"),$loading=jQuery('<span class="ap-loading-span"></span>'),$loading.height(jQuery(a).height()),$loading.width(jQuery(a).height()),jQuery(a).append($loading)},hideLoading:function(a){jQuery(a).is("button")||jQuery(a).is(".ap-btn")?(jQuery(a).removeClass("show-loading"),jQuery(a).find(".ap-loading-span").remove(),jQuery(a).prop("disabled",!1)):"all"==a?jQuery(".ap-loading-icon").hide():jQuery(jQuery(a).data("loading")).hide()},getUrlParam:function(a){var b=jQuery.apParseParams(window.location.href);return"undefined"!=typeof a?"undefined"!=typeof b[a]?b[a]:null:b},modal:function(a,b){return b=b||{},"undefined"!=typeof this.modals[a]?this.modals[a]:(this.modals[a]=new AnsPress.views.Modal(_.extend({id:"ap-modal-"+a,title:aplang.loading,content:"",size:"medium"},b)),jQuery("body").append(this.modals[a].render().$el),this.modals[a])},hideModal:function(a,b){"undefined"==typeof b&&(b=!0),"undefined"!=typeof this.modals[a]&&(this.modals[a].hide(b),delete this.modals[a])},removeHash:function(){var a,b,c=window.location;a=document.body.scrollTop,b=document.body.scrollLeft,"pushState"in history?(history.pushState("",document.title,c.pathname+c.search),Backbone.history.navigate("/")):c.hash="",document.body.scrollTop=a,document.body.scrollLeft=b},loadCSS:function(a){var b=document.createElement("link");b.rel="stylesheet",b.href=a;var c=document.getElementsByTagName("head")[0];c.parentNode.insertBefore(b,c)}},Backbone.Events),_.templateSettings={evaluate:/<#([\s\S]+?)#>/g,interpolate:/\{\{\{([\s\S]+?)\}\}\}/g,escape:/\{\{([^\}]+?)\}\}(?!\})/g},function(a){a.fn.autogrow=function(b){function c(c){var d,e=a(this),f=e.innerHeight(),g=this.scrollHeight,h=e.data("autogrow-start-height")||0;if(f<g)this.scrollTop=0,b.animate?e.stop().animate({height:g},b.speed):e.innerHeight(g);else if(!c||8==c.which||46==c.which||c.ctrlKey&&88==c.which)if(f>h){d=e.clone().addClass(b.cloneClass).css({position:"absolute",zIndex:-10,height:""}).val(e.val()),e.after(d);do g=d[0].scrollHeight-1,d.innerHeight(g);while(g===d[0].scrollHeight);g++,d.remove(),e.focus(),g<h&&(g=h),f>g&&b.animate?e.stop().animate({height:g},b.speed):e.innerHeight(g)}else e.innerHeight(h)}var d=a(this).css({overflow:"hidden",resize:"none"}),e=d.selector,f={context:a(document),animate:!0,speed:50,fixMinHeight:!0,cloneClass:"autogrowclone",onInitialize:!1};return b=a.isPlainObject(b)?b:{context:b?b:a(document)},b=a.extend({},f,b),d.each(function(d,e){var f,g;e=a(e),e.is(":visible")||parseInt(e.css("height"),10)>0?f=parseInt(e.css("height"),10)||e.innerHeight():(g=e.clone().addClass(b.cloneClass).val(e.val()).css({position:"absolute",visibility:"hidden",display:"block"}),a("body").append(g),f=g.innerHeight(),g.remove()),b.fixMinHeight&&e.data("autogrow-start-height",f),e.css("height",f),b.onInitialize&&e.length&&c.call(e[0])}),b.context.on("keyup paste focus",e,c),d},jQuery.fn.apScrollTo=function(b,c,d){c=c||!1;var e=a(this).scrollTop()-a(this).offset().top,f=c?a(this).offset().top+a(this).height():a(this).offset().top;return a("html, body").stop(),a("html, body").animate({scrollTop:f},void 0==d?1e3:d),void 0!=b&&a(this).animate({scrollTop:e+a(b).offset().top},void 0==d?1e3:d),this},AnsPress.views.Snackbar=Backbone.View.extend({id:"ap-snackbar",template:'<div class="ap-snackbar<# if(success){ #> success<# } #>">{{message}}</div>',hover:!1,initialize:function(){AnsPress.on("snackbar",this.show,this)},events:{mouseover:"toggleHover",mouseout:"toggleHover"},show:function(a){var b=this;this.data=a.snackbar,this.data.success=a.success,this.$el.removeClass("snackbar-show"),this.render(),setTimeout(function(){b.$el.addClass("snackbar-show")},0),this.hide()},toggleHover:function(){clearTimeout(this.hoveTimeOut),this.hover=!this.hover,this.hover||this.hide()},hide:function(){var a=this;a.hover||(this.hoveTimeOut=setTimeout(function(){a.$el.removeClass("snackbar-show")},5e3))},render:function(){if(this.data){var a=_.template(this.template);this.$el.html(a(this.data))}return this}}),AnsPress.views.Modal=Backbone.View.extend({className:"ap-modal",template:'<div class="ap-modal-body<# if(typeof size !== \'undefined\'){ #> ap-modal-{{size}}<# } #>"><div class="ap-modal-header"><# if(typeof title !== \'undefined\' ){ #><strong>{{title}}</strong><# } #><a href="#" ap="close-modal" class="ap-modal-close"><i class="apicon-x"></i></a></div><div class="ap-modal-content"><# if(typeof content !== \'undefined\'){ #>{{{content}}}<# } #></div><div class="ap-modal-footer"><# if(typeof buttons !== \'undefined\'){ #><# _.each(buttons, function(btn){ #><a class="ap-modal-btn <# if(typeof btn.class !== \'undefined\') { #>{{btn.class}}<# } #>" href="#" <# if(typeof btn.cb !== \'undefined\') { #>ap="{{btn.cb}}" apquery="{{btn.query}}"<# } #>>{{btn.label}}</a><# }); #><# } #></div></div><div class="ap-modal-backdrop"></div>',events:{'click [ap="close-modal"]':"clickHide",'click [ap="modal-click"]':"clickAction"},initialize:function(a){a.title=a.title||aplang.loading,this.data=a},render:function(){a("html").css("overflow","hidden");var b=_.template(this.template);return this.$el.html(b(this.data)),this},clickHide:function(a){a.preventDefault(),this.hide()},hide:function(b){"undefined"==typeof b&&(b=!0),this.remove(),a("html").css("overflow",""),this.data.hideCb&&b&&this.data.hideCb(this);var c=this.data.id.replace("ap-modal-","");"undefined"!=typeof AnsPress.modals[c]&&delete AnsPress.modals[c]},setContent:function(a){this.$el.find(".ap-modal-content").html(a)},setTitle:function(a){this.$el.find(".ap-modal-header strong").text(a)},setFooter:function(a){this.$el.find(".ap-modal-footer").html(a)},clickAction:function(b){b.preventDefault();var c=a(b.target);q=c.data("apquery"),q.cb&&(q.element=c,AnsPress.trigger(q.cb,q))}});var b=/([^&=]+)=?([^&]*)/g,c=function(a){return decodeURIComponent(a.replace(/\+/g," "))};a.apParseParams=function(d){function e(b,c,d){if(c+="",c.indexOf(".")!==-1){var f=c.split("."),g=c.split(/\.(.+)?/)[1];b[f[0]]||(b[f[0]]={}),""!==g?e(b[f[0]],g,d):console.warn('parseParams :: empty property in key "'+c+'"')}else if(c.indexOf("[")!==-1){var f=c.split("[");c=f[0];var f=f[1].split("]"),h=f[0];""==h?(b||(b={}),b[c]&&a.isArray(b[c])||(b[c]=[]),b[c].push(d)):(b||(b={}),b[c]&&a.isArray(b[c])||(b[c]=[]),b[c][parseInt(h)]=d)}else b||(b={}),b[c]=d}d+="",""===d&&(d=window.location+"");var f,g={};if(d){if(d.indexOf("#")!==-1&&(d=d.substr(0,d.indexOf("#"))),d.indexOf("?")===-1)return{};if(d=d.substr(d.indexOf("?")+1,d.length),""==d)return{};for(;f=b.exec(d);){var h=c(f[1]),i=c(f[2]);e(g,h,i)}}return g}}(jQuery),function(a){AnsPress.Common={init:function(){AnsPress.on("showImgPreview",this.showImgPreview),AnsPress.on("formPosted",this.imageUploaded),AnsPress.on("ajaxBtnDone",this.uploadModal),AnsPress.on("ajaxBtnDone",this.commentModal),AnsPress.on("showModal",this.showModal)},readUrl:function(a,b){if(a.files&&a.files[0]){var c=new FileReader;c.onload=function(a){AnsPress.trigger("showImgPreview",a.target.result,b.find(".ap-upload-list"))},c.readAsDataURL(a.files[0])}},uploadModal:function(a){if("ap_upload_modal"==a.action&&a.html){$modal=AnsPress.modal("imageUpload",{title:a.title,content:a.html,size:"small"});var b=$modal.$el.find('input[type="file"]');b.on("change",function(){$modal.$el.find(".ap-img-preview").remove(),AnsPress.Common.readUrl(this,$modal.$el)})}},showImgPreview:function(b,c){a('<img class="ap-img-preview" src="'+b+'" />').appendTo(c)},imageUploaded:function(b){"ap_image_upload"===b.action&&"undefined"!=typeof tinymce&&(b.files&&a.each(b.files,function(a,b){tinymce.activeEditor.insertContent('<img src="'+b+'" />')}),AnsPress.hideModal("imageUpload"))},showModal:function(a){a.size=a.size||"medium",AnsPress.modal(a.name,{title:a.title,content:a.content,size:a.size})}}}(jQuery),jQuery(document).ready(function(a){AnsPress.Common.init();var b=new AnsPress.views.Snackbar;a("body").append(b.render().$el),a(document).click(function(b){b.stopPropagation(),a(b.target).is(".ap-dropdown-toggle")||a(b.target).closest(".open").is(".open")||a(b.target).closest("form").is("form")||a(".ap-dropdown").removeClass("open")}),a("body").on("click",".ap-dropdown-toggle, .ap-dropdown-menu > a",function(b){b.preventDefault(),a(".ap-dropdown").not(a(this).closest(".ap-dropdown")).removeClass("open"),a(this).closest(".ap-dropdown").toggleClass("open")}),a("[apsubscribe]").click(function(b){b.preventDefault();var c=a(this),d=JSON.parse(c.attr("apquery"));d.ap_ajax_action="subscribe",AnsPress.ajax({data:d,success:function(a){a.count&&c.next().text(a.count),a.label&&c.text(a.label)}})}),a("body").on("click",".ap-droptogg",function(b){b.preventDefault(),a(this).closest(".ap-dropdown").removeClass("open"),a(this).closest("#noti-dp").hide()}),a("body").on("click","[apajaxbtn]",function(b){var c=this;if(b.preventDefault(),"false"==a(this).attr("aponce")||!a(this).is(".loaded")){var c=a(this),d=JSON.parse(c.attr("apquery"));AnsPress.showLoading(c),AnsPress.ajax({data:d,success:function(d){"false"!=a(this).attr("aponce")&&a(c).addClass("loaded"),AnsPress.hideLoading(b.target),AnsPress.trigger("ajaxBtnDone",d),"undefined"!=typeof d.btn&&d.btn.hide&&c.hide(),"undefined"!=typeof d.cb&&AnsPress.trigger(d.cb,d,b.target),d.modal&&AnsPress.trigger("showModal",d.modal)}})}}),a('[data-role="ap-repeatable"]').each(function(){a(this).find(".ap-repeatable-add").on("click",function(b){b.preventDefault();var c=a(this),d=JSON.parse(c.attr("apquery"));AnsPress.showLoading(c),$count=a('[name="'+d.id+'-groups"]'),d.current_groups=$count.val(),$count.val(parseInt(d.current_groups)+1),$nonce=a('[name="'+d.id+'-nonce"]'),d.current_nonce=$nonce.val(),AnsPress.ajax({data:d,success:function(d){AnsPress.hideLoading(b.target),a(d.html).insertBefore(c),$nonce.val(d.nonce)}})}),a(this).on("click",".ap-repeatable-delete",function(b){b.preventDefault(),a(this).closest(".ap-form-group").remove()})}),a("body").on("click",".ap-form-group",function(){a(this).removeClass("ap-have-errors")}),a("body").on("click","button.show-loading",function(a){a.preventDefault()}),a("body").on("submit","[apform]",function(b){b.preventDefault();var c=a(this),d=a(this).find('button[type="submit"]');d.length>0&&AnsPress.showLoading(d),a(this).ajaxSubmit({url:ajaxurl,beforeSerialize:function(){"undefined"!=typeof tinymce&&tinymce.triggerSave(),a(".ap-form-errors, .ap-field-errors").remove(),a(".ap-have-errors").removeClass("ap-have-errors")},success:function(b){d.length>0&&AnsPress.hideLoading(d),b=AnsPress.ajaxResponse(b),b.snackbar&&AnsPress.trigger("snackbar",b),"undefined"!=typeof grecaptcha&&"undefined"!=typeof widgetId1&&grecaptcha.reset(widgetId1),AnsPress.trigger("formPosted",b),"undefined"!=typeof b.form_errors?($formError=a('<div class="ap-form-errors"></div>').prependTo(c),a.each(b.form_errors,function(a,b){$formError.append('<span class="ap-form-error ecode-'+a+'">'+b+"</div>")}),a.each(b.fields_errors,function(b,c){a(".ap-field-"+b).addClass("ap-have-errors"),a(".ap-field-"+b).find(".ap-field-errorsc").html('<div class="ap-field-errors"></div>'),a.each(c.error,function(c,d){a(".ap-field-"+b).find(".ap-field-errors").append('<span class="ap-field-error ecode-'+c+'">'+d+"</span>")})}),c.apScrollTo()):void 0!==typeof b.hide_modal&&AnsPress.hideModal(b.hide_modal),"undefined"!=typeof b.redirect&&(window.location=b.redirect)}})}),a(document).keyup(function(b){27==b.keyCode&&($lastModal=a(".ap-modal").last(),$lastModal.length>0&&($name=$lastModal.attr("id").replace("ap-modal-",""),AnsPress.hideModal($name)))}),AnsPress.on("loadedMoreActivities",function(b,c){a(b.html).insertAfter(a(".ap-activities:last-child")),a(c).closest(".ap-activity-item").remove()}),AnsPress.tagsPreset={tags:{delimiter:",",valueField:"term_id",labelField:"name",searchField:"name",persist:!1,render:{option:function(a,b){return'<div class="ap-tag-sugitem"><span class="name">'+b(a.name)+'</span><span class="count">'+b(a.count)+'</span><span class="description">'+b(a.description)+"</span></div>"}},create:!1,maxItems:4}},AnsPress.tagElements=function(b){var c=b.data("type"),d=b.data("options"),e=a("#"+d.id+"-options").length>0?JSON.parse(a("#"+d.id+"-options").html()):{},f=AnsPress.tagsPreset[c];f.options=e,f.maxItems=d.maxItems,!1!==d.create&&(f.create=function(a){return{term_id:a,name:a,description:"",count:0}}),f.load=function(a,b){return a.length?void jQuery.ajax({url:ajaxurl,type:"GET",dataType:"json",data:{action:"ap_search_tags",q:a,__nonce:d.nonce,form:d.form,field:d.field},error:function(){b()},success:function(a){b(a)}}):b()},b.selectize(f)},a("[aptagfield]").each(function(){AnsPress.tagElements(a(this))}),a("#anspress").on("click",".ap-remove-parent",function(b){b.preventDefault(),a(this).parent().remove()})}),window.AnsPress.Helper={toggleNextClass:function(a){jQuery(a).closest(".ap-field-type-group").find(".ap-fieldgroup-c").toggleClass("show")}},function(a){AnsPress.models.Action=Backbone.Model.extend({defaults:{cb:"",post_id:"",title:"",label:"",query:"",active:!1,header:!1,href:"#",count:"",prefix:"",checkbox:"",multiple:!1}}),AnsPress.collections.Actions=Backbone.Collection.extend({model:AnsPress.models.Action}),AnsPress.views.Action=Backbone.View.extend({id:function(){return this.postID},className:function(){var a="";return this.model.get("header")&&(a+=" ap-dropdown-header"),this.model.get("active")&&(a+=" active"),a},tagName:"li",template:'<# if(!header){ #><a href="{{href}}" title="{{title}}">{{{prefix}}}{{label}}<# if(count){ #><b>{{count}}</b><# } #></a><# } else { #>{{label}}<# } #>',initialize:function(a){this.model=a.model,this.postID=a.postID,this.model.on("change",this.render,this),this.listenTo(this.model,"remove",this.removed)},events:{"click a":"triggerAction"},render:function(){var a=_.template(this.template);return this.$el.html(a(this.model.toJSON())),this.$el.attr("class",this.className()),this},triggerAction:function(a){var b=this.model.get("query");if(!_.isEmpty(b)){a.preventDefault();var c=this;AnsPress.showLoading(a.target);var d=this.model.get("cb");b.ap_ajax_action="action_"+d,AnsPress.ajax({data:b,success:function(b){AnsPress.hideLoading(a.target),b.redirect&&(window.location=b.redirect),!b.success||"status"!=d&&"toggle_delete_post"!=d||AnsPress.trigger("changedPostStatus",{postID:c.postID,data:b,action:c.model}),b.action&&c.model.set(b.action),c.renderPostMessage(b),b.deletePost&&AnsPress.trigger("deletePost",b.deletePost),b.answersCount&&AnsPress.trigger("answerCountUpdated",b.answersCount)}})}},renderPostMessage:function(b){_.isEmpty(b.postmessage)?a('[apid="'+this.postID+'"]').find("postmessage").html(""):a('[apid="'+this.postID+'"]').find("postmessage").html(b.postmessage)},removed:function(){this.remove()}}),AnsPress.views.Actions=Backbone.View.extend({id:function(){return this.postID},searchTemplate:'<div class="ap-filter-search"><input type="text" search-filter placeholder="'+aplang.search+'" /></div>',tagName:"ul",className:"ap-actions",events:{"keyup [search-filter]":"searchInput"},initialize:function(a){this.model=a.model,this.postID=a.postID,this.multiple=a.multiple,this.action=a.action,this.nonce=a.nonce,AnsPress.on("changedPostStatus",this.postStatusChanged,this),this.listenTo(this.model,"add",this.added)},renderItem:function(a){var b=new AnsPress.views.Action({model:a,postID:this.postID});this.$el.append(b.render().$el)},render:function(){var a=this;return this.multiple&&this.$el.append(this.searchTemplate),this.model.each(function(b){a.renderItem(b)}),this},postStatusChanged:function(b){if(b.postID===this.postID){a("#post-"+this.postID).removeClass(function(){return this.className.split(" ").filter(function(a){return a.match(/status-/)}).join(" ")}),a("#post-"+this.postID).addClass("status-"+b.data.newStatus);var c=this.model.where({cb:"status",active:!0});c.forEach(function(a){a.set({active:!1})})}},searchInput:function(b){var c=this;clearTimeout(this.searchTO),this.searchTO=setTimeout(function(){c.search(a(b.target).val(),b.target)},600)},search:function(a,b){var c=this,d={nonce:this.nonce,ap_ajax_action:this.action,search:a,filter:this.filter,post_id:this.postID};AnsPress.showLoading(b),AnsPress.ajax({data:d,success:function(a){if(console.log(a),AnsPress.hideLoading(b),a.success){for(c.nonce=a.nonce;m=c.model.first();)c.model.remove(m);c.model.add(a.actions)}}})},added:function(a){this.renderItem(a)}}),AnsPress.models.Post=Backbone.Model.extend({idAttribute:"ID",defaults:{actionsLoaded:!1,hideSelect:""}}),AnsPress.views.Post=Backbone.View.extend({idAttribute:"ID",templateId:"answer",tagName:"div",actions:{view:{},model:{}},id:function(){return"post-"+this.model.get("ID")},initialize:function(a){this.listenTo(this.model,"change:vote",this.voteUpdate),this.listenTo(this.model,"change:hideSelect",this.selectToggle)},events:{"click [ap-vote] > a":"voteClicked",'click [ap="actiontoggle"]:not(.loaded)':"postActions",'click [ap="select_answer"]':"selectAnswer"},voteClicked:function(b){if(b.preventDefault(),!a(b.target).is(".disable")){self=this;var c=a(b.target).is(".vote-up")?"vote_up":"vote_down",d=_.clone(self.model.get("vote")),e=_.clone(d);"vote_up"===c?e.net="vote_up"===e.active?e.net-1:e.net+1:e.net="vote_down"===e.active?e.net+1:e.net-1,self.model.set("vote",e);var f=a.parseJSON(a(b.target).parent().attr("ap-vote"));f.ap_ajax_action="vote",f.type=c,AnsPress.ajax({data:f,success:function(a){a.success&&_.isObject(a.voteData)?self.model.set("vote",a.voteData):self.model.set("vote",d)}})}},voteUpdate:function(a){var b=this;this.$el.find('[ap="votes_net"]').text(this.model.get("vote").net),_.each(["up","down"],function(a){b.$el.find(".vote-"+a).removeClass("voted disable").addClass(b.voteClass("vote_"+a))})},voteClass:function(a){a=a||"vote_up";var b=this.model.get("vote").active,c="";return"vote_up"===b&&"vote_up"===a&&(c="active"),"vote_down"===b&&"vote_down"===a&&(c="active"),a!==b&&""!==b&&(c+=" disable"),c+" prist"},render:function(){var b=this.$el.find("[ap-vote]").attr("ap-vote");return this.model.set("vote",a.parseJSON(b),{silent:!0}),this},postActions:function(b){var c=this,d=a.parseJSON(a(b.target).attr("apquery"));"undefined"==typeof d.ap_ajax_action&&(d.ap_ajax_action="post_actions"),AnsPress.ajax({data:d,success:function(d){AnsPress.hideLoading(b.target),a(b.target).addClass("loaded"),c.actions.model=new AnsPress.collections.Actions(d.actions),c.actions.view=new AnsPress.views.Actions({model:c.actions.model,postID:c.model.get("ID")}),c.$el.find("postActions .ap-actions").html(c.actions.view.render().$el)}})},selectAnswer:function(b){b.preventDefault();var c=this,d=a.parseJSON(a(b.target).attr("apquery"));d.action="ap_toggle_best_answer",AnsPress.showLoading(b.target),AnsPress.ajax({data:d,success:function(d){AnsPress.hideLoading(b.target),d.success&&(d.selected?(c.$el.addClass("best-answer"),a(b.target).addClass("active").text(d.label),AnsPress.trigger("answerToggle",[c.model,!0])):(c.$el.removeClass("best-answer"),a(b.target).removeClass("active").text(d.label),AnsPress.trigger("answerToggle",[c.model,!1])))}})},selectToggle:function(){this.model.get("hideSelect")?this.$el.find('[ap="select_answer"]').addClass("hide"):this.$el.find('[ap="select_answer"]').removeClass("hide")}}),AnsPress.collections.Posts=Backbone.Collection.extend({model:AnsPress.models.Post,initialize:function(){var b=[];a('[ap="question"],[ap="answer"]').each(function(c){b.push({ID:a(this).attr("apId")})}),this.add(b)}}),AnsPress.views.SingleQuestion=Backbone.View.extend({initialize:function(){this.listenTo(this.model,"add",this.renderItem),AnsPress.on("answerToggle",this.answerToggle,this),AnsPress.on("deletePost",this.deletePost,this),AnsPress.on("answerCountUpdated",this.answerCountUpdated,this),AnsPress.on("formPosted",this.formPosted,this),this.listenTo(AnsPress,"commentApproved",this.commentApproved),this.listenTo(AnsPress,"commentDeleted",this.commentDeleted),this.listenTo(AnsPress,"commentCount",this.commentCount),this.listenTo(AnsPress,"formPosted",this.submitComment)},events:{'click [ap="loadEditor"]':"loadEditor"},renderItem:function(a){var b=new AnsPress.views.Post({model:a,el:'[apId="'+a.get("ID")+'"]'});b.render()},render:function(){var a=this;return this.model.each(function(b){a.renderItem(b)}),a},loadEditor:function(b){AnsPress.showLoading(b.target),AnsPress.ajax({data:a(b.target).data("apquery"),success:function(c){AnsPress.hideLoading(b.target),a("#ap-form-main").html(c),a(b.target).closest(".ap-minimal-editor").removeClass("ap-minimal-editor")}})},formPosted:function(b){b.success&&"answer"===b.form&&(AnsPress.trigger("answerFormPosted",b),a("apanswersw").show(),tinymce.remove(),a("#ap-form-main").html(""),a("#answer-form-c").addClass("ap-minimal-editor"),a("apanswers").append(a(b.html).hide()),a("apanswers .ap-feedback-answers").remove(),a(b.div_id).slideDown(300),a(b.div_id).apScrollTo(null,!0),this.model.add({ID:b.ID}),AnsPress.trigger("answerCountUpdated",b.answersCount))},answerToggle:function(a){this.model.forEach(function(b,c){a[0]!==b&&b.set("hideSelect",a[1])})},deletePost:function(b){this.model.remove(b),a("#post-"+b).slideUp(400,function(){a(this).remove()})},answerCountUpdated:function(b){a('[ap="answers_count_t"]').text(b.text)},commentApproved:function(b,c){a("#comment-"+b.comment_ID).removeClass("unapproved"),a(c).remove(),b.commentsCount&&AnsPress.trigger("commentCount",{count:b.commentsCount,postID:b.post_ID})},commentDeleted:function(b,c){a(c).closest("apcomment").css("background","red"),setTimeout(function(){a(c).closest("apcomment").remove()},1e3),b.commentsCount&&AnsPress.trigger("commentCount",{count:b.commentsCount,postID:b.post_ID})},commentCount:function(b){var c=a('[apid="'+b.postID+'"]');c.find("[ap-commentscount-text]").text(b.count.text),b.count.unapproved>0?c.find("[ap-un-commentscount]").addClass("have"):c.find("[ap-un-commentscount]").removeClass("have"),c.find("[ap-un-commentscount]").text(b.count.unapproved)},submitComment:function(b){"new-comment"===b.action&&"edit-comment"===b.action||b.success&&(AnsPress.hideModal("commentForm"),"new-comment"===b.action&&a("#comments-"+b.post_id).html(b.html),"edit-comment"===b.action&&($old=a("#comment-"+b.comment_id),a(b.html).insertAfter($old),$old.remove(),a("#comment-"+b.comment_id).css("backgroundColor","rgba(255, 235, 59, 1)"),setTimeout(function(){a("#comment-"+b.comment_id).removeAttr("style")},500)),b.commentsCount&&AnsPress.trigger("commentCount",{count:b.commentsCount,postID:b.post_id}))}});var b=Backbone.Router.extend({routes:{"comment/:commentID":"commentRoute","comments/:postID/all":"commentsRoute","comments/:postID":"commentsRoute"},commentRoute:function(a){self=this,AnsPress.hideModal("comment",!1),$modal=AnsPress.modal("comment",{content:"",size:"medium",hideCb:function(){AnsPress.removeHash()}}),$modal.$el.addClass("single-comment"),AnsPress.showLoading($modal.$el.find(".ap-modal-content")),AnsPress.ajax({data:{comment_id:a,ap_ajax_action:"load_comments"},success:function(a){a.success&&($modal.setTitle(a.modal_title),$modal.setContent(a.html),AnsPress.hideLoading($modal.$el.find(".ap-modal-content")))}})},commentsRoute:function(b,c){self=this,AnsPress.ajax({data:{post_id:b,ap_ajax_action:"load_comments"},success:function(c){a("#comments-"+b).html(c.html)}})},editCommentsRoute:function(a){self=this,AnsPress.hideModal("commentForm",!1),AnsPress.modal("commentForm",{hideCb:function(){AnsPress.removeHash()}}),AnsPress.showLoading(AnsPress.modal("commentForm").$el.find(".ap-modal-content")),AnsPress.ajax({data:{comment:a,ap_ajax_action:"comment_form"},success:function(a){AnsPress.hideLoading(AnsPress.modal("commentForm").$el.find(".ap-modal-content")),AnsPress.modal("commentForm").setTitle(a.modal_title),AnsPress.modal("commentForm").setContent(a.html)}})}});a('[ap="actiontoggle"]').click(function(){a(this).is(".loaded")||AnsPress.showLoading(this)}),a(document).ready(function(){var a=new AnsPress.collections.Posts,c=new AnsPress.views.SingleQuestion({model:a,el:"#anspress"});c.render();new b;Backbone.History.started||Backbone.history.start()})}(jQuery),function(a){AnsPress.views.AskView=Backbone.View.extend({initialize:function(){},events:{'keyup [data-action="suggest_similar_questions"]':"questionSuggestion"},suggestTimeout:null,questionSuggestion:function(b){var c=this;if(!disable_q_suggestion){var d=a(b.target).val();0!=d.length&&(null!=c.suggestTimeout&&clearTimeout(c.suggestTimeout),c.suggestTimeout=setTimeout(function(){c.suggestTimeout=null,AnsPress.ajax({data:{ap_ajax_action:"suggest_similar_questions",__nonce:ap_nonce,value:d},success:function(c){a("#similar_suggestions").remove(),c.html&&0===a("#similar_suggestions").length&&a(b.target).parent().append('<div id="similar_suggestions"></div>'),a("#similar_suggestions").html(c.html)}})},800))}}});new AnsPress.views.AskView({el:"#ap-ask-page"})}(jQuery),function(a){AnsPress.models.Filter=Backbone.Model.extend({defaults:{active:!1,label:"",value:""}}),AnsPress.collections.Filters=Backbone.Collection.extend({model:AnsPress.models.Filter}),AnsPress.activeListFilters=a("#ap_current_filters").length>0?JSON.parse(a("#ap_current_filters").html()):{},AnsPress.views.Filter=Backbone.View.extend({id:function(){return this.model.id},nameAttr:function(){return this.multiple?""+this.model.get("key")+"[]":this.model.get("key")},isActive:function(){if(this.model.get("active"))return this.model.get("active");if(this.active)return this.active;var a=AnsPress.getUrlParam(this.model.get("key"));if(!_.isEmpty(a)){var b=this.model.get("value");if(!_.isArray(a)&&a===b)return!0;if(_.contains(a,b))return this.active=!0,!0}return this.active=!1,!1},className:function(){return this.isActive()?"active":""},inputType:function(){return this.multiple?"checkbox":"radio"},initialize:function(a){this.model=a.model,this.multiple=a.multiple,this.listenTo(this.model,"remove",this.removed)},template:'<label><input type="{{inputType}}" name="{{name}}" value="{{value}}"<# if(active){ #> checked="checked"<# } #>/><i class="apicon-check"></i>{{label}}</label>',events:{"change input":"clickFilter"},render:function(){var a=_.template(this.template),b=this.model.toJSON();return b.name=this.nameAttr(),b.active=this.isActive(),b.inputType=this.inputType(),this.removeHiddenField(),this.$el.html(a(b)),this},removeHiddenField:function(){a('input[name="'+this.nameAttr()+'"][value="'+this.model.get("value")+'"]').remove()},clickFilter:function(b){b.preventDefault(),a(b.target).closest("form").submit()},removed:function(){this.remove()}}),AnsPress.views.Filters=Backbone.View.extend({className:"ap-dropdown-menu",searchTemplate:'<div class="ap-filter-search"><input type="text" search-filter placeholder="'+aplang.search+'" /></div>',template:'<button class="ap-droptogg apicon-x"></button><filter-items></filter-items>',initialize:function(a){this.model=a.model,this.multiple=a.multiple,this.filter=a.filter,this.nonce=a.nonce,this.listenTo(this.model,"add",this.added)},events:{"keypress [search-filter]":"searchInput"},renderItem:function(a){var b=new AnsPress.views.Filter({model:a,multiple:this.multiple});this.$el.find("filter-items").append(b.render().$el)},render:function(){var a=this;return this.multiple&&this.$el.append(this.searchTemplate),this.$el.append(this.template),this.model.each(function(b){a.renderItem(b)}),this},search:function(a,b){var c=this,d={__nonce:this.nonce,ap_ajax_action:"load_filter_"+this.filter,search:a,filter:this.filter};AnsPress.showLoading(b),AnsPress.ajax({data:d,success:function(a){if(AnsPress.hideLoading(b),a.success){for(c.nonce=a.nonce;model=c.model.first();)model.destroy();c.model.add(a.items)}}})},searchInput:function(b){var c=this;clearTimeout(this.searchTO),this.searchTO=setTimeout(function(){c.search(a(b.target).val(),b.target)},600)},added:function(a){this.renderItem(a)}}),AnsPress.views.List=Backbone.View.extend({el:"#ap-filters",initialize:function(){},events:{"click [ap-filter]:not(.loaded)":"loadFilter","click #ap-filter-reset":"resetFilter"},loadFilter:function(b){b.preventDefault();AnsPress.showLoading(b.currentTarget);var c=a.parseJSON(a(b.currentTarget).attr("apquery"));c.ap_ajax_action="load_filter_"+c.filter,AnsPress.ajax({data:c,success:function(d){AnsPress.hideLoading(b.currentTarget),a(b.currentTarget).addClass("loaded");var e=new AnsPress.collections.Filters(d.items),f=new AnsPress.views.Filters({model:e,multiple:d.multiple,filter:c.filter,nonce:d.nonce});a(b.currentTarget).after(f.render().$el)}})},resetFilter:function(b){a('#ap-filters input[type="hidden"]').remove(),a('#ap-filters input[type="checkbox"]').prop("checked",!1)}}),a(document).ready(function(){new AnsPress.views.List})}(jQuery),function(a){AnsPress.models.Notification=Backbone.Model.extend({idAttribute:"ID",defaults:{ID:"",verb:"",verb_label:"",icon:"",avatar:"",hide_actor:"",actor:"",ref_title:"",ref_type:"",points:"",date:"",permalink:"",seen:""}}),AnsPress.collections.Notifications=Backbone.Collection.extend({model:AnsPress.models.Notification}),AnsPress.views.Notification=Backbone.View.extend({id:function(){return"noti-"+this.model.id},template:'<div class="noti-item clearfix {{seen==1 ? \'seen\' : \'unseen\'}}"><# if(ref_type === \'reputation\') { #>  <div class="ap-noti-rep<# if(points < 1) { #> negative<# } #>">{{points}}</div><# } else if(hide_actor) { #><div class="ap-noti-icon {{icon}}"></div><# } else { #><div class="ap-noti-avatar">{{{avatar}}}</div><# } #><a class="ap-noti-inner" href="{{permalink}}"><# if(ref_type !== \'reputation\'){ #><strong class="ap-not-actor">{{actor}}</strong><# } #> {{verb_label}} <strong class="ap-not-ref">{{ref_title}}</strong><time class="ap-noti-date">{{date}}</time></a></div>',initialize:function(a){this.model=a.model},render:function(){var a=_.template(this.template);return this.$el.html(a(this.model.toJSON())),this}}),AnsPress.views.Notifications=Backbone.View.extend({template:'<button class="ap-droptogg apicon-x"></button><div class="ap-noti-head">{{aplang.notifications}}<# if(total > 0) { #><i class="ap-noti-unseen">{{total}}</i><a href="#" class="ap-btn ap-btn-markall-read ap-btn-small" apajaxbtn apquery="{{JSON.stringify(mark_args)}}">{{aplang.mark_all_seen}}</a><# } #></div><div class="scroll-wrap"></div>',
-initialize:function(a){this.model=a.model,this.mark_args=a.mark_args,this.total=a.total,this.listenTo(this.model,"add",this.newNoti),this.listenTo(AnsPress,"notificationAllRead",this.allRead)},renderItem:function(a){var b=new AnsPress.views.Notification({model:a});return this.$el.find(".scroll-wrap").append(b.render().$el),b},render:function(){var a=this,b=_.template(this.template);return this.$el.html(b({mark_args:this.mark_args,total:this.total})),this.model.length>0&&this.model.each(function(b){a.renderItem(b)}),this},newNoti:function(a){this.renderItem(a)},allRead:function(){this.total=0,this.model.each(function(a){a.set("seen",1)}),this.render()}}),AnsPress.views.NotiDropdown=Backbone.View.extend({id:"noti-dp",initialize:function(a){this.anchor=a.anchor,this.fetched=!1},dpPos:function(){var a=this.anchor.offset();a.top=a.top+this.anchor.height(),a.left=a.left-this.$el.width()+this.anchor.width(),this.$el.css(a)},fetchNoti:function(a,b){if(this.fetched)return void this.dpPos();var c=this;AnsPress.ajax({data:ajaxurl+"?action=ap_ajax&ap_ajax_action=get_notifications",success:function(a){if(c.fetched=!0,a.success){var b=new AnsPress.collections.Notifications(a.notifications),d=new AnsPress.views.Notifications({model:b,mark_args:a.mark_args,total:a.total});c.$el.html(d.render().$el),c.dpPos(),c.$el.show()}}})},render:function(){return this.$el.hide(),this}}),a(document).ready(function(){var b=a('a[href="#apNotifications"]'),c=new AnsPress.views.NotiDropdown({anchor:b});a("body").append(c.render().$el),b.click(function(a){a.preventDefault(),c.fetchNoti(),c.fetched&&c.$el.toggle()}),a(document).mouseup(function(a){b.is(a.target)||c.$el.is(a.target)||0!==c.$el.has(a.target).length||c.$el.hide()})})}(jQuery);
-//# sourceMappingURL=main.min.js.map
+/**
+ * Common AnsPress functions and constructor.
+ * @author Rahul Aryan
+ * @license GPL 3+
+ * @since 4.0
+ */
+
+// For preventing global namespace pollution, keep everything in AnsPress object.
+window.AnsPress = _.extend({
+	models: {},
+	views: {},
+	collections: {},
+	modals: {},
+	loadTemplate: function(id){
+		if(jQuery('#apTemplate').length==0)
+			jQuery('<script id="apTemplate" type="text/html"></script>').appendTo('body');
+
+		jQuery.get(apTemplateUrl + '/' + id + ".html", function(html){
+			var tempCont = jQuery('#apTemplate');
+			tempCont.text(html + tempCont.text());
+			AnsPress.trigger('templateLoaded');
+		});
+	},
+	getTemplate: function(templateId){
+		return function(){
+			if(jQuery('#apTemplate').length==0)
+				return '';
+
+			var regex = new RegExp("#START BLOCK "+templateId+" #([\\S\\s]*?)#END BLOCK "+templateId+" #", "g");
+			var match = regex.exec(jQuery('#apTemplate').text());
+
+			if(match == null)
+				return '';
+
+			if(match[1]) return match[1];
+		}
+	},
+	isJSONString: function(str) {
+		try {
+			return jQuery.parseJSON(str);
+		} catch (e) {
+			return false;
+		}
+	},
+	ajaxResponse: function(data){
+		data = jQuery(data);
+		if( typeof data.filter('#ap-response') === 'undefined' ){
+			console.log('Not a valid AnsPress ajax response.');
+			return {};
+		}
+		var parsedJSON = this.isJSONString(data.filter('#ap-response').html());
+		if(!parsedJSON || parsedJSON === 'undefined' || !_.isObject(parsedJSON))
+			return {};
+
+		return parsedJSON;
+	},
+	ajax: function(options){
+		var self = this;
+		options = _.defaults(options, {
+			url: ajaxurl,
+			method: 'POST',
+		});
+
+		// Convert data to query string if object.
+		if(_.isString(options.data))
+			options.data = jQuery.apParseParams(options.data);
+
+		if(typeof options.data.action === 'undefined')
+			options.data.action = 'ap_ajax';
+
+		var success = options.success;
+		delete options.success;
+		options.success = function(data){
+			var context = options.context||null;
+			var parsedData = self.ajaxResponse(data);
+			if(parsedData.snackbar){
+				AnsPress.trigger('snackbar', parsedData)
+			}
+
+			if(typeof success === 'function'){
+				data = jQuery.isEmptyObject(parsedData) ? data : parsedData;
+				success(data, context);
+			}
+		};
+
+		return jQuery.ajax(options);
+	},
+	uniqueId: function() {
+		return jQuery('.ap-uid').length;
+	},
+	showLoading: function(elm) {
+		/*hide any existing loading icon*/
+		AnsPress.hideLoading(elm);
+		var customClass = jQuery(elm).data('loadclass')||'';
+		var isText = jQuery(elm).is('input[type="text"]');
+		var uid = this.uniqueId();
+
+		if(jQuery(elm).is('button')||jQuery(elm).is('.ap-btn')){
+			jQuery(elm).addClass('show-loading');
+			$loading = jQuery('<span class="ap-loading-span"></span>');
+			$loading.height(jQuery(elm).height());
+			$loading.width(jQuery(elm).height());
+			jQuery(elm).append($loading);
+		} else {
+			var el = jQuery('<div class="ap-loading-icon ap-uid '+customClass+ (isText ? ' is-text' : '') +'" id="apuid-' + uid + '"><i></i></div>');
+			jQuery('body').append(el);
+			var offset = jQuery(elm).offset();
+			var height = jQuery(elm).outerHeight();
+			var width = isText ? 40 : jQuery(elm).outerWidth();
+			el.css({
+				top: offset.top,
+				left: isText ? offset.left + jQuery(elm).outerWidth() - 40 : offset.left,
+				height: height,
+				width: width
+			});
+
+			jQuery(elm).data('loading', '#apuid-' + uid);
+			return '#apuid-' + uid;
+		}
+	},
+
+	hideLoading: function(elm) {
+		if(jQuery(elm).is('button')||jQuery(elm).is('.ap-btn')){
+			jQuery(elm).removeClass('show-loading');
+			jQuery(elm).find('.ap-loading-span').remove();
+			jQuery(elm).prop('disabled', false);
+		}else if( 'all' == elm ){
+			jQuery('.ap-loading-icon').hide();
+		}else{
+			jQuery(jQuery(elm).data('loading')).hide();
+		}
+	},
+	getUrlParam: function(key) {
+		var qs = jQuery.apParseParams(window.location.href);
+		if(typeof key !== 'undefined')
+			return typeof qs[key] !== 'undefined' ? qs[key] : null;
+
+		return qs;
+	},
+	modal: function(name, args){
+		args = args||{};
+		if(typeof this.modals[name] !== 'undefined'){
+			return this.modals[name];
+		}
+
+		this.modals[name] = new AnsPress.views.Modal(_.extend({
+			id: 'ap-modal-' + name,
+			title: aplang.loading,
+			content: '',
+			size: 'medium'
+		}, args));
+
+		jQuery('body').append(this.modals[name].render().$el);
+		return this.modals[name];
+	},
+	hideModal: function(name, runCb){
+		if(typeof runCb === 'undefined')
+			runCb = true;
+
+		if(typeof this.modals[name] !== 'undefined'){
+			this.modals[name].hide(runCb);
+			delete this.modals[name];
+		}
+	},
+	removeHash: function(){
+		var scrollV, scrollH, loc = window.location;
+		// Prevent scrolling by storing the page's current scroll offset
+		scrollV = document.body.scrollTop;
+		scrollH = document.body.scrollLeft;
+
+    if ('pushState' in history){
+
+			history.pushState('', document.title, loc.pathname + loc.search);
+			Backbone.history.navigate('/');
+		} else {
+			loc.hash = '';
+		}
+		// Restore the scroll offset, should be flicker free
+		document.body.scrollTop = scrollV;
+		document.body.scrollLeft = scrollH;
+
+	},
+
+	loadCSS: function(href){
+		var cssLink = document.createElement('link');
+		cssLink.rel = 'stylesheet';
+		cssLink.href = href;
+		var head = document.getElementsByTagName('head')[0];
+		head.parentNode.insertBefore(cssLink, head);
+	}
+}, Backbone.Events);
+
+_.templateSettings = {
+	evaluate:    /<#([\s\S]+?)#>/g,
+	interpolate: /\{\{\{([\s\S]+?)\}\}\}/g,
+	escape:      /\{\{([^\}]+?)\}\}(?!\})/g,
+};
+
+(function($){
+	//pass in just the context as a $(obj) or a settings JS object
+	$.fn.autogrow = function(opts) {
+		var that = $(this).css({
+			overflow: 'hidden',
+			resize: 'none'
+		}) //prevent scrollies
+		,
+		selector = that.selector,
+		defaults = {
+				context: $(document) //what to wire events to
+				,
+				animate: true //if you want the size change to animate
+				,
+				speed: 50 //speed of animation
+				,
+				fixMinHeight: true //if you don't want the box to shrink below its initial size
+				,
+				cloneClass: 'autogrowclone' //helper CSS class for clone if you need to add special rules
+				,
+				onInitialize: false //resizes the textareas when the plugin is initialized
+			};
+			opts = $.isPlainObject(opts) ? opts : {
+				context: opts ? opts : $(document)
+			};
+			opts = $.extend({}, defaults, opts);
+			that.each(function(i, elem) {
+				var min, clone;
+				elem = $(elem);
+			//if the element is "invisible", we get an incorrect height value
+			//to get correct value, clone and append to the body.
+			if (elem.is(':visible') || parseInt(elem.css('height'), 10) > 0) {
+				min = parseInt(elem.css('height'), 10) || elem.innerHeight();
+			} else {
+				clone = elem.clone().addClass(opts.cloneClass).val(elem.val()).css({
+					position: 'absolute',
+					visibility: 'hidden',
+					display: 'block'
+				});
+				$('body').append(clone);
+				min = clone.innerHeight();
+				clone.remove();
+			}
+			if (opts.fixMinHeight) {
+				elem.data('autogrow-start-height', min); //set min height
+			}
+			elem.css('height', min);
+			if (opts.onInitialize && elem.length) {
+				resize.call(elem[0]);
+			}
+		});
+			opts.context.on('keyup paste focus', selector, resize);
+
+			function resize(e) {
+				var box = $(this),
+				oldHeight = box.innerHeight(),
+				newHeight = this.scrollHeight,
+				minHeight = box.data('autogrow-start-height') || 0,
+				clone;
+			if (oldHeight < newHeight) { //user is typing
+				this.scrollTop = 0; //try to reduce the top of the content hiding for a second
+				opts.animate ? box.stop().animate({
+					height: newHeight
+				}, opts.speed) : box.innerHeight(newHeight);
+			} else if (!e || e.which == 8 || e.which == 46 || (e.ctrlKey && e.which == 88)) { //user is deleting, backspacing, or cutting
+				if (oldHeight > minHeight) { //shrink!
+					//this cloning part is not particularly necessary. however, it helps with animation
+					//since the only way to cleanly calculate where to shrink the box to is to incrementally
+					//reduce the height of the box until the $.innerHeight() and the scrollHeight differ.
+					//doing this on an exact clone to figure out the height first and then applying it to the
+					//actual box makes it look cleaner to the user
+					clone = box.clone()
+					//add clone class for extra css rules
+					.addClass(opts.cloneClass)
+					//make "invisible", remove height restriction potentially imposed by existing CSS
+					.css({
+						position: 'absolute',
+						zIndex: -10,
+						height: ''
+					})
+					//populate with content for consistent measuring
+					.val(box.val());
+					box.after(clone); //append as close to the box as possible for best CSS matching for clone
+					do { //reduce height until they don't match
+					newHeight = clone[0].scrollHeight - 1;
+					clone.innerHeight(newHeight);
+				} while (newHeight === clone[0].scrollHeight);
+					newHeight++; //adding one back eliminates a wiggle on deletion
+					clone.remove();
+					box.focus(); // Fix issue with Chrome losing focus from the textarea.
+					//if user selects all and deletes or holds down delete til beginning
+					//user could get here and shrink whole box
+					newHeight < minHeight && (newHeight = minHeight);
+					oldHeight > newHeight && opts.animate ? box.stop().animate({
+						height: newHeight
+					}, opts.speed) : box.innerHeight(newHeight);
+				} else { //just set to the minHeight
+					box.innerHeight(minHeight);
+				}
+			}
+		}
+		return that;
+	};
+
+	jQuery.fn.apScrollTo = function(elem, toBottom, speed) {
+		toBottom = toBottom||false;
+		var parentPos = $(this).scrollTop() - $(this).offset().top;
+		var top = toBottom ? $(this).offset().top + $(this).height() : $(this).offset().top;
+		$('html, body').stop();
+		$('html, body').animate({
+			scrollTop: top
+		}, speed == undefined ? 1000 : speed);
+
+		if(elem != undefined)
+			$(this).animate({
+				scrollTop: parentPos + $(elem).offset().top
+			}, speed == undefined ? 1000 : speed);
+
+		return this;
+	};
+
+	AnsPress.views.Snackbar = Backbone.View.extend({
+		id: 'ap-snackbar',
+		template: '<div class="ap-snackbar<# if(success){ #> success<# } #>">{{message}}</div>',
+		hover: false,
+		initialize: function(){
+			AnsPress.on('snackbar', this.show, this);
+		},
+		events: {
+			'mouseover': 'toggleHover',
+			'mouseout': 'toggleHover',
+		},
+		show: function(data){
+			var self = this;
+			this.data = data.snackbar;
+			this.data.success = data.success;
+			this.$el.removeClass('snackbar-show');
+			this.render();
+			setTimeout(function(){
+				self.$el.addClass('snackbar-show');
+			}, 0);
+			this.hide();
+		},
+		toggleHover:function(){
+			clearTimeout(this.hoveTimeOut);
+			this.hover = !this.hover;
+			if(!this.hover)
+				this.hide();
+		},
+		hide: function(){
+			var self = this;
+			if(!self.hover)
+				this.hoveTimeOut = setTimeout(function(){
+					self.$el.removeClass('snackbar-show');
+				}, 5000);
+		},
+		render: function(){
+			if(this.data){
+				var t = _.template(this.template);
+				this.$el.html(t(this.data));
+			}
+			return this;
+		}
+	});
+
+	AnsPress.views.Modal = Backbone.View.extend({
+		className: 'ap-modal',
+		template: "<div class=\"ap-modal-body<# if(typeof size !== 'undefined'){ #> ap-modal-{{size}}<# } #>\"><div class=\"ap-modal-header\"><# if(typeof title !== 'undefined' ){ #><strong>{{title}}</strong><# } #><a href=\"#\" ap=\"close-modal\" class=\"ap-modal-close\"><i class=\"apicon-x\"></i></a></div><div class=\"ap-modal-content\"><# if(typeof content !== 'undefined'){ #>{{{content}}}<# } #></div><div class=\"ap-modal-footer\"><# if(typeof buttons !== 'undefined'){ #><# _.each(buttons, function(btn){ #><a class=\"ap-modal-btn <# if(typeof btn.class !== 'undefined') { #>{{btn.class}}<# } #>\" href=\"#\" <# if(typeof btn.cb !== 'undefined') { #>ap=\"{{btn.cb}}\" apquery=\"{{btn.query}}\"<# } #>>{{btn.label}}</a><# }); #><# } #></div></div><div class=\"ap-modal-backdrop\"></div>",
+		events: {
+			'click [ap="close-modal"]': 'clickHide',
+			'click [ap="modal-click"]': 'clickAction',
+		},
+		initialize: function(opt){
+			opt.title = opt.title||aplang.loading;
+			this.data = opt;
+		},
+		render: function(){
+			$('html').css('overflow', 'hidden');
+			var t = _.template(this.template);
+			this.$el.html(t(this.data));
+			return this;
+		},
+		clickHide: function(e){
+			e.preventDefault();
+			this.hide();
+		},
+		hide: function(runCb){
+			if(typeof runCb === 'undefined')
+				runCb = true;
+			this.remove();
+			$('html').css('overflow', '');
+			if(this.data.hideCb&&runCb) this.data.hideCb(this); // Callback
+			var name = this.data.id.replace('ap-modal-', '');
+			if(typeof AnsPress.modals[name] !== 'undefined')
+				delete AnsPress.modals[name];
+		},
+		setContent: function(html){
+			this.$el.find('.ap-modal-content').html(html);
+		},
+		setTitle: function(title){
+			this.$el.find('.ap-modal-header strong').text(title);
+		},
+		setFooter: function(content){
+			this.$el.find('.ap-modal-footer').html(content);
+		},
+		clickAction: function(e){
+			e.preventDefault();
+			var targ = $(e.target);
+			q = targ.data('apquery');
+
+			if(q.cb){
+				q.element = targ;
+				AnsPress.trigger(q.cb, q);
+			}
+		}
+	});
+
+	var re = /([^&=]+)=?([^&]*)/g;
+	var decode = function (str) {
+			return decodeURIComponent(str.replace(/\+/g, ' '));
+	};
+	$.apParseParams = function (query) {
+		// recursive function to construct the result object
+		function createElement(params, key, value) {
+			key = key + '';
+			// if the key is a property
+			if (key.indexOf('.') !== -1) {
+				// extract the first part with the name of the object
+				var list = key.split('.');
+				// the rest of the key
+				var new_key = key.split(/\.(.+)?/)[1];
+				// create the object if it doesnt exist
+				if (!params[list[0]]) params[list[0]] = {};
+				// if the key is not empty, create it in the object
+				if (new_key !== '') {
+						createElement(params[list[0]], new_key, value);
+				} else console.warn('parseParams :: empty property in key "' + key + '"');
+			} else
+			// if the key is an array
+			if (key.indexOf('[') !== -1) {
+				// extract the array name
+				var list = key.split('[');
+				key = list[0];
+				// extract the index of the array
+				var list = list[1].split(']');
+				var index = list[0]
+				// if index is empty, just push the value at the end of the array
+				if (index == '') {
+					if (!params) params = {};
+					if (!params[key] || !$.isArray(params[key])) params[key] = [];
+					params[key].push(value);
+				} else
+				// add the value at the index (must be an integer)
+				{
+					if (!params) params = {};
+					if (!params[key] || !$.isArray(params[key])) params[key] = [];
+					params[key][parseInt(index)] = value;
+				}
+			} else
+			// just normal key
+			{
+					if (!params) params = {};
+					params[key] = value;
+			}
+		}
+		// be sure the query is a string
+		query = query + '';
+		if (query === '') query = window.location + '';
+		var params = {}, e;
+		if (query) {
+			// remove # from end of query
+			if (query.indexOf('#') !== -1) {
+					query = query.substr(0, query.indexOf('#'));
+			}
+
+			// remove ? at the begining of the query
+			if (query.indexOf('?') !== -1) {
+					query = query.substr(query.indexOf('?') + 1, query.length);
+			} else return {};
+			// empty parameters
+			if (query == '') return {};
+			// execute a createElement on every key and value
+			while (e = re.exec(query)) {
+				var key = decode(e[1]);
+				var value = decode(e[2]);
+				createElement(params, key, value);
+			}
+		}
+		return params;
+	};
+})(jQuery);
+
+(function($){
+	AnsPress.Common = {
+		init: function(){
+			AnsPress.on('showImgPreview', this.showImgPreview);
+			AnsPress.on('formPosted', this.imageUploaded);
+			AnsPress.on('ajaxBtnDone', this.uploadModal);
+			AnsPress.on('ajaxBtnDone', this.commentModal);
+
+			AnsPress.on('showModal', this.showModal);
+		},
+		readUrl: function(input, el) {
+			if (input.files && input.files[0]) {
+				var reader = new FileReader();
+				reader.onload = function(e) {
+					AnsPress.trigger('showImgPreview', e.target.result, el.find('.ap-upload-list'));
+				}
+				reader.readAsDataURL(input.files[0]);
+			}
+		},
+		uploadModal: function(data){
+			if(data.action != 'ap_upload_modal' || ! data.html)
+				return;
+
+			$modal = AnsPress.modal('imageUpload', {
+				title: data.title,
+				content: data.html,
+				size: 'small',
+			});
+
+			var file = $modal.$el.find('input[type="file"]');
+			file.on('change', function(){
+				$modal.$el.find('.ap-img-preview').remove();
+				AnsPress.Common.readUrl(this, $modal.$el);
+			});
+		},
+		showImgPreview: function(src, el){
+			$('<img class="ap-img-preview" src="'+src+'" />').appendTo(el);
+		},
+		imageUploaded: function(data){
+			if(data.action!=='ap_image_upload' || typeof tinymce === 'undefined')
+				return;
+
+			if(data.files)
+				$.each(data.files, function(old, newFile){
+					tinymce.activeEditor.insertContent('<img src="'+newFile+'" />');
+				});
+
+			AnsPress.hideModal('imageUpload');
+		},
+		showModal: function(modal){
+			modal.size = modal.size||'medium';
+			AnsPress.modal(modal.name, {
+				title: modal.title,
+				content: modal.content,
+				size: modal.size,
+			});
+		}
+	};
+})(jQuery);
+
+jQuery(document).ready(function($){
+	AnsPress.Common.init();
+
+	var apSnackbarView = new AnsPress.views.Snackbar();
+	$('body').append(apSnackbarView.render().$el);
+
+	$( document ).click(function (e) {
+		e.stopPropagation();
+		if (!$(e.target).is('.ap-dropdown-toggle') && !$(e.target).closest('.open').is('.open') && !$(e.target).closest('form').is('form')) {
+				$('.ap-dropdown').removeClass('open');
+		}
+	});
+
+	// Dropdown toggle
+	$('body').on('click', '.ap-dropdown-toggle, .ap-dropdown-menu > a', function(e){
+		e.preventDefault();
+		$('.ap-dropdown').not($(this).closest('.ap-dropdown')).removeClass('open');
+		$(this).closest('.ap-dropdown').toggleClass('open');
+	});
+
+	// Subscribe button.
+	$('[apsubscribe]').click(function(e){
+		e.preventDefault();
+		var self = $(this);
+		var query = JSON.parse(self.attr('apquery'));
+		query.ap_ajax_action = 'subscribe';
+
+		AnsPress.ajax({
+			data: query,
+			success: function(data){
+				if(data.count) self.next().text(data.count);
+				if(data.label) self.text(data.label);
+			}
+		})
+	});
+
+	$('body').on('click', '.ap-droptogg', function(e){
+		e.preventDefault();
+		$(this).closest('.ap-dropdown').removeClass('open');
+		$(this).closest('#noti-dp').hide();
+	});
+
+	// Ajax button.
+	$('body').on('click', '[apajaxbtn]', function(e){
+		var self = this;
+		e.preventDefault();
+
+		if($(this).attr('aponce') != 'false' && $(this).is('.loaded'))
+			return;
+
+		var self = $(this);
+		var query = JSON.parse(self.attr('apquery'));
+
+		AnsPress.showLoading(self);
+		AnsPress.ajax({
+			data: query,
+			success: function(data){
+				if($(this).attr('aponce')!= 'false')
+					$(self).addClass('loaded');
+
+				AnsPress.hideLoading(e.target);
+
+				AnsPress.trigger('ajaxBtnDone', data);
+
+				if(typeof data.btn !== 'undefined')
+					if(data.btn.hide) self.hide();
+
+				if(typeof data.cb !== 'undefined')
+					AnsPress.trigger(data.cb, data, e.target);
+
+				// Open modal.
+				if(data.modal){
+					AnsPress.trigger('showModal', data.modal);
+				}
+			}
+		})
+	});
+
+	function apAddRepeatField(el, values){
+		values = values||false;
+		var args = $(el).data('args');
+		args['index'] = $(el).find('[datarepeatid]').length;
+		var template = $('#'+args.key+'-template').text();
+
+		var t = _.template(template);
+		t = t(args);
+		var regex = /(class|id|for)="([^"]+)"/g;
+
+		var t = t.replace(regex, function(match, group) {
+			return match.replace(/[[\]]/g, '');
+		});
+
+		var html = $('<div class="ap-repeatable-item" datarepeatid="'+args.index+'">'+ t +'<a href="#" class="ap-repeatable-delete">'+args.label_delete+'</a></div>');
+		$.each(values, function(childName, v){
+			html.find('[name="'+args.key+'['+args.index+']['+childName+']"]').val(v);
+		});
+
+		var errors = $('#'+args.key+'-errors');
+
+		if ( errors.length > 0 ) {
+			var errors_json = JSON.parse(errors.html());
+			$.each(errors_json, function(i, err){
+				$.each(err, function(field, messages){
+					var fieldWrap = html.find('[name="'+args.key+'['+i+']['+field+']"]').closest('.ap-form-group');
+					fieldWrap.addClass('ap-have-errors');
+					var errContain = $('<div class="ap-field-errors"></div>');
+					$.each(messages, function(code, msg){
+						errContain.append('<span class="ap-field-error code-'+code+'">'+msg+'</span>');
+					})
+					$(errContain).insertAfter(fieldWrap.find('label'));
+				});
+			});
+		}
+
+		$(el).find('.ap-fieldrepeatable-item').append(html);
+	}
+
+	$('[data-role="ap-repeatable"]').each(function(){
+		var self = this;
+
+
+		$(this).find('.ap-repeatable-add').on('click', function(e){
+			e.preventDefault();
+
+			var self = $(this);
+			var query = JSON.parse(self.attr('apquery'));
+			AnsPress.showLoading(self);
+
+			$count = $('[name="'+query.id+'-groups"]');
+			query.current_groups = $count.val();
+			$count.val(parseInt(query.current_groups)+1);
+
+			$nonce = $('[name="'+query.id+'-nonce"]');
+			query.current_nonce = $nonce.val();
+
+			AnsPress.ajax({
+				data: query,
+				success: function(data){
+					AnsPress.hideLoading(e.target);
+					$(data.html).insertBefore(self);
+					$nonce.val(data.nonce);
+				}
+			})
+		});
+
+		$(this).on('click', '.ap-repeatable-delete', function(e){
+			e.preventDefault();
+			$(this).closest('.ap-form-group').remove();
+		});
+
+	});
+
+	$('body').on('click', '.ap-form-group', function(){
+		$(this).removeClass('ap-have-errors');
+	});
+
+	$('body').on('click', 'button.show-loading', function(e){
+		e.preventDefault();
+	});
+
+	$('body').on( 'submit', '[apform]', function(e){
+		e.preventDefault();
+		var self = $(this);
+		var submitBtn = $(this).find('button[type="submit"]');
+		var formCb = $(this).attr('apform');
+
+		if(submitBtn.length>0)
+			AnsPress.showLoading(submitBtn);
+
+    	$(this).ajaxSubmit({
+			url: ajaxurl,
+			beforeSerialize: function() {
+				if(typeof tinymce !== 'undefined')
+					tinymce.triggerSave();
+
+				$('.ap-form-errors, .ap-field-errors').remove();
+				$('.ap-have-errors').removeClass('ap-have-errors');
+			},
+			success: function(data) {
+				if(submitBtn.length>0)
+					AnsPress.hideLoading(submitBtn);
+
+				data = AnsPress.ajaxResponse(data);
+				if(data.snackbar){
+					AnsPress.trigger('snackbar', data)
+				}
+
+				if(typeof grecaptcha !== 'undefined' && typeof widgetId1 !== 'undefined')
+					grecaptcha.reset(widgetId1);
+
+				AnsPress.trigger('formPosted', data);
+
+				// Invoke callback defined in attribute.
+				if ( $.isFunction(AnsPress.theme[formCb]) )
+					AnsPress.theme[formCb](data);
+
+				if(typeof data.form_errors !== 'undefined'){
+					$formError = $('<div class="ap-form-errors"></div>').prependTo(self);
+
+					$.each(data.form_errors, function(i, err){
+						$formError.append('<span class="ap-form-error ecode-'+i+'">'+err+'</div>');
+					});
+
+					$.each(data.fields_errors, function(i, errs){
+						$('.ap-field-'+i).addClass('ap-have-errors');
+						$('.ap-field-'+i).find('.ap-field-errorsc').html('<div class="ap-field-errors"></div>');
+
+						$.each(errs.error, function(code, err){
+							$('.ap-field-' + i).find('.ap-field-errors').append('<span class="ap-field-error ecode-'+code+'">'+err+'</span>');
+						});
+					});
+
+					self.apScrollTo();
+				} else if(typeof data.hide_modal !== undefined){
+					// Hide modal
+					AnsPress.hideModal(data.hide_modal);
+				}
+
+				if(typeof data.redirect !== 'undefined'){
+					window.location = data.redirect;
+				}
+			}
+		});
+	});
+	$(document).keyup(function(e) {
+		if (e.keyCode == 27) {
+			$lastModal = $('.ap-modal').last();
+			if ( $lastModal.length>0 ){
+				$name = $lastModal.attr('id').replace('ap-modal-', '');
+				AnsPress.hideModal($name);
+			}
+		}
+	});
+
+	AnsPress.on( 'loadedMoreActivities', function(data, e){
+		$(data.html).insertAfter($('.ap-activities:last-child'));
+		$(e).closest('.ap-activity-item').remove();
+	});
+
+	AnsPress.tagsPreset = {
+		tags: {
+			delimiter: ',',
+			valueField: 'term_id',
+			labelField: 'name',
+			searchField: 'name',
+			persist: false,
+			render: {
+				option: function(item, escape) {
+					return '<div class="ap-tag-sugitem">' +
+						'<span class="name">' + escape(item.name) + '</span>' +
+						'<span class="count">' + escape(item.count) + '</span>' +
+						'<span class="description">' + escape(item.description) + '</span>' +
+					'</div>';
+				}
+			},
+			create: false,
+			maxItems: 4
+		}
+	}
+
+	AnsPress.tagElements = function ($el){
+		var type = $el.data('type');
+		var jsoptions = $el.data('options');
+		var options = $('#'+jsoptions.id+'-options').length > 0 ? JSON.parse($('#'+jsoptions.id+'-options').html()) : {};
+		var defaults = AnsPress.tagsPreset[type];
+		defaults.options = options;
+		defaults.maxItems = jsoptions.maxItems;
+
+		if(false !== jsoptions.create){
+			defaults.create = function(input) {
+				return {
+					term_id: input,
+					name: input,
+					description: '',
+					count: 0,
+				}
+			};
+		}
+
+		defaults.load = function(query, callback) {
+			if (!query.length) return callback();
+			jQuery.ajax({
+				url: ajaxurl,
+				type: 'GET',
+				dataType: 'json',
+				data: {
+					action: 'ap_search_tags',
+					q: query,
+					__nonce: jsoptions.nonce,
+					form: jsoptions.form,
+					field: jsoptions.field,
+				},
+				error: function() {
+					callback();
+				},
+				success: function(res) {
+					callback(res);
+				}
+			});
+		};
+		$el.selectize(defaults);
+	}
+
+	$('[aptagfield]').each(function(){
+		AnsPress.tagElements($(this));
+	});
+
+	$('#anspress').on('click', '.ap-remove-parent', function(e){
+		e.preventDefault();
+		$(this).parent().remove();
+	})
+});
+
+window.AnsPress.Helper = {
+	toggleNextClass: function(el){
+		jQuery(el).closest('.ap-field-type-group').find('.ap-fieldgroup-c').toggleClass('show');
+	}
+};
+
+(function ($) {
+	AnsPress.views.AskView = Backbone.View.extend({
+		initialize: function () {},
+
+		events: {
+			'keyup [data-action="suggest_similar_questions"]': 'questionSuggestion'
+		},
+
+		suggestTimeout: null,
+		questionSuggestion: function (e) {
+			var self = this;
+			if (disable_q_suggestion || false)
+				return;
+
+			var title = $(e.target).val();
+			var inputField = this;
+			if (title.length == 0)
+				return;
+
+			if (self.suggestTimeout != null) clearTimeout(self.suggestTimeout);
+
+			self.suggestTimeout = setTimeout(function () {
+				self.suggestTimeout = null;
+				AnsPress.ajax({
+					data: {
+						ap_ajax_action: 'suggest_similar_questions',
+						__nonce: ap_nonce,
+						value: title
+					},
+					success: function (data) {
+						$("#similar_suggestions").remove();
+						if(data.html && $("#similar_suggestions").length===0)
+							$(e.target).parent().append('<div id="similar_suggestions"></div>');
+
+						$("#similar_suggestions").html(data.html);
+					}
+				});
+			}, 800);
+		}
+	});
+
+	var askView = new AnsPress.views.AskView({
+		el: '#ap-ask-page'
+	});
+})(jQuery);
+(function($) {
+	AnsPress.models.Filter = Backbone.Model.extend({
+		defaults: {
+			active: false,
+      label: '',
+      value: ''
+		}
+	});
+
+  AnsPress.collections.Filters = Backbone.Collection.extend({
+    model: AnsPress.models.Filter
+  });
+
+  AnsPress.activeListFilters = $('#ap_current_filters').length > 0 ? JSON.parse($('#ap_current_filters').html()) : {};
+  AnsPress.views.Filter = Backbone.View.extend({
+    //tagName: 'li',
+    id: function(){
+      return this.model.id;
+    },
+    nameAttr: function(){
+      if(this.multiple) return ''+this.model.get('key')+'[]';
+      return this.model.get('key');
+    },
+    isActive: function(){
+      if(this.model.get('active'))
+        return this.model.get('active');
+
+      if(this.active)
+        return this.active;
+
+      var get_value = AnsPress.getUrlParam(this.model.get('key'));
+      if(!_.isEmpty(get_value)){
+        var value = this.model.get('value');
+        if(!_.isArray(get_value) && get_value === value)
+          return true;
+        if(_.contains(get_value, value)){
+          this.active = true;
+          return true;
+        }
+      }
+
+      this.active = false;
+      return false;
+    },
+    className: function(){
+      return this.isActive() ? 'active' : '';
+    },
+    inputType: function(){
+      return this.multiple ? 'checkbox' : 'radio';
+    },
+    initialize: function(options){
+      this.model = options.model;
+      this.multiple = options.multiple;
+      this.listenTo(this.model, 'remove', this.removed);
+    },
+    template: '<label><input type="{{inputType}}" name="{{name}}" value="{{value}}"<# if(active){ #> checked="checked"<# } #>/><i class="apicon-check"></i>{{label}}</label>',
+    events: {
+      'change input': 'clickFilter'
+    },
+    render: function(){
+      var t = _.template(this.template);
+      var json = this.model.toJSON();
+      json.name = this.nameAttr();
+      json.active = this.isActive();
+      json.inputType = this.inputType();
+      this.removeHiddenField();
+      this.$el.html(t(json));
+      return this;
+    },
+    removeHiddenField: function(){
+      $('input[name="'+this.nameAttr()+'"][value="'+this.model.get('value')+'"]').remove();
+    },
+    clickFilter: function(e){
+      e.preventDefault();
+      $(e.target).closest('form').submit();
+    },
+    removed: function(){
+      this.remove();
+    }
+  });
+
+  AnsPress.views.Filters = Backbone.View.extend({
+    className: 'ap-dropdown-menu',
+    searchTemplate: '<div class="ap-filter-search"><input type="text" search-filter placeholder="'+aplang.search+'" /></div>',
+    template: '<button class="ap-droptogg apicon-x"></button><filter-items></filter-items>',
+    initialize: function(options){
+      this.model = options.model;
+      this.multiple = options.multiple;
+      this.filter = options.filter;
+      this.nonce = options.nonce;
+      this.listenTo(this.model, 'add', this.added);
+    },
+    events: {
+      'keypress [search-filter]': 'searchInput'
+    },
+    renderItem: function(filter){
+      var view = new AnsPress.views.Filter({model: filter, multiple: this.multiple});
+      this.$el.find('filter-items').append(view.render().$el);
+    },
+    render: function(){
+      var self = this;
+      if(this.multiple)
+        this.$el.append(this.searchTemplate);
+
+      this.$el.append(this.template);
+      this.model.each(function(filter){
+        self.renderItem(filter);
+      });
+      return this;
+    },
+    search: function(q, e){
+      var self = this;
+
+      var args = { __nonce: this.nonce, ap_ajax_action: 'load_filter_'+this.filter, search: q, filter: this.filter };
+
+      AnsPress.showLoading(e);
+			AnsPress.ajax({
+				data: args,
+				success: function(data){
+          AnsPress.hideLoading(e);
+          if(data.success){
+            self.nonce = data.nonce;
+            while (model = self.model.first()) {
+              model.destroy();
+            }
+            self.model.add(data.items);
+          }
+				}
+			});
+    },
+    searchInput: function(e){
+      var self = this;
+      clearTimeout(this.searchTO);
+      this.searchTO = setTimeout(function(){
+        self.search($(e.target).val(), e.target);
+      }, 600);
+    },
+    added: function(model){
+      this.renderItem(model);
+    }
+  });
+
+  AnsPress.views.List = Backbone.View.extend({
+    el: '#ap-filters',
+    initialize: function(){
+
+    },
+    events: {
+      'click [ap-filter]:not(.loaded)': 'loadFilter',
+      'click #ap-filter-reset': 'resetFilter'
+    },
+    loadFilter: function(e){
+      e.preventDefault();
+			var self = this;
+			AnsPress.showLoading(e.currentTarget);
+      var q = $.parseJSON($(e.currentTarget).attr('apquery'));
+			q.ap_ajax_action = 'load_filter_'+q.filter;
+
+			AnsPress.ajax({
+				data: q,
+				success: function(data){
+					AnsPress.hideLoading(e.currentTarget);
+          $(e.currentTarget).addClass('loaded');
+					var filters = new AnsPress.collections.Filters(data.items);
+          var view = new AnsPress.views.Filters({model: filters, multiple: data.multiple, filter: q.filter, nonce: data.nonce});
+          $(e.currentTarget).after(view.render().$el);
+				}
+			});
+    },
+    resetFilter: function(e){
+      $('#ap-filters input[type="hidden"]').remove();
+      $('#ap-filters input[type="checkbox"]').prop('checked', false);
+    }
+  });
+
+  $(document).ready(function(){
+    new AnsPress.views.List();
+  });
+
+})(jQuery);
+/**
+ * Javascript code for AnsPress notifications dropdown.
+ *
+ * @since 4.0.0
+ * @package AnsPress
+ * @author Rahul Aryan
+ * @license GPL 3+
+ */
+
+(function($) {
+	AnsPress.models.Notification = Backbone.Model.extend({
+		idAttribute: 'ID',
+		defaults:{
+			'ID': '',
+			'verb': '',
+			'verb_label': '',
+			'icon': '',
+			'avatar': '',
+			'hide_actor': '',
+			'actor': '',
+			'ref_title': '',
+			'ref_type': '',
+			'points': '',
+			'date': '',
+			'permalink': '',
+			'seen': ''
+		}
+	});
+
+	AnsPress.collections.Notifications = Backbone.Collection.extend({
+		model: AnsPress.models.Notification
+	});
+
+	AnsPress.views.Notification = Backbone.View.extend({
+		id: function(){
+			return 'noti-' + this.model.id;
+		},
+		template: "<div class=\"noti-item clearfix {{seen==1 ? 'seen' : 'unseen'}}\"><# if(ref_type === 'reputation') { #>  <div class=\"ap-noti-rep<# if(points < 1) { #> negative<# } #>\">{{points}}</div><# } else if(hide_actor) { #><div class=\"ap-noti-icon {{icon}}\"></div><# } else { #><div class=\"ap-noti-avatar\">{{{avatar}}}</div><# } #><a class=\"ap-noti-inner\" href=\"{{permalink}}\"><# if(ref_type !== 'reputation'){ #><strong class=\"ap-not-actor\">{{actor}}</strong><# } #> {{verb_label}} <strong class=\"ap-not-ref\">{{ref_title}}</strong><time class=\"ap-noti-date\">{{date}}</time></a></div>",
+		initialize: function(options){
+			this.model = options.model;
+		},
+		render: function(){
+			var t = _.template(this.template);
+			this.$el.html(t(this.model.toJSON()));
+			return this;
+		}
+	});
+
+	AnsPress.views.Notifications = Backbone.View.extend({
+		template: "<button class=\"ap-droptogg apicon-x\"></button><div class=\"ap-noti-head\">{{aplang.notifications}}<# if(total > 0) { #><i class=\"ap-noti-unseen\">{{total}}</i><a href=\"#\" class=\"ap-btn ap-btn-markall-read ap-btn-small\" apajaxbtn apquery=\"{{JSON.stringify(mark_args)}}\">{{aplang.mark_all_seen}}</a><# } #></div><div class=\"scroll-wrap\"></div>",
+		initialize: function(options){
+			this.model = options.model;
+			this.mark_args = options.mark_args;
+			this.total = options.total;
+
+			this.listenTo(this.model, 'add', this.newNoti);
+			this.listenTo(AnsPress, 'notificationAllRead', this.allRead);
+		},
+		renderItem: function(notification){
+			var view = new AnsPress.views.Notification({ model: notification });
+			this.$el.find('.scroll-wrap').append(view.render().$el);
+			return view;
+		},
+		render: function(){
+			var self = this;
+			var t = _.template(this.template);
+			this.$el.html(t({'mark_args' : this.mark_args, 'total': this.total}));
+			if(this.model.length > 0){
+				this.model.each(function(notification){
+					self.renderItem(notification);
+				});
+			}
+
+			return this;
+		},
+		newNoti: function(noti){
+			this.renderItem(noti);
+		},
+		allRead: function(){
+			this.total = 0;
+			this.model.each(function(notification){
+				notification.set('seen', 1);
+			});
+			this.render();
+		}
+	});
+
+	AnsPress.views.NotiDropdown = Backbone.View.extend({
+		id: 'noti-dp',
+		initialize: function(options){
+			//this.model = options.model;
+			this.anchor = options.anchor;
+			this.fetched = false;
+		},
+		dpPos: function(){
+			var pos = this.anchor.offset();
+			pos.top = pos.top + this.anchor.height();
+			pos.left = pos.left - this.$el.width() + this.anchor.width()
+			this.$el.css(pos);
+		},
+		fetchNoti: function (query, page) {
+			if( this.fetched ){
+				this.dpPos();
+				return;
+			}
+
+			var self = this;
+			AnsPress.ajax({
+				data: ajaxurl + '?action=ap_ajax&ap_ajax_action=get_notifications',
+				success: function(data){
+					self.fetched = true;
+					if(data.success){
+						var notiModel = new AnsPress.collections.Notifications(data.notifications);
+						var notificationsView = new AnsPress.views.Notifications({ model: notiModel, mark_args: data.mark_args, total: data.total });
+						self.$el.html(notificationsView.render().$el);
+						self.dpPos();
+						self.$el.show();
+					}
+				}
+			});
+		},
+		render: function(){
+			this.$el.hide();
+			return this;
+		}
+  });
+
+	$(document).ready(function(){
+		var anchor = $('a[href="#apNotifications"]');
+		var dpView = new AnsPress.views.NotiDropdown({anchor: anchor});
+		$('body').append(dpView.render().$el);
+
+		anchor.click(function(e){
+			e.preventDefault();
+			dpView.fetchNoti();
+			if(dpView.fetched)
+				dpView.$el.toggle();
+		});
+
+		$(document).mouseup(function (e){
+			if (!anchor.is(e.target) && !dpView.$el.is(e.target) && dpView.$el.has(e.target).length === 0){
+				dpView.$el.hide();
+			}
+		});
+	});
+
+})(jQuery);
+
+/**
+ * Javascript code for AnsPress fontend
+ * @since 4.0.0
+ * @package AnsPress
+ * @author Rahul Aryan
+ * @license GPL 3+
+ */
+
+(function($) {
+	AnsPress.models.Action = Backbone.Model.extend({
+		defaults: {
+			cb: '',
+			post_id: '',
+			title: '',
+			label: '',
+			query: '',
+			active: false,
+			header: false,
+			href: '#',
+			count: '',
+			prefix: '',
+			checkbox: '',
+			multiple: false
+		}
+	});
+
+	AnsPress.collections.Actions = Backbone.Collection.extend({
+		model: AnsPress.models.Action
+	});
+
+	AnsPress.views.Action = Backbone.View.extend({
+		id: function(){
+			return this.postID;
+		},
+		className: function(){
+			var klass = '';
+			if(this.model.get('header')) klass += ' ap-dropdown-header';
+			if(this.model.get('active')) klass += ' active';
+			return klass;
+		},
+		tagName: 'li',
+		template: "<# if(!header){ #><a href=\"{{href}}\" title=\"{{title}}\">{{{prefix}}}{{label}}<# if(count){ #><b>{{count}}</b><# } #></a><# } else { #>{{label}}<# } #>",
+		initialize: function(options){
+			this.model = options.model;
+			this.postID = options.postID;
+			this.model.on('change', this.render, this);
+			this.listenTo(this.model, 'remove', this.removed);
+		},
+		events: {
+			'click a': 'triggerAction'
+		},
+		render: function(){
+			var t = _.template(this.template);
+			this.$el.html(t(this.model.toJSON()));
+			this.$el.attr('class', this.className());
+			return this;
+		},
+		triggerAction: function(e){
+			var q = this.model.get('query');
+			if(_.isEmpty(q))
+				return;
+
+			e.preventDefault();
+			var self = this;
+			AnsPress.showLoading(e.target);
+			var cb = this.model.get('cb');
+			q.ap_ajax_action = 'action_'+cb;
+
+			AnsPress.ajax({
+				data: q,
+				success: function(data){
+					AnsPress.hideLoading(e.target);
+					if(data.redirect) window.location = data.redirect;
+
+					if(data.success && ( cb=='status' || cb=='toggle_delete_post'))
+						AnsPress.trigger('changedPostStatus', {postID: self.postID, data:data, action:self.model});
+
+					if(data.action){
+						self.model.set(data.action);
+					}
+					self.renderPostMessage(data);
+					if(data.deletePost) AnsPress.trigger('deletePost', data.deletePost);
+					if(data.answersCount) AnsPress.trigger('answerCountUpdated', data.answersCount);
+				}
+			});
+		},
+		renderPostMessage: function(data){
+			if(!_.isEmpty(data.postmessage))
+				$('[apid="'+this.postID+'"]').find('postmessage').html(data.postmessage);
+			else
+				$('[apid="'+this.postID+'"]').find('postmessage').html('');
+		},
+		removed: function(){
+      this.remove();
+    }
+	});
+
+
+	AnsPress.views.Actions = Backbone.View.extend({
+		id: function(){
+			return this.postID;
+		},
+		searchTemplate: '<div class="ap-filter-search"><input type="text" search-filter placeholder="'+aplang.search+'" /></div>',
+		tagName: 'ul',
+		className: 'ap-actions',
+		events: {
+			'keyup [search-filter]': 'searchInput'
+		},
+		initialize: function(options){
+			this.model = options.model;
+			this.postID = options.postID;
+			this.multiple = options.multiple;
+			this.action = options.action;
+			this.nonce = options.nonce;
+
+			AnsPress.on('changedPostStatus', this.postStatusChanged, this);
+			this.listenTo(this.model, 'add', this.added);
+		},
+		renderItem: function(action){
+			var view = new AnsPress.views.Action({ model: action, postID: this.postID });
+			this.$el.append(view.render().$el);
+		},
+		render: function(){
+			var self = this;
+			if(this.multiple)
+        this.$el.append(this.searchTemplate);
+
+			this.model.each(function(action){
+				self.renderItem(action);
+			});
+
+			return this;
+		},
+		postStatusChanged: function(args){
+			if(args.postID !== this.postID) return;
+
+			// Remove post status class
+			$("#post-"+this.postID).removeClass( function() {
+				return this.className.split(' ').filter(function(className) {return className.match(/status-/)}).join(' ');
+			});
+
+			$("#post-"+this.postID).addClass('status-'+args.data.newStatus);
+			var activeStatus = this.model.where({cb: 'status', active: true });
+
+			activeStatus.forEach(function(status){
+				status.set({active: false});
+			});
+		},
+		searchInput: function(e){
+      var self = this;
+
+      clearTimeout(this.searchTO);
+      this.searchTO = setTimeout(function(){
+        self.search($(e.target).val(), e.target);
+      }, 600);
+    },
+		search: function(q, e){
+      var self = this;
+
+      var args = { nonce: this.nonce, ap_ajax_action: this.action, search: q, filter: this.filter, post_id: this.postID };
+
+      AnsPress.showLoading(e);
+			AnsPress.ajax({
+				data: args,
+				success: function(data){
+					console.log(data);
+          AnsPress.hideLoading(e);
+          if(data.success){
+            self.nonce = data.nonce;
+						//self.model.reset();
+            while (m = self.model.first()) {
+               self.model.remove(m);
+            }
+            self.model.add(data.actions);
+          }
+				}
+			});
+    },
+		added: function(model){
+      this.renderItem(model);
+    }
+	});
+
+	AnsPress.models.Post = Backbone.Model.extend({
+		idAttribute: 'ID',
+		defaults:{
+			actionsLoaded: false,
+			hideSelect: ''
+		}
+	});
+
+	AnsPress.views.Post = Backbone.View.extend({
+		idAttribute: 'ID',
+		templateId: 'answer',
+		tagName: 'div',
+		actions: { view: {}, model: {} },
+		id: function(){
+			return 'post-' + this.model.get('ID');
+		},
+		initialize: function(options){
+			this.listenTo(this.model, 'change:vote', this.voteUpdate);
+		},
+		events: {
+			'click [ap-vote] > a': 'voteClicked',
+			'click [ap="actiontoggle"]:not(.loaded)': 'postActions'
+		},
+		voteClicked: function(e){
+			e.preventDefault();
+			if($(e.target).is('.disable'))
+				return;
+
+			self = this;
+			var type = $(e.target).is('.vote-up') ? 'vote_up' : 'vote_down';
+			var originalValue = _.clone(self.model.get('vote'));
+			var vote = _.clone(originalValue);
+
+			if(type === 'vote_up')
+				vote.net = ( vote.active === 'vote_up' ? vote.net - 1 : vote.net + 1);
+			else
+				vote.net = ( vote.active === 'vote_down' ? vote.net + 1 : vote.net - 1);
+
+			self.model.set('vote', vote);
+			var q = $.parseJSON($(e.target).parent().attr('ap-vote'));
+			q.ap_ajax_action = 'vote';
+			q.type = type;
+
+			AnsPress.ajax({
+				data: q,
+				success: function(data) {
+					if (data.success && _.isObject(data.voteData))
+						self.model.set('vote', data.voteData);
+					else
+						self.model.set('vote', originalValue); // Restore original value on fail
+				}
+			})
+		},
+		voteUpdate: function(post){
+			var self = this;
+			this.$el.find('[ap="votes_net"]').text(this.model.get('vote').net);
+			_.each(['up', 'down'], function(e){
+				self.$el.find('.vote-'+e).removeClass('voted disable').addClass(self.voteClass('vote_'+e));
+			});
+		},
+		voteClass: function(type){
+			type = type||'vote_up';
+			var curr = this.model.get('vote').active;
+			var klass = '';
+			if(curr === 'vote_up' && type === 'vote_up')
+				klass = 'active';
+
+			if(curr === 'vote_down' && type === 'vote_down')
+				klass = 'active';
+
+			if(type !== curr && curr !== '')
+				klass += ' disable';
+
+			return klass + ' prist';
+		},
+		render: function(){
+			var attr = this.$el.find('[ap-vote]').attr('ap-vote');
+			this.model.set('vote', $.parseJSON(attr), {silent: true});
+			return this;
+		},
+		postActions: function(e){
+			var self = this;
+			var q = $.parseJSON($(e.target).attr('apquery'));
+			if(typeof q.ap_ajax_action === 'undefined')
+				q.ap_ajax_action = 'post_actions';
+
+			AnsPress.ajax({
+				data: q,
+				success: function(data){
+					AnsPress.hideLoading(e.target);
+					$(e.target).addClass('loaded');
+					self.actions.model = new AnsPress.collections.Actions(data.actions);
+					self.actions.view = new AnsPress.views.Actions({ model: self.actions.model, postID: self.model.get('ID') });
+					self.$el.find('postActions .ap-actions').html(self.actions.view.render().$el);
+				}
+			});
+		}
+	});
+
+	AnsPress.collections.Posts = Backbone.Collection.extend({
+		model: AnsPress.models.Post,
+		initialize: function(){
+			var loadedPosts = [];
+			$('[ap="question"],[ap="answer"]').each(function(e){
+				loadedPosts.push({ 'ID' : $(this).attr('apId')});
+			});
+			this.add(loadedPosts);
+		}
+	});
+
+	AnsPress.views.SingleQuestion = Backbone.View.extend({
+		initialize: function(){
+			this.listenTo(this.model, 'add', this.renderItem);
+			AnsPress.on('answerToggle', this.answerToggle, this);
+			AnsPress.on('deletePost', this.deletePost, this);
+			AnsPress.on('answerCountUpdated', this.answerCountUpdated, this);
+			AnsPress.on('formPosted', this.formPosted, this);
+			this.listenTo(AnsPress, 'commentApproved', this.commentApproved);
+			this.listenTo(AnsPress, 'commentDeleted', this.commentDeleted);
+			this.listenTo(AnsPress, 'commentCount', this.commentCount);
+			this.listenTo(AnsPress, 'formPosted', this.submitComment);
+		},
+		events: {
+			'click [ap="loadEditor"]': 'loadEditor',
+		},
+		renderItem: function(post){
+			var view = new AnsPress.views.Post({ model: post, el: '[apId="'+post.get('ID')+'"]' });
+			view.render();
+		},
+
+		render: function(){
+			var self = this;
+			this.model.each(function(post){
+				self.renderItem(post);
+			});
+
+			return self;
+		},
+
+		loadEditor: function(e){
+			var self = this;
+			AnsPress.showLoading(e.target);
+
+			AnsPress.ajax({
+				data: $(e.target).data('apquery'),
+				success: function(data){
+					AnsPress.hideLoading(e.target);
+					$('#ap-form-main').html(data);
+					$(e.target).closest('.ap-minimal-editor').removeClass('ap-minimal-editor');
+				}
+			});
+		},
+		/**
+		 * Handles answer form submission.
+		 */
+		formPosted: function(data){
+			if(data.success && data.form === 'answer'){
+				AnsPress.trigger('answerFormPosted', data);
+				$('apanswersw').show();
+				tinymce.remove();
+
+				// Clear editor contents
+				$('#ap-form-main').html('');
+				$('#answer-form-c').addClass('ap-minimal-editor');
+
+				// Append answer to the list.
+				$('apanswers').append($(data.html).hide());
+				$('apanswers .ap-feedback-answers').remove();
+				$(data.div_id).slideDown(300);
+				$(data.div_id).apScrollTo(null, true);
+				this.model.add({'ID': data.ID});
+				AnsPress.trigger('answerCountUpdated', data.answersCount);
+			}
+		},
+		answerToggle: function(args){
+			this.model.forEach(function(m, i) {
+				if(args[0] !== m)
+					m.set('hideSelect', args[1]);
+			});
+		},
+		deletePost: function(postID){
+			this.model.remove(postID);
+			$('#post-'+postID).slideUp(400, function(){
+				$(this).remove();
+			});
+		},
+		answerCountUpdated: function(counts){
+			$('[ap="answers_count_t"]').text(counts.text);
+		},
+		commentApproved: function(data, elm){
+			$('#comment-' + data.comment_ID ).removeClass('unapproved');
+			$(elm).remove();
+			if(data.commentsCount)
+				AnsPress.trigger('commentCount', {count: data.commentsCount, postID: data.post_ID });
+		},
+		commentDeleted: function(data, elm){
+			$(elm).closest('apcomment').css('background', 'red');
+			setTimeout(function(){
+				$(elm).closest('apcomment').remove();
+			}, 1000);
+			if(data.commentsCount)
+				AnsPress.trigger('commentCount', {count: data.commentsCount, postID: data.post_ID });
+		},
+		commentCount: function(args){
+			var find = $('[apid="'+args.postID+'"]');
+			find.find('[ap-commentscount-text]').text(args.count.text);
+			if(args.count.unapproved > 0 )
+				find.find('[ap-un-commentscount]').addClass('have');
+			else
+				find.find('[ap-un-commentscount]').removeClass('have');
+
+			find.find('[ap-un-commentscount]').text(args.count.unapproved);
+		},
+		submitComment: function(data){
+			if(!('new-comment' !== data.action || 'edit-comment' !== data.action))
+				return;
+
+			if(data.success){
+				AnsPress.hideModal('commentForm');
+				if(data.action === 'new-comment')
+					$('#comments-'+data.post_id).html(data.html);
+
+				if(data.action === 'edit-comment'){
+					$old = $('#comment-'+data.comment_id);
+					$(data.html).insertAfter($old);
+					$old.remove();
+
+					$('#comment-'+data.comment_id).css('backgroundColor', 'rgba(255, 235, 59, 1)');
+					setTimeout(function(){
+						$('#comment-'+data.comment_id).removeAttr('style');
+					}, 500)
+				}
+
+				if(data.commentsCount)
+					AnsPress.trigger('commentCount', {count: data.commentsCount, postID: data.post_id });
+			}
+		}
+	});
+
+  var AnsPressRouter = Backbone.Router.extend({
+		routes: {
+			'comment/:commentID': 'commentRoute',
+			//'comment/:commentID/edit': 'editCommentsRoute',
+			'comments/:postID/all': 'commentsRoute',
+			'comments/:postID': 'commentsRoute',
+		},
+		commentRoute: function (commentID) {
+			self = this;
+
+			AnsPress.hideModal('comment', false);
+			$modal = AnsPress.modal('comment', {
+				content: '',
+				size: 'medium',
+				hideCb: function(){
+					AnsPress.removeHash();
+				}
+			});
+			$modal.$el.addClass('single-comment');
+			AnsPress.showLoading($modal.$el.find('.ap-modal-content'));
+			AnsPress.ajax({
+				data: {comment_id: commentID, ap_ajax_action: 'load_comments'},
+				success: function(data){
+					if(data.success){
+						$modal.setTitle(data.modal_title);
+						$modal.setContent(data.html);
+						AnsPress.hideLoading($modal.$el.find('.ap-modal-content'));
+					}
+				}
+			});
+		},
+
+		commentsRoute: function(postId, paged){
+			self = this;
+			AnsPress.ajax({
+				data: {post_id: postId, ap_ajax_action: 'load_comments'},
+				success: function(data){
+					$('#comments-'+postId).html(data.html);
+				}
+			});
+		},
+		editCommentsRoute: function(commentID){
+			self = this;
+			AnsPress.hideModal('commentForm', false);
+			AnsPress.modal('commentForm', {
+				hideCb: function(){
+					AnsPress.removeHash();
+				}
+			});
+
+			AnsPress.showLoading(AnsPress.modal('commentForm').$el.find('.ap-modal-content'));
+			AnsPress.ajax({
+				data: {comment: commentID, ap_ajax_action: 'comment_form'},
+				success: function(data){
+					AnsPress.hideLoading(AnsPress.modal('commentForm').$el.find('.ap-modal-content'));
+					AnsPress.modal('commentForm').setTitle(data.modal_title);
+					AnsPress.modal('commentForm').setContent(data.html);
+				}
+			});
+		}
+  });
+
+	$('[ap="actiontoggle"]').click(function(){
+		if(!$(this).is('.loaded'))
+			AnsPress.showLoading(this);
+	});
+
+	$(document).ready(function(){
+		var apposts = new AnsPress.collections.Posts();
+		var singleQuestionView = new AnsPress.views.SingleQuestion({ model: apposts, el: '#anspress' });
+		singleQuestionView.render();
+
+		var anspressRouter = new AnsPressRouter();
+		if(!Backbone.History.started)
+			Backbone.history.start();
+	});
+
+
+})(jQuery);
+
+(function($){
+	'use strict';
+
+	function apSanitizeTitle(str) {
+	  str = str.replace(/^\s+|\s+$/g, ''); // trim
+	  str = str.toLowerCase();
+
+	  // remove accents, swap ñ for n, etc
+	  var from = "ãàáäâẽèéëêìíïîõòóöôùúüûñç·/_,:;";
+	  var to   = "aaaaaeeeeeiiiiooooouuuunc------";
+
+	  /*for (var i=0, l=from.length ; i<l ; i++) {
+	  	str = str.replace(new RegExp(from.charAt(i), 'g'), to.charAt(i));
+	  }*/
+
+	  str = str.replace(/\s+/g, '-') // collapse whitespace and replace by -
+	    .replace(/-+/g, '-'); // collapse dashes
+
+	    return str;
+	}
+
+	function apAddTag(str, container){
+		str = str.replace(/,/g, '');
+		str = str.trim();
+		str = apSanitizeTitle(str);
+
+		if( str.length > 0 ){
+
+			var htmlTag = {
+				element : 'li',
+				class : 'ap-tagssugg-item',
+				itemValueClass : 'ap-tag-item-value',
+				button : {
+					class : 'ap-tag-add',
+					icon : 'apicon-plus',
+				},
+				input : '',
+				accessibilityText : apTagsTranslation.addTag
+			}
+
+			// Add tag to the main container (holder list),
+			// Else add tag to a specific container (suggestion list)
+			if(!container){
+
+				var container = '#ap-tags-holder';
+				htmlTag.button.class = 'ap-tag-remove';
+				htmlTag.button.icon = 'apicon-x';
+				htmlTag.input = '<input type="hidden" name="tags[]" value="'+str+'" />';
+				htmlTag.accessibilityText = apTagsTranslation.deleteTag;
+
+				var exist_el = false;
+				$(container).find('.'+htmlTag.class).find('.'+htmlTag.itemValueClass).each(function(index, el) {
+					if(apSanitizeTitle($(this).text()) == str)
+						exist_el = $(this);
+				});
+				if (exist_el !== false) { // If the element already exist, stop and dont add tag
+					exist_el.animate({opacity: 0}, 100, function(){
+						exist_el.animate({opacity: 1}, 400);
+					});
+					return;
+				}
+
+				if (!$('#tags').is(':focus'))
+					$('#tags').val('').focus();
+
+				$('#ap-tags-suggestion').hide();
+
+				// Message for screen reader
+				// Timeout used to resolve a bug with JAWS and IE...
+				setTimeout(function() {
+					$('#ap-tags-aria-message').text(str + " " + apTagsTranslation.tagAdded);
+				}, 250);
+			}
+
+			var html = $('<'+htmlTag.element+' class="'+htmlTag.class+'" title="'+htmlTag.accessibilityText+'"><button role="button" class="'+htmlTag.button.class+'"><span class="'+htmlTag.itemValueClass+'">'+str+'</span><i class="'+htmlTag.button.icon+'"></i></button>'+htmlTag.input+'</'+htmlTag.element+'>');
+			html.appendTo(container).fadeIn(300);
+
+		}
+	}
+
+	function apTagsSuggestion(value){
+		if(typeof window.tagsquery !== 'undefined'){
+			window.tagsquery.abort();
+		}
+		window.tagsquery = jQuery.ajax({
+			type: 'POST',
+			url: ajaxurl,
+			data: {
+				action:'ap_tags_suggestion',
+				q: value
+			},
+			context:this,
+			dataType:'json',
+			success: function(data){
+				AnsPress.hideLoading(this);
+
+				console.log(data);
+
+				$('#ap-tags-suggestion').html('');
+
+				if(!data.status)
+					return;
+
+				if (!$('#ap-tags-suggestion').is(':visible')) {
+					$('#ap-tags-suggestion').show();
+				}
+
+				if(data['items']){
+					$.each(data['items'], function(index, val) {
+						val = decodeURIComponent(val);
+						var holderItems = [];
+						$("#ap-tags-holder .ap-tag-item-value").each(function() {
+							holderItems.push($(this).text())
+						});
+						if ($.inArray(val, holderItems)<0) // Show items that was not already inside the holder list
+							apAddTag(val, '#ap-tags-suggestion');
+					});
+				}
+
+				// Message for screen reader
+				// Timeout used to resolve a bug with JAWS and IE...
+				setTimeout(function() {
+					$('#ap-tags-aria-message').text(apTagsTranslation.suggestionsAvailable);
+				}, 250);
+			}
+		});
+	}
+
+	$(document).ready(function(){
+
+		$('#tags').on('apAddNewTag',function(e){
+			e.preventDefault();
+			apAddTag($(this).val().trim(','));
+			$(this).val('');
+		});
+
+		$('#tags').on('keydown', function(e) {
+			if(e.keyCode == 13) { // Prevent submit form on Enter
+			  	e.preventDefault();
+			  	return false;
+			}
+			if(e.keyCode == 38 || e.keyCode == 40) {
+				var inputs = $('#ap-tags-suggestion').find('.ap-tag-add');
+				var focused = $('#ap-tags-suggestion').find('.focus');
+				var index = inputs.index(focused);
+
+				if(index != -1) {
+					if(e.keyCode == 38) // up arrow
+						index--;
+					if(e.keyCode == 40) // down arrow
+						index++;
+				}
+				else {
+					if(e.keyCode == 38) // up arrow
+						index = inputs.length-1;
+					if(e.keyCode == 40) // down arrow
+						index = 0;
+				}
+
+				if (index >= inputs.length)
+					index = -1;
+
+				inputs.removeClass('focus');
+
+				if(index != -1) {
+					inputs.eq(index).addClass('focus');
+					$(this).val(inputs.eq(index).find('.ap-tag-item-value').text());
+				}
+				else {
+					$(this).val($(this).attr('data-original-value'));
+				}
+			}
+		});
+
+		$('#tags').on('keyup focus', function(e) {
+			e.preventDefault();
+			var val = $(this).val().trim();
+			clearTimeout(window.tagtime);
+			if(e.keyCode != 9 && e.keyCode != 37 && e.keyCode != 38 && e.keyCode != 39 && e.keyCode != 40) { // Do nothing on Tab and arrows keys
+				if(e.keyCode == 13 || e.keyCode == 188 ) { // "Enter" or ","
+					clearTimeout(window.tagtime);
+					$(this).trigger('apAddNewTag');
+				} else {
+					$(this).attr('data-original-value', $(this).val());
+					window.tagtime = setTimeout(function() {
+						apTagsSuggestion(val);
+					}, 200);
+				}
+			}
+		});
+
+		$('#ap-tags-suggestion').on('click', '.ap-tagssugg-item', function(e) {
+			apAddTag($(this).find('.ap-tag-item-value').text());
+			$(this).remove();
+		});
+
+		$('body').on('click focusin', function(e) {
+			if ($('#ap-tags-suggestion').is(':visible') && $(e.target).parents('#ap-tags-add').length <= 0)
+			  	$('#ap-tags-suggestion').hide();
+		});
+
+		$('body').on('click', '.ap-tagssugg-item', function(event) {
+			var itemValue = $(this).find('.ap-tag-item-value').text();
+
+			// Message for screen reader
+			// Timeout used to resolve a bug with JAWS and IE...
+			setTimeout(function() {
+				$('#ap-tags-aria-message').text(itemValue + " " + apTagsTranslation.tagRemoved);
+			}, 250);
+
+			$(this).remove();
+			$('#ap-tags-list-title').focus();
+		});
+
+		// Message used by screen reader to get suggestions list or a confirmation when a tag is added
+		$('body').append('<div role="status" id="ap-tags-aria-message" aria-live="polite" aria-atomic="true" class="sr-only"></div>');
+	})
+
+})(jQuery);

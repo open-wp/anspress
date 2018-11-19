@@ -71,6 +71,12 @@
                     $('.ap-overview-activities').append(data.html);
                 }
             })
+        },
+        /**
+         * Reload the page.
+         */
+        reloadPage: function() {
+            location.reload();
         }
     }
 

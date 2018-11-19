@@ -6,7 +6,6 @@
 		width: 100%;
 	}
 	&-info{
-		background: #f9f9f9;
 		padding: 25px 25px 0;
 	}
 	&-avatar{
@@ -40,7 +39,9 @@
 		}
 	}
 	&-counts{
-		margin-top: 20px;
+		margin-top: 15px;
+		border-top: solid 1px #eee;
+		padding-top: 15px;
 		> div{
 			margin-right: 40px;
 			&:last-child{
@@ -50,19 +51,22 @@
 		.ap__{
 			&dt{
 				font-size: 10px;
-				color: #888;
+				color: var(--ap_color1);
 				text-transform: uppercase;
 				display: block;
 			}
 			&dd{
 				font-size: 13px;
 			}
-			&ask-btn{
-				margin-left: auto;
-				align-self: center;
-			}
 		}
 	}
+	.ap__ask-btn{
+		align-self: center;
+	}
+}
+
+#ap-nav-item-settings {
+    margin-left: auto;
 }
 
 .ap-user-reputation {

@@ -25,13 +25,13 @@ $current_tab = ap_sanitize_unslash( 'tab', 'r', 'questions' );
 <div id="ap-profile" class="ap-profile">
 
 	<div class="ap-profile-info">
-		<div class="ap-display-flex">
+		<div class="ap-display-flex ">
 			<div class="ap-profile-avatar">
 				<?php echo get_avatar( $user_id, 120 ); ?>
 			</div>
 			<div class="ap-profile-vcard">
 
-				<div class="ap-display-flex">
+				<div class="ap-display-flex justify-space-betw">
 					<div>
 						<div class="ap-profile-vcard-name">
 							<?php echo ap_user_display_name( $user_id ); ?>
@@ -68,9 +68,8 @@ $current_tab = ap_sanitize_unslash( 'tab', 'r', 'questions' );
 						?>
 
 					</div>
-					<div class="ap__ask-btn">
-						<a href="#" class="ap-btn"><?php esc_attr_e( 'Ask a question', 'anspress-question-answer' ); ?></a>
-					</div>
+
+					<a href="#" class="ap-btn ap__ask-btn"><?php esc_attr_e( 'Ask a question', 'anspress-question-answer' ); ?></a>
 				</div>
 
 				<div class="ap-profile-counts ap-display-flex justify-space-betw">
@@ -87,7 +86,7 @@ $current_tab = ap_sanitize_unslash( 'tab', 'r', 'questions' );
 
 					<div class="ap__comments">
 						<span class="ap__dt">Comments</span>
-						<span class="ap__dd">Posted 22, 5 best</span>
+						<span class="ap__dd">55 Comments</span>
 					</div>
 
 					<div class="ap__comments">
