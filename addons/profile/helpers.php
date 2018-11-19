@@ -118,9 +118,9 @@ function nav_links( $user_id = false ) {
 			'slug'  => $slug,
 		);
 
-		// if ( 'questions' === $slug ) {
-		// 	$nav[ $slug ]['count'] = '1.4k';
-		// }
+		if ( ! empty( $args['count'] ) ) {
+			$nav[ $slug ]['count'] = (int) $args['count'];
+		}
 
 		$page_slug = $slug;
 		if ( 'overview' === $slug ) {
@@ -188,4 +188,14 @@ function profile_page_content() {
 	}
 
 	echo '</div>';
+}
+
+/**
+ * Is displayed profile is logged-in user's profile.
+ *
+ * @return boolean
+ * @since 4.2.0
+ */
+function is_my_profile() {
+	return is_user_logged_in() && ap_get_displayed_user_id() == get_current_user_id();
 }

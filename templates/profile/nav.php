@@ -36,7 +36,7 @@ $user_id = ap_get_displayed_user_id();
 
 				// Show count.
 				if ( ! empty( $nav['count'] ) ) {
-					echo '<span class="ap-profile-nav-count">' . esc_html( $nav['count'] ) . '</span>';
+					echo '<span class="ap-profile-nav-count ap-tab-count">' . esc_html( $nav['count'] ) . '</span>';
 				}
 				?>
 

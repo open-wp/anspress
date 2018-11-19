@@ -56,10 +56,10 @@ class Notifications extends \AnsPress\Singleton {
 
 		// Activate AnsPress notifications only if buddypress not active.
 		if ( ! ap_is_addon_active( 'buddypress.php' ) ) {
-			ap_register_page( 'notifications', __( 'Notifications', 'anspress-question-answer' ), '', true, true );
+
 			anspress()->add_filter( 'ap_menu_object', $this, 'ap_menu_object' );
 			anspress()->add_action( 'ap_notification_verbs', $this, 'register_verbs' );
-			anspress()->add_action( 'ap_user_pages', $this, 'ap_user_pages' );
+
 			anspress()->add_action( 'ap_after_new_answer', $this, 'new_answer', 10, 2 );
 			anspress()->add_action( 'ap_trash_question', $this, 'trash_question', 10, 2 );
 			anspress()->add_action( 'ap_before_delete_question', $this, 'trash_question', 10, 2 );
@@ -79,6 +79,8 @@ class Notifications extends \AnsPress\Singleton {
 			anspress()->add_action( 'ap_ajax_mark_notifications_seen', $this, 'mark_notifications_seen' );
 			anspress()->add_action( 'ap_ajax_load_more_notifications', $this, 'load_more_notifications' );
 			anspress()->add_action( 'ap_ajax_get_notifications', $this, 'get_notifications' );
+
+			anspress()->add_action( 'ap_profile_pages', $this, 'ap_profile_pages' );
 		}
 	}
 
@@ -175,20 +177,6 @@ class Notifications extends \AnsPress\Singleton {
 				'ref_type' => 'reputation',
 				'label'    => __( 'You lose %points% points', 'anspress-question-answer' ),
 			)
-		);
-	}
-
-	/**
-	 * Adds reputations tab in AnsPress authors page.
-	 */
-	public function ap_user_pages() {
-		anspress()->user_pages[] = array(
-			'slug'    => 'notifications',
-			'label'   => __( 'Notifications', 'anspress-question-answer' ),
-			'count'   => ap_count_unseen_notifications(),
-			'icon'    => 'apicon-globe',
-			'cb'      => [ $this, 'notification_page' ],
-			'private' => true,
 		);
 	}
 
@@ -559,6 +547,17 @@ class Notifications extends \AnsPress\Singleton {
 				),
 			)
 		);
+	}
+
+	public function ap_profile_pages( $pages ) {
+		$pages['notifications'] = array(
+			'title'   => __( 'Notifications', 'anspress-question-answer' ),
+			'private' => true,
+			'order'   => 80,
+			'count'   => ap_count_unseen_notifications(),
+		);
+
+		return $pages;
 	}
 
 }

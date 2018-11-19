@@ -219,28 +219,6 @@ function ap_get_best_answer( $question_id = false ) {
 }
 
 /**
- * Count all answers excluding best answer.
- *
- * @return int
- * @deprecated 4.2.0
- */
-function ap_count_other_answer( $question_id = false ) {
-	_deprecated_function( __FUNCTION__, '4.2.0' );
-
-	if ( ! $question_id ) {
-		$question_id = get_question_id();
-	}
-
-	$count = ap_get_answers_count( $question_id );
-
-	if ( ap_have_answer_selected( $question_id ) ) {
-		return (int) ( $count - 1 );
-	}
-
-	return (int) $count;
-}
-
-/**
  * Return paged position of answer.
  *
  * @param boolean|integer $question_id Question ID.
@@ -607,4 +585,26 @@ function ap_current_user_id() {
 	}
 
 	return get_current_user_id();
+}
+
+/**
+ * Count all answers excluding best answer.
+ *
+ * @return int
+ * @deprecated 4.2.0
+ */
+function ap_count_other_answer( $question_id = false ) {
+	_deprecated_function( __FUNCTION__, '4.2.0' );
+
+	if ( ! $question_id ) {
+		$question_id = get_question_id();
+	}
+
+	$count = ap_get_answers_count( $question_id );
+
+	if ( ap_have_answer_selected( $question_id ) ) {
+		return (int) ( $count - 1 );
+	}
+
+	return (int) $count;
 }

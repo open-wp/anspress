@@ -11,10 +11,12 @@
  */
 
 ?>
-<div class="ap-noti-item clearfix">
-	<div class="ap-noti-rep"><?php $this->the_reputation_points(); ?></div>
-	<a class="ap-noti-inner" href="<?php $this->the_permalink(); ?>">
+<div class="ap__item">
+
+	<a class="ap__right" href="<?php $this->the_permalink(); ?>">
 		<?php $this->the_verb(); ?>
-		<time class="ap-noti-date"><?php $this->the_date(); ?></time>
+		<time class="ap__date"><?php $this->the_date(); ?></time>
 	</a>
+
+	<div class="ap__rep"><?php $this->the_reputation_points(); ?></div>
 </div>

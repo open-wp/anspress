@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'anspress';
-  src:  url('fonts/anspress.eot?4nsf6c');
-  src:  url('fonts/anspress.eot?4nsf6c#iefix') format('embedded-opentype'),
-    url('fonts/anspress.ttf?4nsf6c') format('truetype'),
-    url('fonts/anspress.woff?4nsf6c') format('woff'),
-    url('fonts/anspress.svg?4nsf6c#anspress') format('svg');
+  src:  url('fonts/anspress.eot?oawe8w');
+  src:  url('fonts/anspress.eot?oawe8w#iefix') format('embedded-opentype'),
+    url('fonts/anspress.ttf?oawe8w') format('truetype'),
+    url('fonts/anspress.woff?oawe8w') format('woff'),
+    url('fonts/anspress.svg?oawe8w#anspress') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -24,6 +24,27 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.apicon-question:before {
+  content: "\e901";
+}
+.apicon-bell:before {
+  content: "\e90d";
+}
+.apicon-cloud-upload:before {
+  content: "\e90e";
+}
+.apicon-trashcan:before {
+  content: "\e914";
+}
+.apicon-comments:before {
+  content: "\e92c";
+}
+.apicon-clock:before {
+  content: "\e913";
+}
+.apicon-x:before {
+  content: "\e92e";
+}
 .apicon-comment:before {
   content: "\e94b";
 }
@@ -81,9 +102,6 @@
 .apicon-tag:before {
   content: "\e936";
 }
-.apicon-comments:before {
-  content: "\e937";
-}
 .apicon-check:before {
   content: "\e903";
 }
@@ -111,12 +129,6 @@
 .apicon-reputation:before {
   content: "\e90c";
 }
-.apicon-screen-normal:before {
-  content: "\e90d";
-}
-.apicon-screen-full:before {
-  content: "\e90e";
-}
 .apicon-alert:before {
   content: "\e90f";
 }
@@ -125,12 +137,6 @@
 }
 .apicon-calendar:before {
   content: "\e911";
-}
-.apicon-clock:before {
-  content: "\e913";
-}
-.apicon-cloud-upload:before {
-  content: "\e914";
 }
 .apicon-ellipsis:before {
   content: "\e915";
@@ -201,9 +207,6 @@
 .apicon-sync:before {
   content: "\e92b";
 }
-.apicon-trashcan:before {
-  content: "\e92c";
-}
 .apicon-dots:before {
   content: "\e94a";
 }
@@ -231,9 +234,6 @@
 .apicon-answer:before {
   content: "\e900";
 }
-.apicon-question:before {
-  content: "\e901";
-}
 .apicon-home:before {
   content: "\e939";
 }
@@ -245,9 +245,6 @@
 }
 .apicon-thumb-down:before {
   content: "\e93c";
-}
-.apicon-x:before {
-  content: "\e92e";
 }
 .apicon-board:before {
   content: "\e938";

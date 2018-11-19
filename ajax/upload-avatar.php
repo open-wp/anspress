@@ -77,7 +77,7 @@ class Upload_Avatar extends \AnsPress\Classes\Ajax {
 		// Add filter to resize avatar size.
 		add_filter( 'wp_handle_upload', [ $this, 'wp_handle_upload' ] );
 
-		$attach_id = ap_upload_user_file( $_FILES['avatar'], true, array(
+		$attach_id = ap_upload_user_file( $_FILES['avatar'], false, array(
 			'jpg|jpeg' => 'image/jpeg',
 			'gif'      => 'image/gif',
 			'png'      => 'image/png',

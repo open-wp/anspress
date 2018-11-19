@@ -18,7 +18,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use AnsPress\Addons\Profile;
 
-$bio = get_the_author_meta( 'description', ap_get_displayed_user_id() );
+$user_id = ap_get_displayed_user_id();
+$bio     = get_the_author_meta( 'description', ap_get_displayed_user_id() );
 ?>
 
 <div class="ap-profile-overview ap-display-flex">
@@ -32,6 +33,12 @@ $bio = get_the_author_meta( 'description', ap_get_displayed_user_id() );
 					<div class="ap__bio">
 						<?php echo wp_kses_post( $bio ); ?>
 					</div>
+
+					<?php if ( Profile\is_my_profile() ) : ?>
+						<div class="mt-5">
+							<a class="ap-btn ap-btn-small" href="<?php echo esc_url( ap_user_link( $user_id, 'settings' ) ); ?>"><i class="apicon-pencil"></i> <?php esc_attr_e( 'Edit', 'anspress-question-answer' ); ?></a>
+						</div>
+					<?php endif; ?>
 				</div>
 			</div>
 		<?php endif; ?>

@@ -803,18 +803,6 @@ div.mce-toolbar-grp{border-bottom:2px solid #eee}
 .ap-reps-item-date{font-size:var(--ap_fs-md)}
 .ap-reps a.ap-reputation-ref{border:solid 1px #eee;padding:10px;border-radius:4px}
 .ap-reps a.ap-reputation-ref p{margin-bottom:0}
-#anspress .ap-noti{border:solid 1px #eee;border-radius:2px}
-#anspress .ap-noti-item{border-bottom:solid 1px #eee;padding:10px 15px}
-#anspress .ap-noti-icon{float:left;width:40px;height:40px;background:#eee;padding:8px;text-align:center;font-size:18px;border-radius:2px}
-#anspress .ap-noti-avatar{float:left}
-#anspress .ap-noti-avatar .avatar{border-radius:2px}
-#anspress .ap-noti-rep{background:#f4ac20;float:left;width:40px;height:40px;text-align:center;padding:9px 0;font-weight:bold;color:#fff;border-radius:50%}
-#anspress .ap-noti-inner{color:#333;display:block;margin-left:60px}
-#anspress .ap-noti-date{display:block;font-size:12px;color:#777}
-#anspress .ap-noti-sub{margin-bottom:15px}
-#anspress .ap-noti-sub a{margin-right:10px;border-right:solid 1px #ccc;padding-right:10px}
-#anspress .ap-noti-sub a:last-child{border-right:0;margin-right:0}
-#anspress .ap-btn-markall-read{float:right;margin-right:0}
 #noti-dp{position:absolute;top:0;right:0;width:300px;min-height:50px;background:#fff;border:solid 2px #d2d1d1;font-size:13px;font-family:Arial,Helvetica,sans-serif;overflow:hidden;box-shadow:0 1px 14px rgba(0,0,0,0.2);z-index:9999}
 #noti-dp .ap-btn-markall-read{float:right;background:0;border:0;font-weight:normal;padding:0}
 #noti-dp .noti-item{padding:8px 10px;border-bottom:solid 1px #e8e8e8;text-align:left}
@@ -889,15 +877,17 @@ i.noti-count{font-style:normal;background:#f44336;color:#fff;width:10px;display:
 .ap-profile-vcard-metas>span:first-child b{display:none}
 .ap-profile-vcard-metas b{color:#aaa;margin-right:5px}
 .ap-profile-counts{margin-top:15px;border-top:solid 1px #eee;padding-top:15px}
-.ap-profile-counts>div{margin-right:40px}
+.ap-profile-counts>div{margin-right:40px;display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex}
+.ap-profile-counts>div>i{margin-right:20px;color:#aaa;font-size:24px;-webkit-align-self:self-start;-ms-flex-item-align:self-start;-ms-grid-row-align:self-start;align-self:self-start;line-height:140%}
 .ap-profile-counts>div:last-child{margin-right:0}
-.ap-profile-counts .ap__dt{font-size:10px;color:var(--ap_color1);text-transform:uppercase;display:block}
+.ap-profile-counts .ap__dt{font-size:10px;color:var(--ap_color1);text-transform:uppercase;display:block;font-weight:bold}
 .ap-profile-counts .ap__dd{font-size:13px}
 .ap-profile .ap__ask-btn{-webkit-align-self:center;-ms-flex-item-align:center;-ms-grid-row-align:center;align-self:center}
 #ap-nav-item-settings{margin-left:auto}
 .ap-user-reputation{margin-left:5px;background:#ffc107;padding:1px 4px;font-size:11px;border-radius:2px;font-weight:bold;margin-right:5px;vertical-align:text-bottom}
 .ap-profile-nav{margin-top:50px;margin-bottom:30px;margin-left:-25px;margin-right:-25px}
 .ap-profile-nav .ap-tab{width:100%;padding:0 20px;font-weight:bold}
+.ap-profile-nav .ap-tab .ap-tab-count{margin-left:5px;font-size:10px;padding:2px 5px;line-height:1.2}
 .ap-profile-question{padding:10px 15px;border-bottom:solid 1px #eee;display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex}
 .ap-profile-question:last-child{border-bottom:0}
 .ap-profile-question .ap-question-title{font-weight:bold;display:block}
@@ -944,10 +934,11 @@ i.noti-count{font-style:normal;background:#f44336;color:#fff;width:10px;display:
 .ap-overview-activities .ap__item .apicon-comments{color:#29b6f6}
 .ap-overview-activities .ap__item .apicon-check{color:#ffaeae}
 .ap-overview-activities .ap__item .apicon-flag{color:#3aa8b6}
+.ap-overview-activities .ap__item:hover .ap__icon i{box-shadow:0 0 4px currentColor}
 .ap-overview-activities .ap__when{text-transform:uppercase;font-size:12px;color:var(--ap_color4);margin-top:15px;margin-bottom:15px}
 .ap-overview-activities .ap__when:first-of-type{margin-top:0}
 .ap-overview-activities .ap__icon{-webkit-align-self:baseline;-ms-flex-item-align:baseline;align-self:baseline;margin-right:15px}
-.ap-overview-activities .ap__icon i{color:#f44336;padding:6px;display:block;height:35px;width:35px;text-align:center;font-size:18px;border-radius:var(--ap_border-radius);line-height:25px;border:solid 1px #ddd}
+.ap-overview-activities .ap__icon i{color:#f44336;padding:6px;display:block;height:35px;width:35px;text-align:center;font-size:18px;border-radius:var(--ap_border-radius);line-height:25px;border:solid 1px currentColor;-webkit-transition:all .2s;transition:all .2s}
 .ap-overview-activities .ap__verb{font-size:13px}
 .ap-overview-activities .ap__date{font-size:var(--ap_fs-md);color:#888}
 .ap-overview-activities .ap__head{margin-bottom:3px}
@@ -959,6 +950,14 @@ i.noti-count{font-style:normal;background:#f44336;color:#fff;width:10px;display:
 .ap-overview-activities .ap__subactivity-date{float:right;color:#888}
 .ap-overview-activities .ap__subactivity-right{width:100%}
 .ap-overview-activities .ap__subactivity-date{font-size:var(--ap_fs-md)}
+.ap-profile-notis{max-width:600px;margin:0 auto}
+.ap-profile-notis .ap-btn-markall-read{-webkit-align-self:center;-ms-flex-item-align:center;-ms-grid-row-align:center;align-self:center}
+.ap-notis{margin-top:20px;border:solid 1px #ddd;border-radius:var(--ap_border-radius)}
+.ap-notis .ap__item{border-bottom:solid 1px #eee;display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;padding:15px 20px;font-size:13px}
+.ap-notis .ap__item a{color:initial;width:100%}
+.ap-notis .ap__avatar{margin-left:20px;-webkit-box-flex:0;-webkit-flex:0 0 35px;-ms-flex:0 0 35px;flex:0 0 35px}
+.ap-notis .ap__date{display:block;font-size:12px;color:#888}
+.ap-notis .ap__rep{height:35px;-webkit-box-flex:0;-webkit-flex:0 0 35px;-ms-flex:0 0 35px;flex:0 0 35px;margin-left:20px;background:var(--ap_color9);border-radius:var(--ap_border-radius);font-size:18px;text-align:center;color:#fff;font-weight:bold;line-height:35px}
 @media(min-width:640px){.ap-snackbar{min-width:288px;max-width:568px;display:-webkit-inline-box;display:-webkit-inline-flex;display:-ms-inline-flexbox;display:inline-flex;border-radius:2px;margin:24px;bottom:-100px}
 }@media only screen and (min-width:768px){.ap-col-12{width:100%;vertical-align:top}
 .ap-col-11{width:91.6666666667%;vertical-align:top}

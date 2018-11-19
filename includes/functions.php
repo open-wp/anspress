@@ -704,7 +704,6 @@ function ap_get_link_to( $sub ) {
  * @param boolean|string $ap_type ap_meta type.
  * @return array
  * @since  2.0.0
- * @TODO use new qameta table.
  */
 function ap_total_posts_count( $post_type = 'question', $ap_type = false, $user_id = false ) {
 	global $wpdb;
@@ -726,8 +725,11 @@ function ap_total_posts_count( $post_type = 'question', $ap_type = false, $user_
 	} elseif ( 'unanswered' === $ap_type ) {
 		$meta = 'AND qameta.answers = 0';
 		$join = "INNER JOIN {$wpdb->ap_qameta} qameta ON p.ID = qameta.post_id";
-	} elseif ( 'best_answer' === $ap_type ) {
+	} elseif ( 'best_answer' === $ap_type && 'answer' === $post_type) {
 		$meta = 'AND qameta.selected > 0';
+		$join = "INNER JOIN {$wpdb->ap_qameta} qameta ON p.ID = qameta.post_id";
+	} elseif ( 'solved' === $ap_type && 'question' === $post_type ) {
+		$meta = 'AND qameta.selected_id > 0';
 		$join = "INNER JOIN {$wpdb->ap_qameta} qameta ON p.ID = qameta.post_id";
 	}
 
@@ -754,7 +756,6 @@ function ap_total_posts_count( $post_type = 'question', $ap_type = false, $user_
 	}
 
 	$counts['total'] = 0;
-
 
 	if ( ! empty( $count ) ) {
 		foreach ( $count as $row ) {

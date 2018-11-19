@@ -461,3 +461,37 @@ function ap_new_comment_btn( $post_id, $echo = true ) {
 		echo $output;
 	}
 }
+
+/**
+ * Get comments count for a user.
+ *
+ * @param integer $user_id  User id.
+ * @param boolean $approved Approved comment or unapproved.
+ * @return integer
+ * @since 4.2.0
+ */
+function ap_get_user_comments_count( $user_id, $approved = true ) {
+	global $wpdb;
+
+	$where = '';
+
+	if ( true === $approved ) {
+		$where = 'AND comment_approved = 1';
+	} else {
+		$where = 'AND comment_approved = 0';
+	}
+
+	$query = $wpdb->prepare( "SELECT COUNT(*) AS total FROM $wpdb->comments WHERE user_id = %d AND comment_type = 'anspress' $where", $user_id );
+
+	$key   = md5( $query );
+	$cache = wp_cache_get( 'ap_user_comments_count_' . $key, 'counts' );
+
+	if ( false !== $cache ) {
+		return $cache;
+	}
+
+	$comments_count = (int) $wpdb->get_var( $query );
+	wp_cache_set( 'ap_user_comments_count_' . $key, $comments_count, 'counts' );
+
+	return $comments_count;
+}

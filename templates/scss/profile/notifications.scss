@@ -1,0 +1,48 @@
+.ap-profile-notis{
+    max-width: 600px;
+    margin: 0 auto;
+
+    .ap-btn-markall-read{
+        align-self: center;
+    }
+}
+.ap-notis{
+    margin-top: 20px;
+    border: solid 1px #ddd;
+    border-radius: var(--ap_border-radius);
+
+    .ap__{
+        &item{
+            border-bottom: solid 1px #eee;
+            display: flex;
+            padding: 15px 20px;
+            font-size: 13px;
+
+            a{
+                color: initial;
+                width: 100%;
+            }
+        }
+        &avatar{
+            margin-left: 20px;
+            flex: 0 0 35px;
+        }
+        &date{
+            display: block;
+            font-size: 12px;
+            color: #888;
+        }
+        &rep{
+            height: 35px;
+            flex: 0 0 35px;
+            margin-left: 20px;
+            background: var(--ap_color9);
+            border-radius: var(--ap_border-radius);
+            font-size: 18px;
+            text-align: center;
+            color: #fff;
+            font-weight: bold;
+            line-height: 35px;
+        }
+    }
+}
