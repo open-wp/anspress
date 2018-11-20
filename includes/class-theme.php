@@ -73,14 +73,14 @@ class AnsPress_Theme {
 	}
 
 	/**
-	* Reset main query vars and filter 'the_content' to output a AnsPress
-	* template part as needed.
-	*
-	* @param string $template
-	* @return string
-	*
-	* @since 4.2.0
-	*/
+	 * Reset main query vars and filter 'the_content' to output a AnsPress
+	 * template part as needed.
+	 *
+	 * @param string $template
+	 * @return string
+	 *
+	 * @since 4.2.0
+	 */
 	public static function template_include_theme_compat( $template = '' ) {
 
 		if ( ap_current_page( 'archive' ) ) {
@@ -103,7 +103,7 @@ class AnsPress_Theme {
 				$new_title = apply_filters( 'the_title', $page->post_title );
 			}
 
-			// Reset post
+			// Reset post.
 			ap_theme_compat_reset_post( array(
 				'ID'             => ! empty( $page->ID ) ? $page->ID : 0,
 				'post_title'     => $new_title,
@@ -237,7 +237,7 @@ class AnsPress_Theme {
 		}
 
 		return $template;
-   	}
+	}
 
 	/**
 	 * AnsPress theme function as like WordPress theme function.
@@ -385,54 +385,6 @@ class AnsPress_Theme {
 		if ( ap_have_attach() ) {
 			include ap_get_theme_location( 'attachments.php' );
 		}
-	}
-
-	/**
-	 * Check if anspress.php file exists in theme. If exists
-	 * then load this template for AnsPress.
-	 *
-	 * @param  string $template Template.
-	 * @return string
-	 * @since  3.0.0
-	 * @since  4.1.0 Give priority to page templates and then anspress.php and lastly fallback to page.php.
-	 * @since  4.1.1 Load single question template if exists.
-	 * @todo Check if this works with new template compatibility @critical.
-	 */
-	public static function anspress_basepage_template( $template ) {
-		if ( is_anspress() ) {
-			$templates = [ 'anspress.php', 'page.php', 'singular.php', 'index.php' ];
-
-			if ( is_page() ) {
-				$_post = get_queried_object();
-
-				array_unshift( $templates, 'page-' . $_post->ID . '.php' );
-				array_unshift( $templates, 'page-' . $_post->post_name . '.php' );
-
-				$page_template = get_post_meta( $_post->ID, '_wp_page_template', true );
-
-				if ( ! empty( $page_template ) && 'default' !== $page_template ) {
-					array_unshift( $templates, $page_template );
-				}
-			} elseif ( is_single() ) {
-				$_post = get_queried_object();
-
-				array_unshift( $templates, 'single-' . $_post->ID . '.php' );
-				array_unshift( $templates, 'single-' . $_post->post_name . '.php' );
-				array_unshift( $templates, 'single-' . $_post->post_type . '.php' );
-			} elseif ( is_tax() ) {
-				$_term     = get_queried_object();
-				$term_type = str_replace( 'question_', '', $_term->taxonomy );
-				array_unshift( $templates, 'anspress-' . $term_type . '.php' );
-			}
-
-			$new_template = locate_template( $templates );
-
-			if ( '' !== $new_template ) {
-				return $new_template;
-			}
-		}
-
-		return $template;
 	}
 
 	/**
