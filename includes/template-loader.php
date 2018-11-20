@@ -530,3 +530,4 @@ function template_include_theme_supports( $template = '' ) {
 
 	return $template;
 }
+

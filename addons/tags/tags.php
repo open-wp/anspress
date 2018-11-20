@@ -55,12 +55,12 @@ class Tags extends \AnsPress\Singleton {
 		anspress()->add_action( 'ap_rewrites', $this, 'rewrite_rules', 10, 3 );
 		anspress()->add_filter( 'ap_get_questions_default_args', $this, 'questions_args' );
 		anspress()->add_filter( 'ap_current_page', $this, 'ap_current_page' );
-		anspress()->add_action( 'posts_pre_query', $this, 'modify_query_archive', 9999, 2 );
 
 		anspress()->add_filter( 'get_current_questions_filters', $this, 'sorting_filters' );
 		anspress()->add_action( 'ap_questions_sort_filters_col3', $this, 'sort_filters_col3' );
 
-		anspress()->add_filter( 'ap_shortcode_display_current_page', $this, 'shortcode_fallback' );
+		anspress()->add_filter( 'ap_shortcode_fallback_tags', $this, 'shortcode_tags' );
+		anspress()->add_filter( 'ap_shortcode_fallback_tag', $this, 'shortcode_tag' );
 		anspress()->add_filter( 'ap_template_include_theme_compat', $this, 'template_include_theme_compat' );
 	}
 
@@ -474,30 +474,6 @@ class Tags extends \AnsPress\Singleton {
 	}
 
 	/**
-	 * Modify main query to show tag archive.
-	 *
-	 * @param array|null $posts Array of objects.
-	 * @param object     $query Wp_Query object.
-	 *
-	 * @return array|null
-	 * @since 4.1.0
-	 */
-	public function modify_query_archive( $posts, $query ) {
-		if ( $query->is_main_query() &&
-			$query->is_tax( 'question_tag' ) &&
-			'tag' === get_query_var( 'ap_page' ) ) {
-
-			$query->found_posts   = 1;
-			$query->max_num_pages = 1;
-			$page                 = get_page( ap_opt( 'tags_page' ) );
-			$page->post_title     = get_queried_object()->name;
-			$posts                = [ $page ];
-		}
-
-		return $posts;
-	}
-
-	/**
 	 * Add tag sorting in list filters.
 	 *
 	 * @return array
@@ -541,21 +517,6 @@ class Tags extends \AnsPress\Singleton {
 		);
 
 		wp_dropdown_categories( $args );
-	}
-
-	/**
-	 * Fallback for old tags/tag shortcode `[anspress page="tags"]`.
-	 *
-	 * @since 4.2.0
-	 */
-	public function shortcode_fallback() {
-		if ( ap_current_page( 'tags' ) ) {
-			return $this->shortcode_tags();
-		} elseif ( ap_current_page( 'tag' ) ) {
-			return $this->shortcode_tag();
-		}
-
-		return false;
 	}
 
 	/**
@@ -627,25 +588,16 @@ class Tags extends \AnsPress\Singleton {
 	}
 
 	/**
-	 * Register tags shortcode.
-	 *
-	 * @since 4.2.0
-	 */
-	public function shortcode_tags() {
-		$shortcode = Shortcodes::get_instance();
-		return $shortcode->display_custom_shortcode(
-			'tags',
-			self::$instance,
-			'display_shortcode_tags'
-		);
-	}
-
-	/**
 	 * Display tags shortcode.
 	 *
 	 * @since 4.2.0
 	 */
-	public function display_shortcode_tags() {
+	public function shortcode_tags() {
+
+		$shortcode = Shortcodes::get_instance();
+
+		$shortcode->start( 'tags' );
+
 		/**
 		 * Action called before tags page (shortcode) is rendered.
 		 *
@@ -661,26 +613,18 @@ class Tags extends \AnsPress\Singleton {
 		 * @since 4.2.0
 		 */
 		do_action( 'ap_after_display_tags' );
-	}
 
-	/**
-	 * Register tag shortcode.
-	 *
-	 * @since 4.2.0
-	 */
-	public function shortcode_tag() {
-		$shortcode = Shortcodes::get_instance();
-		return $shortcode->display_custom_shortcode(
-			'tag',
-			self::$instance,
-			'display_shortcode_tag'
-		);
+		return $shortcode->end();
 	}
 
 	/**
 	 * Tag page layout.
 	 */
-	public function display_shortcode_tag() {
+	public function shortcode_tag() {
+		$shortcode = Shortcodes::get_instance();
+
+		$shortcode->start( 'tag' );
+
 		/**
 		 * Action called before tag page (shortcode) is rendered.
 		 *
@@ -696,6 +640,8 @@ class Tags extends \AnsPress\Singleton {
 		 * @since 4.2.0
 		 */
 		do_action( 'ap_after_display_tag' );
+
+		return $shortcode->end();
 	}
 }
 

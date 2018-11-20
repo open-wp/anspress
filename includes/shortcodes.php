@@ -157,7 +157,7 @@ class Shortcodes {
 	 * @since 4.2.0
 	 */
 	public function display_current_page( $attr = [], $content = '' ) {
-		$fallback = apply_filters( 'ap_shortcode_display_current_page', false );
+		$fallback = apply_filters( 'ap_shortcode_fallback_' . ap_current_page(), false );
 
 		if ( false !== $fallback ) {
 			return $fallback;

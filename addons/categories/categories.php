@@ -70,7 +70,8 @@ class Categories extends \AnsPress\Singleton {
 
 		anspress()->add_action( 'widgets_init', $this, 'widget' );
 
-		anspress()->add_filter( 'ap_shortcode_display_current_page', $this, 'shortcode_fallback' );
+		anspress()->add_filter( 'ap_shortcode_fallback_categories', $this, 'shortcode_categories' );
+		anspress()->add_filter( 'ap_shortcode_fallback_category', $this, 'shortcode_category' );
 		anspress()->add_filter( 'ap_template_include_theme_compat', $this, 'template_include_theme_compat' );
 	}
 
@@ -900,21 +901,6 @@ class Categories extends \AnsPress\Singleton {
 	public function widget() {
 		require_once ANSPRESS_ADDONS_DIR . '/categories/widget.php';
 		register_widget( 'Anspress\Widgets\Categories' );
-	}
-
-	/**
-	 * Fallback for old categories/category shortcode `[anspress page="categories"]`.
-	 *
-	 * @since 4.2.0
-	 */
-	public function shortcode_fallback() {
-		if ( ap_current_page( 'categories' ) ) {
-			return $this->shortcode_categories();
-		} elseif ( ap_current_page( 'category' ) ) {
-			return $this->shortcode_category();
-		}
-
-		return false;
 	}
 
 	/**

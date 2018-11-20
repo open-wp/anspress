@@ -210,6 +210,7 @@ class AP_QA_Query_Hooks {
 			return;
 		}
 
+		$object  = get_queried_object();
 		$ap_user = $posts_query->get( 'ap_user_name' );
 
 		if ( isset( $posts_query->query_vars['ap_search'] ) ) {
@@ -259,6 +260,13 @@ class AP_QA_Query_Hooks {
 
 			// Set the displayed user global to this user.
 			anspress()->displayed_user = $the_user;
+
+		} elseif ( $object instanceof WP_Post && 'page' === $object->post_type && ap_main_pages_id( 'profile' ) == $object->ID && empty( $ap_user ) ) {
+
+			// Show 404 if user not set.
+			$posts_query->set_404();
+			return;
+
 		}
 	}
 }

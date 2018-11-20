@@ -64,7 +64,7 @@ class Profile extends \AnsPress\Singleton {
 		anspress()->add_filter( 'wp_title_parts', $this, 'wp_title' );
 		//anspress()->add_action( 'the_post', $this, 'filter_page_title' );
 		anspress()->add_filter( 'ap_current_page', $this, 'ap_current_page' );
-		anspress()->add_filter( 'ap_shortcode_display_current_page', $this, 'shortcode_fallback' );
+		anspress()->add_filter( 'ap_shortcode_fallback_profile', $this, 'shortcode_profile' );
 		anspress()->add_filter( 'ap_template_include_theme_compat', $this, 'template_include_theme_compat' );
 		anspress()->add_filter( 'ap_before_profile_settings', $this, 'process_public_profile_form' );
 		anspress()->add_filter( 'ap_before_profile_settings', $this, 'process_change_password_form' );
@@ -121,6 +121,12 @@ class Profile extends \AnsPress\Singleton {
 	 * @since 4.2.0
 	 */
 	public function shortcode_profile( $attr = [], $content = '' ) {
+		$attr = wp_parse_args( $attr, [
+			'user_id' => ap_get_displayed_user_id(),
+		]);
+
+		$user_id = $attr['user_id'];
+
 		$shortcode = Shortcodes::get_instance();
 
 		$shortcode->start( 'profile' );
@@ -132,7 +138,11 @@ class Profile extends \AnsPress\Singleton {
 		 */
 		do_action( 'ap_after_display_profile' );
 
-		ap_get_template_part( 'profile/index' );
+		if ( ! empty( $user_id ) ) {
+			ap_get_template_part( 'profile/index' );
+		} else {
+			ap_get_template_part( 'profile/feedback-profile' );
+		}
 
 		/**
 		 * Action called after profile page (shortcode) is rendered.
@@ -360,19 +370,6 @@ class Profile extends \AnsPress\Singleton {
 		}
 
 		return (int) $user_id;
-	}
-
-	/**
-	 * Fallback for old profile shortcode `[anspress page="profile"]`.
-	 *
-	 * @since 4.2.0
-	 */
-	public function shortcode_fallback() {
-		if ( ap_current_page( 'profile' ) ) {
-			return $this->shortcode_profile();
-		}
-
-		return false;
 	}
 
 	/**

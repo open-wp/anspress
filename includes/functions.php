@@ -2680,3 +2680,13 @@ function ap_get_displayed_user_id() {
 
 	return 0;
 }
+
+/**
+ * Sets the 404 status.
+ *
+ * @since 4.2.0
+ */
+function ap_set_404() {
+	global $wp_query;
+	$wp_query->set_404();
+}
