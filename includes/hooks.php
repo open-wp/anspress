@@ -64,30 +64,33 @@ class AnsPress_Hooks {
 			anspress()->add_filter( 'parse_query', 'AP_QA_Query_Hooks', 'parse_query' );
 
 			// Theme hooks.
-			anspress()->add_action( 'init', 'AnsPress_Theme', 'init_actions' );
+			add_action( 'init', 'AnsPress\Template_Loader\init_actions' );
+
+			add_filter( 'template_include', 'AnsPress\Template_Loader\template_include' );
+			add_filter( 'ap_template_include', 'AnsPress\Template_Loader\template_include_theme_supports', 2, 1 );
+			add_filter( 'ap_template_include', 'AnsPress\Template_Loader\template_include_theme_compat', 4, 2 );
+			add_filter( 'template_redirect', 'AnsPress\Template_Loader\redirect_answer' );
+			add_filter( 'post_class', 'AnsPress\Template_Loader\question_answer_post_class' );
+			add_filter( 'body_class', 'AnsPress\Template_Loader\body_class' );
+			add_action( 'after_setup_theme', 'AnsPress\Template_Loader\includes_theme' );
+			add_filter( 'wp_title', 'AnsPress\Template_Loader\ap_title', 0 );
+			add_action( 'ap_before', 'AnsPress\Template_Loader\ap_before_html_body' );
+			add_action( 'wp_head', 'AnsPress\Template_Loader\wp_head', 11 );
+			add_action( 'ap_after_question_content', 'AnsPress\Template_Loader\question_attachments', 11 );
+			add_action( 'ap_after_answer_content', 'AnsPress\Template_Loader\question_attachments', 11 );
+			add_filter( 'ap_question_footer', 'AnsPress\Template_Loader\question_footer' );
+			add_filter( 'ap_answer_footer', 'AnsPress\Template_Loader\answer_footer' );
+
+			add_filter( 'get_the_excerpt', 'AnsPress\Template_Loader\get_the_excerpt', 9999, 2 );
+			add_filter( 'post_class', 'AnsPress\Template_Loader\remove_hentry_class', 10, 3 );
+			add_action( 'ap_after_question_content', 'AnsPress\Template_Loader\after_question_content' );
+			add_filter( 'ap_after_answer_content', 'AnsPress\Template_Loader\after_question_content' );
+
 			anspress()->add_action( 'init', \AnsPress\Shortcodes::get_instance(), 'add_shortcodes' );
-			anspress()->add_filter( 'template_include', 'AnsPress_Theme', 'template_include' );
-			anspress()->add_filter( 'ap_template_include', 'AnsPress_Theme', 'template_include_theme_compat' );
-			anspress()->add_filter( 'template_redirect', 'AnsPress_Theme', 'redirect_answer' );
-			anspress()->add_filter( 'post_class', 'AnsPress_Theme', 'question_answer_post_class' );
-			anspress()->add_filter( 'body_class', 'AnsPress_Theme', 'body_class' );
-			anspress()->add_action( 'after_setup_theme', 'AnsPress_Theme', 'includes_theme' );
-			anspress()->add_filter( 'wp_title', 'AnsPress_Theme', 'ap_title', 0 );
-			anspress()->add_action( 'ap_before', 'AnsPress_Theme', 'ap_before_html_body' );
-			anspress()->add_action( 'wp_head', 'AnsPress_Theme', 'wp_head', 11 );
-			anspress()->add_action( 'ap_after_question_content', 'AnsPress_Theme', 'question_attachments', 11 );
-			anspress()->add_action( 'ap_after_answer_content', 'AnsPress_Theme', 'question_attachments', 11 );
 			anspress()->add_filter( 'nav_menu_css_class', __CLASS__, 'fix_nav_current_class', 10, 2 );
-			//anspress()->add_filter( 'mce_external_languages', __CLASS__, 'mce_plugins_languages' );
+			//add_filter( 'mce_external_languages', __CLASS__, 'mce_plugins_languages' );
 			anspress()->add_filter( 'wp_insert_post_data', __CLASS__, 'wp_insert_post_data', 1000, 2 );
 			anspress()->add_filter( 'ap_form_contents_filter', __CLASS__, 'sanitize_description' );
-			anspress()->add_filter( 'ap_question_footer', 'AnsPress_Theme', 'question_footer' );
-			anspress()->add_filter( 'ap_answer_footer', 'AnsPress_Theme', 'answer_footer' );
-
-			anspress()->add_filter( 'get_the_excerpt', 'AnsPress_Theme', 'get_the_excerpt', 9999, 2 );
-			anspress()->add_filter( 'post_class', 'AnsPress_Theme', 'remove_hentry_class', 10, 3 );
-			anspress()->add_action( 'ap_after_question_content', 'AnsPress_Theme', 'after_question_content' );
-			anspress()->add_filter( 'ap_after_answer_content', 'AnsPress_Theme', 'after_question_content' );
 			anspress()->add_action( 'wp_footer', \AnsPress\Shortcodes::get_instance(), 'check_buffer_ended' );
 
 			anspress()->add_filter( 'the_comments', 'AnsPress_Comment_Hooks', 'the_comments' );
@@ -841,7 +844,7 @@ class AnsPress_Hooks {
 	}
 
 	public static function display_question_metas( $metas, $question_id ) {
-		if ( is_user_logged_in() && is_question() && ap_is_addon_active( 'email.php' ) ) {
+		if ( is_user_logged_in() && ap_is_single_question() && ap_is_addon_active( 'email.php' ) ) {
 			$metas['subscribe'] = ap_subscribe_btn( false, false );
 		}
 

@@ -30,7 +30,7 @@ class AnsPress_Breadcrumbs_Widget extends WP_Widget {
 		);
 	}
 
-	
+
 	/**
 	 * Get breadcrumbs array
 	 * @return array
@@ -42,7 +42,7 @@ class AnsPress_Breadcrumbs_Widget extends WP_Widget {
 
 		$a['base'] = array( 'title' => ap_opt( 'base_page_title' ), 'link' => ap_base_page_link(), 'order' => 0 );
 
-		if ( is_question() ) {
+		if ( ap_is_single_question() ) {
 			$a['page'] = array( 'title' => $title, 'link' => get_permalink( get_question_id() ), 'order' => 10 );
 		} elseif ( 'base' != $current_page && '' != $current_page ) {
 			$a['page'] = array( 'title' => $title, 'link' => ap_get_link_to( $current_page ), 'order' => 10 );

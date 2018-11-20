@@ -110,7 +110,7 @@ class functionsTest extends \Codeception\TestCase\WPTestCase {
 	public function testIsQuestion() {
 		$id = $this->insert_question();
 		$this->go_to( '?post_type=question&p=' . $id );
-		$this->assertTrue( is_question() );
+		$this->assertTrue( ap_is_single_question() );
 	}
 
 	/**

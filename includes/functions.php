@@ -129,9 +129,9 @@ function get_question_id( $question_id = 0 ) {
 
 	if ( ! empty( $question_id ) && is_numeric( $question_id ) ) {
 		$q_id = $question_id;
-	} elseif ( is_question() && ! empty( $ap->current_question_id ) ) {
+	} elseif ( ap_is_single_question() && ! empty( $ap->current_question_id ) ) {
 		$q_id = $ap->current_question_id;
-	} elseif ( is_question() ) {
+	} elseif ( ap_is_single_question() ) {
 		$q_id = get_queried_object_id();
 	} elseif ( get_query_var( 'edit_q' ) ) {
 		$q_id = get_query_var( 'edit_q' );
@@ -1263,7 +1263,7 @@ function ap_activity_short_title( $type ) {
 function ap_canonical_url() {
 	$canonical_url = ap_get_link_to( get_query_var( 'ap_page' ) );
 
-	if ( is_question() ) {
+	if ( ap_is_single_question() ) {
 		$canonical_url = get_permalink( get_question_id() );
 	}
 

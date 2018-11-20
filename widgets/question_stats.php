@@ -49,7 +49,7 @@ class AnsPress_Stats_Widget extends WP_Widget {
 
 		echo '<div class="ap-widget-inner">';
 
-		if ( is_question() ) {
+		if ( ap_is_single_question() ) {
 			echo '<ul class="ap-stats-widget">';
 			echo '<li><span class="stat-label apicon-pulse">'.__( 'Active', 'anspress-question-answer' ). '</span><span class="stat-value"><time class="published updated" itemprop="dateModified" datetime="'.mysql2date( 'c', $last_active ).'">'. $last_active .'</time></span></li>' ;
 			echo '<li><span class="stat-label apicon-eye">'.__( 'Views', 'anspress-question-answer' ). '</span><span class="stat-value">'.sprintf( _n( 'One time', '%d times', $view_count, 'anspress-question-answer' ), $view_count ).'</span></li>' ;

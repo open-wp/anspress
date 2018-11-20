@@ -454,12 +454,12 @@ function ap_question_metas( $question_id = 0 ) {
 	$view_count     = ap_get_post_field( 'views', $question_id );
 	$metas['views'] = '<i class="apicon-eye"></i><i>' . sprintf( __( '%s views', 'anspress-question-answer' ),  ap_short_num( $view_count ) ) . '</i>';
 
-	if ( is_question() ) {
+	if ( ap_is_single_question() ) {
 		$last_active     = ap_get_last_active( $question_id );
 		$metas['active'] = '<i class="apicon-pulse"></i><i><time class="published updated" itemprop="dateModified" datetime="' . mysql2date( 'c', $last_active ) . '">' . $last_active . '</time></i>';
 	}
 
-	if ( ! is_question() ) {
+	if ( ! ap_is_single_question() ) {
 		$metas['history'] = '<i class="apicon-pulse"></i>' . ap_recent_activity( $question_id, false );
 	}
 
@@ -716,7 +716,7 @@ function ap_get_answers( $args = '' ) {
 	// Default query args
 	$default = array(
 		'post_type'              => 'answer',                                       // Only replies
-		'post_parent'            => ( is_question() ? get_question_id(): 'any' ),   // Of this topic
+		'post_parent'            => ( ap_is_single_question() ? get_question_id(): 'any' ),   // Of this topic
 		'paged'                  => $paged,                                         // On this page
 		'ignore_sticky_posts'    => true,
 		'ap_query'               => true,

@@ -163,7 +163,7 @@ function ap_get_recent_activity( $_post = false, $deprecated = null ) {
 	if ( false === $activity ) {
 		$q_where = '';
 
-		if ( 'q_id' === $column && is_question() ) {
+		if ( 'q_id' === $column && ap_is_single_question() ) {
 			$q_where = " AND (activity_a_id = 0 OR activity_action IN('new_a', 'unselected','selected') )";
 		}
 
@@ -213,7 +213,7 @@ function ap_recent_activity( $_post = null, $echo = true, $query_db = null ) {
 		$html .= '</span>';
 	} else {
 		// Fallback to old activities.
-		$html = ap_latest_post_activity_html( $post_id = false, ! is_question() );
+		$html = ap_latest_post_activity_html( $post_id = false, ! ap_is_single_question() );
 	}
 
 	/**
@@ -251,7 +251,7 @@ function ap_prefetch_recent_activities( $ids, $col = 'q_id' ) {
 
 	$q_where = '';
 
-	if ( 'q_id' === $col && is_question() ) {
+	if ( 'q_id' === $col && ap_is_single_question() ) {
 		$q_where = " AND (activity_a_id = 0 OR activity_action IN('new_a', 'unselected','selected') )";
 	}
 

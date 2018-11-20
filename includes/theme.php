@@ -533,7 +533,7 @@ function ap_current_page( $looking_for = false ) {
 		$ap_page = $query_name;
 	} elseif ( 'edit' === $ap_page ) {
 		$ap_page = 'edit';
-	} elseif ( is_question() || is_singular( 'question' ) ) {
+	} elseif ( ap_is_single_question() || is_singular( 'question' ) ) {
 		$ap_page = 'question';
 	} elseif ( in_array( $ap_page . '_page', $main_pages, true ) ) {
 		$ap_page = $ap_page;
@@ -1141,10 +1141,9 @@ function is_anspress() {
  * Check if current page is question page.
  *
  * @return boolean
- * @since 0.0.1
- * @since 4.1.0 Also check and return true if singular question.
+ * @since 4.2.0
  */
-function is_question() {
+function ap_is_single_question() {
 	if ( is_singular( 'question' ) || ap_is_query_name( 'single-question' ) ) {
 		return true;
 	}
@@ -1188,6 +1187,20 @@ function ap_is_profile() {
 	global $wp_query;
 
 	if ( ! empty( $wp_query->ap_is_profile ) && true === $wp_query->ap_is_profile ) {
+		return true;
+	}
+
+	return false;
+}
+
+/**
+ * Checks if question archive.
+ *
+ * @return boolean
+ * @since 4.2.0
+ */
+function ap_is_archive() {
+	if ( is_post_type_archive( 'question' ) || ap_is_query_name( 'archive' ) ) {
 		return true;
 	}
 

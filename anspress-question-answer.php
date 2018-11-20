@@ -284,8 +284,7 @@ if ( ! class_exists( 'AnsPress' ) ) {
 		private function includes() {
 			require_once ANSPRESS_DIR . 'loader.php';
 			require_once ANSPRESS_DIR . 'includes/activity.php';
-			//require_once ANSPRESS_DIR . 'includes/common-pages.php';
-			require_once ANSPRESS_DIR . 'includes/class-theme.php';
+			require_once ANSPRESS_DIR . 'includes/template-loader.php';
 			require_once ANSPRESS_DIR . 'includes/class-form-hooks.php';
 			require_once ANSPRESS_DIR . 'includes/options.php';
 			require_once ANSPRESS_DIR . 'includes/functions.php';
@@ -299,7 +298,6 @@ if ( ! class_exists( 'AnsPress' ) ) {
 			require_once ANSPRESS_DIR . 'includes/votes.php';
 			require_once ANSPRESS_DIR . 'includes/views.php';
 			require_once ANSPRESS_DIR . 'includes/theme.php';
-			require_once ANSPRESS_DIR . 'includes/shortcode-basepage.php';
 			require_once ANSPRESS_DIR . 'includes/process-form.php';
 			require_once ANSPRESS_DIR . 'includes/rewrite.php';
 

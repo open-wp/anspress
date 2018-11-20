@@ -608,3 +608,20 @@ function ap_count_other_answer( $question_id = false ) {
 
 	return (int) $count;
 }
+
+/**
+ * Check if current page is question page.
+ *
+ * @return boolean
+ * @since 0.0.1
+ * @since 4.1.0 Also check and return true if singular question.
+ * @deprecated 4.2.0 Replaced by ap_is_single_question().
+ */
+function is_question() {
+	_deprecated_function( __FUNCTION__, '4.2.0', 'ap_is_single_question' );
+	if ( is_singular( 'question' ) || ap_is_query_name( 'single-question' ) ) {
+		return true;
+	}
+
+	return false;
+}
