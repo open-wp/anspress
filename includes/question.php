@@ -204,3 +204,32 @@ function _question_type_link( $link, $post ) {
 
 	return $link;
 }
+
+/**
+ * Register custom question cpt status.
+ *
+ * @return void
+ * @since 4.2.0
+ * @todo improve arguments based on https://codex.wordpress.org/Function_Reference/register_post_status. Remove private post status.
+ */
+function _register_question_status() {
+	register_post_status(
+		'moderate', array(
+			'label'                     => __( 'Moderate', 'anspress-question-answer' ),
+			'public'                    => true,
+			'show_in_admin_all_list'    => false,
+			'show_in_admin_status_list' => true,
+			'label_count'               => _n_noop( 'Moderate <span class="count">(%s)</span>', 'Moderate <span class="count">(%s)</span>', 'anspress-question-answer' ),
+		)
+	);
+
+	register_post_status(
+		'private_post', array(
+			'label'                     => __( 'Private', 'anspress-question-answer' ),
+			'public'                    => true,
+			'show_in_admin_all_list'    => false,
+			'show_in_admin_status_list' => true,
+			'label_count'               => _n_noop( 'Private Post <span class="count">(%s)</span>', 'Private Post <span class="count">(%s)</span>', 'anspress-question-answer' ),
+		)
+	);
+}

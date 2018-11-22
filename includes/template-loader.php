@@ -360,6 +360,7 @@ function wp_head() {
  * Ajax callback for post actions dropdown.
  *
  * @since 3.0.0
+ * @todo move to respective files.
  */
 function post_actions() {
 	$post_id = (int) ap_sanitize_unslash( 'post_id', 'r' );

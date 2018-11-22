@@ -50,7 +50,7 @@ class AnsPress_Ajax {
 		anspress()->add_action( 'ap_ajax_action_close', __CLASS__, 'close_question' );
 		anspress()->add_action( 'ap_ajax_action_toggle_delete_post', __CLASS__, 'toggle_delete_post' );
 		anspress()->add_action( 'ap_ajax_action_delete_permanently', __CLASS__, 'permanent_delete_post' );
-		anspress()->add_action( 'ap_ajax_action_status', 'AnsPress_Post_Status', 'change_post_status' );
+		anspress()->add_action( 'ap_ajax_action_status', 'AnsPress\Ajax\Change_Post_status', 'init' );
 		anspress()->add_action( 'ap_ajax_action_convert_to_post', __CLASS__, 'convert_to_post' );
 
 		// Flag ajax callbacks.

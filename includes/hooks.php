@@ -35,6 +35,7 @@ class AnsPress_Hooks {
 
 		add_action( 'init', 'AnsPress\_register_question' );
 		add_action( 'init', 'AnsPress\_register_answer' );
+		add_action( 'init', 'AnsPress\_register_question_status' );
 
 		add_filter( 'post_type_archive_link', 'AnsPress\_question_archive_link', 10, 2 );
 		add_filter( 'post_type_link', 'AnsPress\_question_type_link', 10, 2 );
@@ -105,10 +106,6 @@ class AnsPress_Hooks {
 			anspress()->add_filter( 'get_comment_link', 'AnsPress_Comment_Hooks', 'comment_link', 10, 3 );
 			anspress()->add_filter( 'preprocess_comment', 'AnsPress_Comment_Hooks', 'preprocess_comment' );
 			anspress()->add_filter( 'comments_template', 'AnsPress_Comment_Hooks', 'comments_template' );
-
-
-			// Register post status.
-			anspress()->add_action( 'init', 'AnsPress_Post_Status', 'register_post_status' );
 
 			// Rewrite rules hooks.
 			anspress()->add_filter( 'request', 'AnsPress_Rewrite', 'alter_the_query' );
