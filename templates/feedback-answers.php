@@ -7,7 +7,7 @@
  * @since 4.2.0
  */
 
-namespace AnsPress\Template;
+namespace AnsPress;
 
 $paged = anspress()->answers_query->paged;
 ?>

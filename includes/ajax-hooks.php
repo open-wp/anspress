@@ -43,7 +43,9 @@ class AnsPress_Ajax {
 		anspress()->add_action( 'wp_ajax_ap_upload_user_avatar', 'AnsPress\Ajax\Upload_Avatar', 'init' );
 
 		// Post actions.
-		anspress()->add_action( 'ap_ajax_post_actions', 'AnsPress_Theme', 'post_actions' );
+
+		add_action( 'ap_ajax_post_actions', 'AnsPress\Template_Loader\post_actions' );
+
 		anspress()->add_action( 'ap_ajax_action_toggle_featured', __CLASS__, 'toggle_featured' );
 		anspress()->add_action( 'ap_ajax_action_close', __CLASS__, 'close_question' );
 		anspress()->add_action( 'ap_ajax_action_toggle_delete_post', __CLASS__, 'toggle_delete_post' );

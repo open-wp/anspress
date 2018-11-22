@@ -7,7 +7,7 @@
  * @since 4.2.0
  */
 
-namespace AnsPress\Template;
+namespace AnsPress;
 
 $search_str = ap_isset_post_value( 'question_s' );
 

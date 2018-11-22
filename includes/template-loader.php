@@ -14,8 +14,8 @@
 
 namespace AnsPress\Template_Loader;
 
+use AnsPress;
 use AnsPress\Shortcodes;
-use AnsPress\Template;
 
 // If this file is called directly, abort.
 if ( ! defined( 'WPINC' ) ) {
@@ -462,14 +462,14 @@ function after_question_content() {
  */
 function question_footer() {
 	if ( ap_user_can_read_question() ) {
-		Template\select_button();
+		AnsPress\select_button();
 	}
 
 	// Comment button id.
 	echo ap_comment_btn_html( get_question_id() );
 
 	if ( ap_user_can_read_question() ) {
-		Template\actions_button();
+		AnsPress\actions_button();
 	}
 }
 
@@ -480,14 +480,14 @@ function question_footer() {
  */
 function answer_footer() {
 	if ( ap_user_can_read_answer() ) {
-		Template\select_button();
+		AnsPress\select_button();
 	}
 
 	// Comment button id.
 	echo ap_comment_btn_html( ap_get_answer_id() );
 
 	if ( ap_user_can_read_answer() ) {
-		Template\actions_button();
+		AnsPress\actions_button();
 	}
 }
 

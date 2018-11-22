@@ -32,6 +32,14 @@ class AnsPress_Hooks {
 	 * @since 2.4.8 Removed `$ap` argument.
 	 */
 	public static function init() {
+
+		add_action( 'init', 'AnsPress\_register_question' );
+		add_action( 'init', 'AnsPress\_register_answer' );
+
+		add_filter( 'post_type_archive_link', 'AnsPress\_question_archive_link', 10, 2 );
+		add_filter( 'post_type_link', 'AnsPress\_question_type_link', 10, 2 );
+		add_filter( 'post_type_link', 'AnsPress\_answer_type_link', 10, 2 );
+
 			anspress()->add_action( 'registered_taxonomy', __CLASS__, 'add_ap_tables' );
 			anspress()->add_action( 'ap_processed_new_question', __CLASS__, 'after_new_question', 1, 2 );
 			anspress()->add_action( 'ap_processed_new_answer', __CLASS__, 'after_new_answer', 1, 2 );
@@ -59,9 +67,8 @@ class AnsPress_Hooks {
 
 			anspress()->add_filter( 'posts_clauses', 'AP_QA_Query_Hooks', 'sql_filter', 1, 2 );
 			anspress()->add_filter( 'posts_results', 'AP_QA_Query_Hooks', 'posts_results', 1, 2 );
-			anspress()->add_filter( 'posts_pre_query', 'AP_QA_Query_Hooks', 'modify_main_posts', 999999, 2 );
-			anspress()->add_filter( 'pre_get_posts', 'AP_QA_Query_Hooks', 'pre_get_posts' );
-			anspress()->add_filter( 'parse_query', 'AP_QA_Query_Hooks', 'parse_query' );
+
+			add_action( 'parse_query', 'AnsPress\parse_query' );
 
 			// Theme hooks.
 			add_action( 'init', 'AnsPress\Template_Loader\init_actions' );

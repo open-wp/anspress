@@ -7,7 +7,7 @@
  * @since 4.2.0
  */
 
-namespace AnsPress\Template;
+namespace AnsPress;
 ?>
 
 <form class="ap-questions-sorting-form mb-30 clearfix" ap="submitOnChange" apDisableEmptyFields name="questionFilters" method="GET">

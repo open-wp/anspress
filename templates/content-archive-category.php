@@ -10,7 +10,7 @@
  * @subpackage  Templates
  */
 
-namespace AnsPress\Template;
+namespace AnsPress;
 
 $category  = get_queried_object();
 $order_by  = get_current_questions_sorting();

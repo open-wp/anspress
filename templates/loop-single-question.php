@@ -11,7 +11,7 @@
  * @since      4.2.0
  */
 
-namespace AnsPress\Template;
+namespace AnsPress;
 ?>
 <?php
 	/**

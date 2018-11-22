@@ -10,7 +10,7 @@
  * @package AnsPress
  */
 
-namespace AnsPress\Template;
+namespace AnsPress;
 ?>
 
 	<?php if ( ap_have_answers() ) : ?>

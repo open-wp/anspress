@@ -8,7 +8,7 @@
  * @package AnsPress
  */
 
-namespace AnsPress\Template;
+namespace AnsPress;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	die;

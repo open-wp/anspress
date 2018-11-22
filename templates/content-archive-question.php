@@ -11,7 +11,7 @@
  * @package Templates
  */
 
-namespace AnsPress\Template;
+namespace AnsPress;
 
 $order_by  = get_current_questions_sorting();
 $filter_by = get_current_questions_filter();

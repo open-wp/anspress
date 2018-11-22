@@ -11,8 +11,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use AnsPress\Template;
-
 /**
  * Query hooks
  */
@@ -54,14 +52,14 @@ class AP_QA_Query_Hooks {
 			$answer_query  = isset( $wp_query->query['ap_answers_query'] );
 
 			if ( ! empty( $query_sorting ) ) {
-				$sorting  = $answer_query ? Template\get_answers_sorting() : Template\get_questions_sorting();
+				$sorting  = $answer_query ? AnsPress\get_answers_sorting() : AnsPress\get_questions_sorting();
 				$order_by = isset( $sorting[ $query_sorting ] ) ? $sorting[ $query_sorting ]['sql'] : $sorting['active']['sql'];
 
 				$sql['orderby'] = sprintf( $order_by, $wpdb->posts, $wpdb->ap_qameta );
 			}
 
 			if ( ! empty( $query_filter ) ) {
-				$filter    = Template\get_questions_filter();
+				$filter    = AnsPress\get_questions_filter();
 				$filter_by = isset( $filter[ $query_filter ] ) ? $filter[ $query_filter ]['sql'] : '';
 
 				if ( 'all' !== $query_filter && ! empty( $filter_by ) ) {
@@ -139,134 +137,5 @@ class AP_QA_Query_Hooks {
 		}
 
 		return $posts;
-	}
-
-	/**
-	 * An imaginary post.
-	 *
-	 * @return object
-	 * @todo Deprecate this.
-	 */
-	public static function imaginary_post( $p ) {
-		$_post = array(
-			'ID'           => 0,
-			'post_title'   => __( 'No permission', 'anspress-question-answer' ),
-			'post_content' => __( 'You do not have permission to read this question.', 'anspress-question-answer' ),
-			'post_status'  => $p->post_status,
-			'post_type'    => 'question',
-		);
-
-		return (object) $_post;
-	}
-
-	/**
-	 * Modify main query.
-	 *
-	 * @param array  $posts  Array of post object.
-	 * @param object $query Wp_Query object.
-	 * @return void|array
-	 * @since 4.1.0
-	 */
-	public static function modify_main_posts( $posts, $query ) {
-		// if ( $query->is_main_query() && $query->is_search() && 'question' === get_query_var( 'post_type' ) ) {
-		// 	$query->found_posts   = 1;
-		// 	$query->max_num_pages = 1;
-		// 	$posts                = [ get_page( ap_opt( 'base_page' ) ) ];
-		// }
-
-		return $posts;
-	}
-
-	/**
-	 * Include all post status in single question so that we can show custom messages.
-	 *
-	 * @param WP_Query $query Query loop.
-	 * @return void
-	 * @since 4.1.4
-	 * @since 4.1.5 Include future questions as well.
-	 */
-	public static function pre_get_posts( $query ) {
-		if ( $query->is_single() && $query->is_main_query() && 'question' === get_query_var( 'post_type' ) ) {
-			//$query->set( 'post_status', [ 'publish', 'trash', 'moderate', 'private_post', 'future', 'ap_spam' ] );
-		}
-	}
-
-	/**
-	 * Add custom query vars.
-	 */
-	public static function parse_query( $posts_query ) {
-		// Bail if $posts_query is not the main loop.
-		if ( ! $posts_query->is_main_query() ) {
-			return;
-		}
-
-		// Bail if filters are suppressed on this query
-		if ( true === $posts_query->get( 'suppress_filters' ) ) {
-			return;
-		}
-
-		// Bail if in admin
-		if ( is_admin() ) {
-			return;
-		}
-
-		$object  = get_queried_object();
-		$ap_user = $posts_query->get( 'ap_user_name' );
-
-		if ( isset( $posts_query->query_vars['ap_search'] ) ) {
-
-			// Check if there are search query args set
-			$search_terms = ap_get_search_terms();
-			if ( ! empty( $search_terms ) ) {
-				$posts_query->ap_search_terms = $search_terms;
-			}
-
-			// Correct is_home variable
-			$posts_query->is_home = false;
-
-			// We are in a search query
-			$posts_query->ap_is_search = true;
-			$posts_query->is_search    = true;
-		} elseif ( isset( $posts_query->query_vars['question_category'] ) ) {
-			$posts_query->is_home        = false;
-			$posts_query->ap_is_category = true;
-
-		} elseif ( isset( $posts_query->query_vars['question_tag'] ) ) {
-			$posts_query->is_home   = false;
-			$posts_query->ap_is_tag = true;
-			$posts_query->is_tax    = true;
-		} elseif ( ! empty( $ap_user ) ) {
-			$the_user = false;
-			$the_user = get_user_by( 'slug', $ap_user );
-
-			if ( empty( $the_user->ID ) ) {
-				$posts_query->set_404();
-				return;
-			}
-
-			$posts_query->ap_is_profile = true;
-			$posts_query->is_404        = false;
-			$posts_query->is_home       = false;
-
-			if ( get_current_user_id() === $the_user->ID ) {
-				$posts_query->ap_is_user_home = true;
-			}
-
-			// Set bbp_user_id for future reference.
-			$posts_query->set( 'ap_user_id', $the_user->ID );
-
-			// Set author_name as current user's nicename to get correct posts.
-			$posts_query->set( 'author_name', $the_user->user_nicename );
-
-			// Set the displayed user global to this user.
-			anspress()->displayed_user = $the_user;
-
-		} elseif ( $object instanceof WP_Post && 'page' === $object->post_type && ap_main_pages_id( 'profile' ) == $object->ID && empty( $ap_user ) ) {
-
-			// Show 404 if user not set.
-			$posts_query->set_404();
-			return;
-
-		}
 	}
 }

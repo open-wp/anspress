@@ -218,7 +218,6 @@ if ( ! class_exists( 'AnsPress' ) ) {
 
 				self::$instance->site_include();
 				self::$instance->ajax_hooks();
-				AnsPress_PostTypes::init();
 
 				/*
 				* Dashboard and Administrative Functionality
@@ -283,24 +282,29 @@ if ( ! class_exists( 'AnsPress' ) ) {
 		 */
 		private function includes() {
 			require_once ANSPRESS_DIR . 'loader.php';
-			require_once ANSPRESS_DIR . 'includes/activity.php';
+
 			require_once ANSPRESS_DIR . 'includes/template-loader.php';
+			require_once ANSPRESS_DIR . 'includes/template-functions.php';
 			require_once ANSPRESS_DIR . 'includes/class-form-hooks.php';
 			require_once ANSPRESS_DIR . 'includes/options.php';
 			require_once ANSPRESS_DIR . 'includes/functions.php';
 			require_once ANSPRESS_DIR . 'includes/hooks.php';
+
+			require_once ANSPRESS_DIR . 'includes/question.php';
+			require_once ANSPRESS_DIR . 'includes/answer.php';
+
+			require_once ANSPRESS_DIR . 'includes/activity.php';
 			require_once ANSPRESS_DIR . 'includes/question-loop.php';
 			require_once ANSPRESS_DIR . 'includes/qameta.php';
 			require_once ANSPRESS_DIR . 'includes/qaquery.php';
 			require_once ANSPRESS_DIR . 'includes/qaquery-hooks.php';
-			require_once ANSPRESS_DIR . 'includes/post-types.php';
+
 			require_once ANSPRESS_DIR . 'includes/post-status.php';
 			require_once ANSPRESS_DIR . 'includes/votes.php';
 			require_once ANSPRESS_DIR . 'includes/views.php';
 			require_once ANSPRESS_DIR . 'includes/theme.php';
 			require_once ANSPRESS_DIR . 'includes/process-form.php';
 			require_once ANSPRESS_DIR . 'includes/rewrite.php';
-
 			require_once ANSPRESS_DIR . 'includes/flag.php';
 			require_once ANSPRESS_DIR . 'includes/shortcode-question.php';
 			require_once ANSPRESS_DIR . 'includes/akismet.php';

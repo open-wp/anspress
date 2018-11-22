@@ -7,7 +7,7 @@
  * @since 4.2.0
  */
 
-namespace AnsPress\Template;
+namespace AnsPress;
 
 ?>
 <div class="ap-feedback ap-feedback-answer">

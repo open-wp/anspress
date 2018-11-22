@@ -9,7 +9,10 @@
  * @copyright 2014 Rahul Aryan
  */
 
-use AnsPress\Template;
+// Bail if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 /**
  * Get slug of base page.
@@ -1182,6 +1185,7 @@ function ap_find_duplicate_post( $content, $post_type = 'question', $question_id
  *
  * @return boolean
  * @since  3.0.0
+ * @todo Check if suggestion working or not.
  */
 function ap_disable_question_suggestion() {
 	/**
@@ -2466,7 +2470,7 @@ function ap_get_page_of_answer( $_post, $args = array() ) {
 		$post_status = " AND (p.post_status IN ($allowed_status) $logged_in_status )";
 		$order_by    = " ORDER BY case when qameta.selected = 1 then 0 else 1 end, ";
 
-		$ap_order_by = Template\get_current_answer_sorting();
+		$ap_order_by = AnsPress\get_current_answer_sorting();
 
 		if ( 'oldest' === $ap_order_by ) {
 			$order_by .= "p.post_date ASC";

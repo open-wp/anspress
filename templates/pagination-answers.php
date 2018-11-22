@@ -6,7 +6,7 @@
  * @subpackage Templates
  */
 
-namespace AnsPress\Template;
+namespace AnsPress;
 ?>
 
 <?php

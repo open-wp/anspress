@@ -10,7 +10,7 @@
  * @package  WordPress/AnsPress
  */
 
-namespace AnsPress\Template;
+namespace AnsPress;
 
 if ( ! ap_user_can_view_post( get_the_ID() ) ) {
 	return;

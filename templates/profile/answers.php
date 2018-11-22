@@ -11,7 +11,7 @@
  * @subpackage Templates
  */
 
-namespace AnsPress\Template;
+namespace AnsPress;
 
 // Prevent direct access to file.
 if ( ! defined( 'ABSPATH' ) ) {

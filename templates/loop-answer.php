@@ -9,7 +9,7 @@
  * @since      4.2.0
  */
 
-namespace AnsPress\Template;
+namespace AnsPress;
 
 ?>
 <div id="post-<?php answer_id(); ?>" class="<?php post_classes(); ?>" apid="<?php answer_id(); ?>" ap="answer">

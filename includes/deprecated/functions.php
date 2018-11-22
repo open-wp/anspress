@@ -309,10 +309,10 @@ function ap_answers_the_pagination() {
  * Echo post status of a answer.
  *
  * @param  object|integer|null $_post Post ID, Object or null.
- * @deprecated 4.2.0 Replaced by \AnsPress\Template\status().
+ * @deprecated 4.2.0 Replaced by \AnsPress\status().
  */
 function ap_answer_status( $_post = null ) {
-	_deprecated_function( __FUNCTION__, '4.2.0', 'AnsPress\Template\status()' );
+	_deprecated_function( __FUNCTION__, '4.2.0', 'AnsPress\status()' );
 	ap_question_status( $_post );
 }
 
@@ -520,7 +520,7 @@ class Answers_Query extends WP_Query {
  * @todo Deprecate this.
  */
 function ap_get_current_list_filters( $filter = null ) {
-	_deprecated_function( __FUNCTION__, '4.2.0', 'AnsPress\Template\get_current_questions_sorting()');
+	_deprecated_function( __FUNCTION__, '4.2.0', 'AnsPress\get_current_questions_sorting()');
 
 	$get_filters = [];
 	$filters     = array_keys( ap_get_list_filters() );

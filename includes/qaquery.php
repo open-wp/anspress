@@ -7,8 +7,6 @@
  * @author Rahul Aryan <rah12@live.com>
  */
 
-use AnsPress\Template;
-
 // Exit if the file is accessed directly over web.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -710,7 +708,7 @@ function ap_get_answers( $args = '' ) {
 	global $wp_rewrite;
 
 	$paged    = (int) max( 1, get_query_var( 'paged', 1 ) );
-	$order_by = Template\get_current_answer_sorting();
+	$order_by = AnsPress\get_current_answer_sorting();
 	$status   = [ 'publish', 'private' ];
 
 	// Default query args

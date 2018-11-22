@@ -86,7 +86,7 @@ class AnsPress_Rewrite {
 	 */
 	public static function rewrite_rules() {
 		global $wp_rewrite;
-		$q_struct = AnsPress_PostTypes::question_perm_structure();
+		$q_struct = AnsPress\question_permalink_structure();
 		$rules    = $wp_rewrite->generate_rewrite_rules( $q_struct->rule, EP_NONE, false, false, true );
 
 		$rule = key( $rules );

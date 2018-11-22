@@ -18,9 +18,10 @@
  */
 
 namespace AnsPress\Addons;
+
+use AnsPress;
 use AnsPress\Shortcodes;
 use AnsPress\Addons\Profile;
-use AnsPress\Template;
 
 // If this file is called directly, abort.
 if ( ! defined( 'WPINC' ) ) {
@@ -435,7 +436,7 @@ class Profile extends \AnsPress\Singleton {
 
 		// Show error if nonce not verified.
 		if ( ! wp_verify_nonce( ap_isset_post_value( '__update_nonce' ), 'update_profile' ) ) {
-			Template\alert(
+			AnsPress\alert(
 				__( 'Failed to update public profile', 'anspress-question-answer' ),
 				__( 'Nonce did not matched. Please try again.', 'anspress-question-answer' ),
 				'error'
@@ -456,13 +457,13 @@ class Profile extends \AnsPress\Singleton {
 		] );
 
 		if ( is_wp_error( $user_id ) ) {
-			Template\alert(
+			AnsPress\alert(
 				__( 'Failed to update public profile', 'anspress-question-answer' ),
 				$user_id->get_error_message(),
 				'error'
 			);
 		} else {
-			Template\alert(
+			AnsPress\alert(
 				__( 'Successfully updated public profile', 'anspress-question-answer' )
 			);
 		}
@@ -476,7 +477,7 @@ class Profile extends \AnsPress\Singleton {
 
 		// Show error if nonce not verified.
 		if ( ! wp_verify_nonce( ap_isset_post_value( '__nonce_password' ), 'password_nonce' ) ) {
-			Template\alert(
+			AnsPress\alert(
 				__( 'Failed to update password.', 'anspress-question-answer' ),
 				__( 'Nonce did not matched. Please try again.', 'anspress-question-answer' ),
 				'error'
@@ -491,7 +492,7 @@ class Profile extends \AnsPress\Singleton {
 		$password2    = ap_isset_post_value( 'ap-password2' );
 
 		if ( empty( $old_password ) || empty( $password1 ) || empty( $password2 ) ) {
-			Template\alert(
+			AnsPress\alert(
 				__( 'Failed to update password.', 'anspress-question-answer' ),
 				__( 'Password field must not be empty.', 'anspress-question-answer' ),
 				'error'
@@ -503,7 +504,7 @@ class Profile extends \AnsPress\Singleton {
 
 			// Check password 1 and 2 are matching.
 			if ( $password1 !== $password2 ) {
-				Template\alert(
+				AnsPress\alert(
 					__( 'Failed to update password.', 'anspress-question-answer' ),
 					__( 'Confirm password did not matched, please try again.', 'anspress-question-answer' ),
 					'error'
@@ -514,12 +515,12 @@ class Profile extends \AnsPress\Singleton {
 			// All done now update password.
 			wp_set_password( $password1, get_current_user_id() );
 
-			Template\alert(
+			AnsPress\alert(
 				__( 'Successfully updated password.', 'anspress-question-answer' )
 			);
 
 		} else {
-			Template\alert(
+			AnsPress\alert(
 				__( 'Failed to update password.', 'anspress-question-answer' ),
 				__( 'Old password did not matched.', 'anspress-question-answer' ),
 				'error'

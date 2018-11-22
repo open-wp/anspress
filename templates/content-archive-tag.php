@@ -6,7 +6,7 @@
  * @package AnsPress
  * @subpackage Templates
  */
-namespace AnsPress\Template;
+namespace AnsPress;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;

@@ -9,7 +9,7 @@
  * @since      4.2.0
  */
 
-namespace AnsPress\Template;
+namespace AnsPress;
 
 ?>
 <div id="question-<?php the_ID(); ?>" class="<?php post_classes( 'ap-questions-item' ); ?>"" itemtype="https://schema.org/Question" itemscope="">

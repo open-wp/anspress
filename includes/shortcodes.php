@@ -235,7 +235,7 @@ class Shortcodes {
 
 		$answer_id    = get_query_var( 'answer_id', false );
 		$answers_args = [];
-		$order_by     = Template\get_current_answer_sorting();
+		$order_by     = get_current_answer_sorting();
 
 		// Show unpublished answers.
 		if ( is_user_logged_in() && 'unpublished' === $order_by ) {

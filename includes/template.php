@@ -10,7 +10,7 @@
  * @since     4.2.0
  */
 
-namespace AnsPress\Template;
+namespace AnsPress;
 use AnsPress\Shortcodes;
 
 // Bail if accessed directly.

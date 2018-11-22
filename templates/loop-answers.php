@@ -9,7 +9,7 @@
  * @package Templates
  */
 
-namespace AnsPress\Template;
+namespace AnsPress;
 ?>
 <apanswersw>
 
