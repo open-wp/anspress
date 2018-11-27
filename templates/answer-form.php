@@ -6,6 +6,7 @@
  * @since unknown
  * @license GPL3+
  * @package AnsPress
+ * @subpackage Templates
  */
 
 $ajax_query = wp_json_encode(

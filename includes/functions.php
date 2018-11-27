@@ -2694,3 +2694,5 @@ function ap_set_404() {
 	global $wp_query;
 	$wp_query->set_404();
 }
+
+

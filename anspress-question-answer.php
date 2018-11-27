@@ -283,6 +283,14 @@ if ( ! class_exists( 'AnsPress' ) ) {
 		private function includes() {
 			require_once ANSPRESS_DIR . 'loader.php';
 
+			require_once ANSPRESS_DIR . 'includes/class/class-abstract-data.php';
+			require_once ANSPRESS_DIR . 'includes/class/class-data-store.php';
+			require_once ANSPRESS_DIR . 'includes/class/class-data-store-wp.php';
+			require_once ANSPRESS_DIR . 'includes/class/class-exception.php';
+			require_once ANSPRESS_DIR . 'includes/class/class-question-data-store-cpt.php';
+			require_once ANSPRESS_DIR . 'includes/class/class-meta-data.php';
+			require_once ANSPRESS_DIR . 'includes/class/class-question.php';
+
 			require_once ANSPRESS_DIR . 'includes/template-loader.php';
 			require_once ANSPRESS_DIR . 'includes/template-functions.php';
 			require_once ANSPRESS_DIR . 'includes/class-form-hooks.php';
@@ -290,7 +298,9 @@ if ( ! class_exists( 'AnsPress' ) ) {
 			require_once ANSPRESS_DIR . 'includes/functions.php';
 			require_once ANSPRESS_DIR . 'includes/hooks.php';
 
-			require_once ANSPRESS_DIR . 'includes/question.php';
+			require_once ANSPRESS_DIR . 'includes/formatting.php';
+
+			require_once ANSPRESS_DIR . 'includes/question-functions.php';
 			require_once ANSPRESS_DIR . 'includes/answer.php';
 
 			require_once ANSPRESS_DIR . 'includes/activity.php';
