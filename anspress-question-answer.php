@@ -283,13 +283,19 @@ if ( ! class_exists( 'AnsPress' ) ) {
 		private function includes() {
 			require_once ANSPRESS_DIR . 'loader.php';
 
-			require_once ANSPRESS_DIR . 'includes/class/class-abstract-data.php';
-			require_once ANSPRESS_DIR . 'includes/class/class-data-store.php';
-			require_once ANSPRESS_DIR . 'includes/class/class-data-store-wp.php';
-			require_once ANSPRESS_DIR . 'includes/class/class-exception.php';
-			require_once ANSPRESS_DIR . 'includes/class/class-question-data-store-cpt.php';
-			require_once ANSPRESS_DIR . 'includes/class/class-meta-data.php';
-			require_once ANSPRESS_DIR . 'includes/class/class-question.php';
+			require_once ANSPRESS_DIR . 'includes/classes/class-query.php';
+			require_once ANSPRESS_DIR . 'includes/classes/class-singleton.php';
+			require_once ANSPRESS_DIR . 'includes/classes/class-abstract-data.php';
+			require_once ANSPRESS_DIR . 'includes/classes/class-datetime.php';
+			require_once ANSPRESS_DIR . 'includes/classes/class-data-store.php';
+			require_once ANSPRESS_DIR . 'includes/classes/class-data-store-wp.php';
+			require_once ANSPRESS_DIR . 'includes/classes/class-exception.php';
+			require_once ANSPRESS_DIR . 'includes/classes/class-question-data-store-cpt.php';
+			require_once ANSPRESS_DIR . 'includes/classes/class-meta-data.php';
+			require_once ANSPRESS_DIR . 'includes/classes/class-question.php';
+			require_once ANSPRESS_DIR . 'includes/classes/class-activity-helper.php';
+			require_once ANSPRESS_DIR . 'includes/classes/class-activity.php';
+			require_once ANSPRESS_DIR . 'includes/classes/class-session.php';
 
 			require_once ANSPRESS_DIR . 'includes/template-loader.php';
 			require_once ANSPRESS_DIR . 'includes/template-functions.php';
@@ -323,10 +329,7 @@ if ( ! class_exists( 'AnsPress' ) ) {
 			require_once ANSPRESS_DIR . 'includes/taxo.php';
 			require_once ANSPRESS_DIR . 'includes/reputation.php';
 			require_once ANSPRESS_DIR . 'includes/subscribers.php';
-			require_once ANSPRESS_DIR . 'includes/class-query.php';
-			require_once ANSPRESS_DIR . 'includes/class/class-activity-helper.php';
-			require_once ANSPRESS_DIR . 'includes/class/class-activity.php';
-			require_once ANSPRESS_DIR . 'includes/class/class-session.php';
+
 			require_once ANSPRESS_DIR . 'includes/template.php';
 
 			require_once ANSPRESS_DIR . 'widgets/search.php';
@@ -648,8 +651,7 @@ add_action( 'plugins_loaded', [ 'AnsPress_Init', 'load_textdomain' ], 0 );
 add_action( 'wpmu_new_blog', [ 'AnsPress_Init', 'create_blog' ], 10, 6 );
 add_filter( 'wpmu_drop_tables', [ 'AnsPress_Init', 'drop_blog_tables' ], 10, 2 );
 
-require_once dirname( __FILE__ ) . '/includes/class/roles-cap.php';
-require_once dirname( __FILE__ ) . '/includes/class/class-singleton.php';
+require_once dirname( __FILE__ ) . '/includes/roles-cap.php';
 
 /*
  * Register hooks that are fired when the plugin is activated or deactivated.

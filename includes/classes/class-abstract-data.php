@@ -31,7 +31,6 @@ abstract class Data {
 	/**
 	 * ID for this object.
 	 *
-	 * @since 3.0.0
 	 * @var int
 	 */
 	protected $id = 0;
@@ -39,7 +38,6 @@ abstract class Data {
 	/**
 	 * Core data for this object. Name value pairs (name + default value).
 	 *
-	 * @since 3.0.0
 	 * @var array
 	 */
 	protected $data = [];
@@ -47,7 +45,6 @@ abstract class Data {
 	/**
 	 * Core data changes for this object.
 	 *
-	 * @since 3.0.0
 	 * @var array
 	 */
 	protected $changes = [];
@@ -55,7 +52,6 @@ abstract class Data {
 	/**
 	 * This is false until the object is read from the DB.
 	 *
-	 * @since 3.0.0
 	 * @var bool
 	 */
 	protected $object_read = false;
@@ -63,7 +59,6 @@ abstract class Data {
 	/**
 	 * This is the name of this object type.
 	 *
-	 * @since 3.0.0
 	 * @var string
 	 */
 	protected $object_type = 'data';
@@ -73,7 +68,6 @@ abstract class Data {
 	 * Used as a standard way for sub classes (like product types) to add
 	 * additional information to an inherited class.
 	 *
-	 * @since 3.0.0
 	 * @var array
 	 */
 	protected $extra_data = [];
@@ -81,7 +75,6 @@ abstract class Data {
 	/**
 	 * Set to _data on construct so we can track and reset data if needed.
 	 *
-	 * @since 3.0.0
 	 * @var array
 	 */
 	protected $default_data = [];
@@ -89,7 +82,6 @@ abstract class Data {
 	/**
 	 * Contains a reference to the data store for this class.
 	 *
-	 * @since 3.0.0
 	 * @var object
 	 */
 	protected $data_store;
@@ -98,7 +90,6 @@ abstract class Data {
 	 * Stores meta in cache for future reads.
 	 * A group must be set to to enable caching.
 	 *
-	 * @since 3.0.0
 	 * @var string
 	 */
 	protected $cache_group = '';
@@ -106,7 +97,6 @@ abstract class Data {
 	/**
 	 * Stores additional meta data.
 	 *
-	 * @since 3.0.0
 	 * @var array
 	 */
 	protected $meta_data = null;
@@ -146,8 +136,6 @@ abstract class Data {
 
 	/**
 	 * When the object is cloned, make sure meta is duplicated correctly.
-	 *
-	 * @since 3.0.2
 	 */
 	public function __clone() {
 		$this->maybe_read_meta_data();
@@ -164,7 +152,6 @@ abstract class Data {
 	/**
 	 * Get the data store.
 	 *
-	 * @since  3.0.0
 	 * @return object
 	 */
 	public function get_data_store() {
@@ -174,7 +161,6 @@ abstract class Data {
 	/**
 	 * Returns the unique ID for this object.
 	 *
-	 * @since  2.6.0
 	 * @return int
 	 */
 	public function get_id() {
@@ -184,7 +170,6 @@ abstract class Data {
 	/**
 	 * Delete an object, set the ID to 0, and return result.
 	 *
-	 * @since  2.6.0
 	 * @param  bool $force_delete Should the date be deleted permanently.
 	 * @return bool result
 	 */
@@ -200,7 +185,6 @@ abstract class Data {
 	/**
 	 * Save should create or update based on object existence.
 	 *
-	 * @since  2.6.0
 	 * @return int
 	 */
 	public function save() {
@@ -220,7 +204,6 @@ abstract class Data {
 	/**
 	 * Change data to JSON format.
 	 *
-	 * @since  2.6.0
 	 * @return string Data in JSON format.
 	 */
 	public function __toString() {
@@ -230,7 +213,6 @@ abstract class Data {
 	/**
 	 * Returns all data for this object.
 	 *
-	 * @since  2.6.0
 	 * @return array
 	 */
 	public function get_data() {
@@ -240,7 +222,6 @@ abstract class Data {
 	/**
 	 * Returns array of expected data keys for this object.
 	 *
-	 * @since   3.0.0
 	 * @return array
 	 */
 	public function get_data_keys() {
@@ -250,7 +231,6 @@ abstract class Data {
 	/**
 	 * Returns all "extra" data keys for an object (for sub objects like product types).
 	 *
-	 * @since  3.0.0
 	 * @return array
 	 */
 	public function get_extra_data_keys() {
@@ -260,7 +240,6 @@ abstract class Data {
 	/**
 	 * Filter null meta values from array.
 	 *
-	 * @since  3.0.0
 	 * @param mixed $meta Meta value to check.
 	 * @return bool
 	 */
@@ -271,7 +250,6 @@ abstract class Data {
 	/**
 	 * Get All Meta Data.
 	 *
-	 * @since 2.6.0
 	 * @return array of objects.
 	 */
 	public function get_meta_data() {
@@ -282,7 +260,6 @@ abstract class Data {
 	/**
 	 * Check if the key is an internal one.
 	 *
-	 * @since  3.2.0
 	 * @param  string $key Key to check.
 	 * @return bool   true if it's an internal key, false otherwise
 	 */
@@ -307,7 +284,6 @@ abstract class Data {
 	/**
 	 * Get Meta Data by Key.
 	 *
-	 * @since  2.6.0
 	 * @param  string $key Meta Key.
 	 * @param  bool   $single return first found meta with key, or all with $key.
 	 * @param  string $context What the value is for. Valid values are view and edit.
@@ -346,7 +322,6 @@ abstract class Data {
 	/**
 	 * See if meta data exists, since get_meta always returns a '' or array().
 	 *
-	 * @since  3.0.0
 	 * @param  string $key Meta Key.
 	 * @return boolean
 	 */
@@ -359,7 +334,6 @@ abstract class Data {
 	/**
 	 * Set all meta data from array.
 	 *
-	 * @since 2.6.0
 	 * @param array $data Key/Value pairs.
 	 */
 	public function set_meta_data( $data ) {
@@ -380,8 +354,6 @@ abstract class Data {
 
 	/**
 	 * Add meta data.
-	 *
-	 * @since 2.6.0
 	 *
 	 * @param string        $key Meta key.
 	 * @param string|array  $value Meta value.
@@ -408,8 +380,6 @@ abstract class Data {
 
 	/**
 	 * Update meta data by key or ID, if provided.
-	 *
-	 * @since  2.6.0
 	 *
 	 * @param  string       $key Meta key.
 	 * @param  string|array $value Meta value.
@@ -461,7 +431,6 @@ abstract class Data {
 	/**
 	 * Delete meta data.
 	 *
-	 * @since 2.6.0
 	 * @param string $key Meta key.
 	 */
 	public function delete_meta_data( $key ) {
@@ -478,7 +447,6 @@ abstract class Data {
 	/**
 	 * Delete meta data.
 	 *
-	 * @since 2.6.0
 	 * @param int $mid Meta ID.
 	 */
 	public function delete_meta_data_by_mid( $mid ) {
@@ -494,8 +462,6 @@ abstract class Data {
 
 	/**
 	 * Read meta data if null.
-	 *
-	 * @since 3.0.0
 	 */
 	protected function maybe_read_meta_data() {
 		if ( is_null( $this->meta_data ) ) {
@@ -507,7 +473,6 @@ abstract class Data {
 	 * Read Meta Data from the database. Ignore any internal properties.
 	 * Uses it's own caches because get_metadata does not provide meta_ids.
 	 *
-	 * @since 2.6.0
 	 * @param bool $force_read True to force a new DB read (and update cache).
 	 */
 	public function read_meta_data( $force_read = false ) {
@@ -552,8 +517,6 @@ abstract class Data {
 
 	/**
 	 * Update Meta Data in the database.
-	 *
-	 * @since 2.6.0
 	 */
 	public function save_meta_data() {
 		if ( ! $this->data_store || is_null( $this->meta_data ) ) {
@@ -584,7 +547,6 @@ abstract class Data {
 	/**
 	 * Set ID.
 	 *
-	 * @since 3.0.0
 	 * @param int $id ID.
 	 */
 	public function set_id( $id ) {
@@ -593,8 +555,6 @@ abstract class Data {
 
 	/**
 	 * Set all props to default values.
-	 *
-	 * @since 3.0.0
 	 */
 	public function set_defaults() {
 		$this->data        = $this->default_data;
@@ -605,7 +565,6 @@ abstract class Data {
 	/**
 	 * Set object read property.
 	 *
-	 * @since 3.0.0
 	 * @param boolean $read Should read?.
 	 */
 	public function set_object_read( $read = true ) {
@@ -615,7 +574,6 @@ abstract class Data {
 	/**
 	 * Get object read property.
 	 *
-	 * @since  3.0.0
 	 * @return boolean
 	 */
 	public function get_object_read() {
@@ -625,8 +583,6 @@ abstract class Data {
 	/**
 	 * Set a collection of props in one go, collect any errors, and return the result.
 	 * Only sets using public methods.
-	 *
-	 * @since  3.0.0
 	 *
 	 * @param array  $props Key value pairs to set. Key is the prop and should map to a setter function name.
 	 * @param string $context In what context to run this.
@@ -663,7 +619,6 @@ abstract class Data {
 	 * This stores changes in a special array so we can track what needs saving
 	 * the the DB later.
 	 *
-	 * @since 3.0.0
 	 * @param string $prop Name of prop to set.
 	 * @param mixed  $value Value of the prop.
 	 */
@@ -682,7 +637,6 @@ abstract class Data {
 	/**
 	 * Return data changes only.
 	 *
-	 * @since 3.0.0
 	 * @return array
 	 */
 	public function get_changes() {
@@ -691,8 +645,6 @@ abstract class Data {
 
 	/**
 	 * Merge changes with data and clear.
-	 *
-	 * @since 3.0.0
 	 */
 	public function apply_changes() {
 		$this->data    = array_replace_recursive( $this->data, $this->changes ); // @codingStandardsIgnoreLine
@@ -702,7 +654,6 @@ abstract class Data {
 	/**
 	 * Prefix for action and filter hooks on data.
 	 *
-	 * @since  3.0.0
 	 * @return string
 	 */
 	protected function get_hook_prefix() {
@@ -715,7 +666,6 @@ abstract class Data {
 	 * Gets the value from either current pending changes, or the data itself.
 	 * Context controls what happens to the value before it's returned.
 	 *
-	 * @since  3.0.0
 	 * @param  string $prop Name of prop to get.
 	 * @param  string $context What the value is for. Valid values are view and edit.
 	 * @return mixed
@@ -737,7 +687,6 @@ abstract class Data {
 	/**
 	 * Sets a date prop whilst handling formatting and datetime objects.
 	 *
-	 * @since 3.0.0
 	 * @param string         $prop Name of prop to set.
 	 * @param string|integer $value Value of the prop.
 	 */
@@ -776,7 +725,6 @@ abstract class Data {
 	 * When invalid data is found, throw an exception unless reading from the DB.
 	 *
 	 * @throws WC_Data_Exception Data Exception.
-	 * @since 3.0.0
 	 * @param string $code             Error code.
 	 * @param string $message          Error message.
 	 * @param int    $http_status_code HTTP status code.

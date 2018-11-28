@@ -12,7 +12,19 @@
  */
 
 namespace AnsPress;
-
+$question = new Question();
+var_dump($question->get_title());
+//$question->set_title('');
+//$question->set_content('Sed id lacus enim, sit amet imperdiet orci.');
+// $question->set_best_answer_id(23456);
+// $question->set_view_counts(3002);
+// $question->set_answer_counts(41);
+// $question->set_vote_down_counts(20);
+// $question->set_vote_up_counts(5);
+// $question->set_status( 'private' );
+var_dump($question->save());
+$question = new Question(4658);
+var_dump($question->get_title());
 ?>
 <div id="ap-single" class="ap-q clearfix">
 

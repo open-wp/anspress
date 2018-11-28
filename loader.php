@@ -27,9 +27,7 @@ function autoloader( $class ) {
 	$filename      = str_replace( '_', '-', str_replace( '\\', '/', $file ) ) . '.php';
 	$filename_path = ANSPRESS_DIR . $filename;
 
-	if ( file_exists( ANSPRESS_DIR . 'includes/class/class-' . $filename ) ) {
-		$filename_path = ANSPRESS_DIR . 'includes/class/class-' . $filename;
-	} elseif ( ! file_exists( $filename ) ) {
+	if ( ! file_exists( $filename ) ) {
 		$filename_path = ANSPRESS_DIR . 'includes/' . $filename;
 	}
 
