@@ -15,10 +15,11 @@ namespace AnsPress;
 <div class="ap-questions">
 	<?php
 	/* Start the Loop */
-	while ( ap_have_questions() ) :
-		ap_the_question();
-		ap_get_template_part( 'loop-question' );
+	while ( ap_have_questions() ) : ap_the_question();
+		global $post;
+		$question = ap_get_question( $post );
 
+		ap_get_template_part( 'loop-question', [ 'question' => $question ] );
 	endwhile;
 	?>
 </div>

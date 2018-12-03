@@ -44,6 +44,7 @@ class Question_Data_Store_CPT extends Data_Store_WP {
 	 */
 	public function create( &$question ) {
 		$question->set_date_created( current_time( 'timestamp', true ) );
+		$question->set_version( AP_VERSION );
 
 		if ( empty( $question->get_title() ) ) {
 			throw new \Exception( __( 'Question cannot be created without a title.', 'anspress-question-answer' ) );
@@ -55,8 +56,7 @@ class Question_Data_Store_CPT extends Data_Store_WP {
 		 * @param array $data Question data.
 		 * @since 4.2.0
 		 */
-		$data = apply_filters(
-			'ap_new_question_data',
+		$data = apply_filters( 'ap_new_question_data',
 			array(
 				'post_title'    => $question->get_title( 'edit' ),
 				'post_content'  => $question->get_content( 'edit' ),
@@ -68,7 +68,7 @@ class Question_Data_Store_CPT extends Data_Store_WP {
 				'post_author'   => 1,
 				//'post_password' => uniqid( 'order_' ),
 				'post_parent'   => $question->get_parent_id( 'edit' ),
-				'post_excerpt'  => $this->get_post_excerpt( $question ),
+				'post_excerpt'  => '',
 			)
 		);
 
@@ -108,6 +108,7 @@ class Question_Data_Store_CPT extends Data_Store_WP {
 		$question->set_props( array(
 			'title'         => $post_object->post_title,
 			'content'       => $post_object->post_content,
+			'author_id'     => $post_object->post_author,
 			'parent_id'     => $post_object->post_parent,
 			'date_created'  => $post_object->post_date_gmt,
 			'date_created'  => 0 < $post_object->post_date_gmt ? string_to_timestamp( $post_object->post_date_gmt ) : null,
@@ -130,16 +131,13 @@ class Question_Data_Store_CPT extends Data_Store_WP {
 	protected function read_question_data( &$question, $post_object ) {
 		$id = $question->get_id();
 
-		$question->set_props(
-			array(
-				'answer_counts'    => get_post_meta( $id, '_answer_counts', true ),
-				'vote_up_counts'   => get_post_meta( $id, '_vote_up_counts', true ),
-				'vote_down_counts' => get_post_meta( $id, '_vote_down_counts', true ),
-				'vote_net_counts'  => get_post_meta( $id, '_vote_net_counts', true ),
-				'best_answer_id'   => get_post_meta( $id, '_best_answer_id', true ),
-				'view_counts'      => get_post_meta( $id, '_view_counts', true ),
-			)
-		);
+		// Set default meta keys.
+		foreach ( $question->get_meta_props() as $meta_key => $map ) {
+			$function = 'set_' . $map;
+			if ( is_callable( array( $question, $function ) ) ) {
+				$question->{$function}( get_post_meta( $question->get_id(), $meta_key, true ) );
+			}
+		}
 
 		// Gets extra data associated with the question if needed.
 		foreach ( $question->get_extra_data_keys() as $key ) {
@@ -157,6 +155,7 @@ class Question_Data_Store_CPT extends Data_Store_WP {
 	 */
 	public function update( &$question ) {
 		$question->save_meta_data();
+		$question->set_version( AP_VERSION );
 
 		if ( null === $question->get_date_created( 'edit' ) ) {
 			$question->set_date_created( current_time( 'timestamp', true ) );
@@ -177,6 +176,7 @@ class Question_Data_Store_CPT extends Data_Store_WP {
 			$post_data = array(
 				'post_title'        => $question->get_title( 'edit' ),
 				'post_content'      => $question->get_content( 'edit' ),
+				'post_author'       => $question->get_author_id( 'edit' ),
 				'post_date'         => gmdate( 'Y-m-d H:i:s', $question->get_date_created( 'edit' )->getOffsetTimestamp() ),
 				'post_date_gmt'     => gmdate( 'Y-m-d H:i:s', $question->get_date_created( 'edit' )->getTimestamp() ),
 				'post_status'       => ( $question->get_status( 'edit' ) ? $question->get_status( 'edit' ) : apply_filters( 'ap_default_question_status', 'pending' ) ),
@@ -250,22 +250,16 @@ class Question_Data_Store_CPT extends Data_Store_WP {
 	 * @param Question $question Question object.
 	 */
 	protected function update_post_meta( &$question ) {
-		$updated_props     = array();
-		$id                = $question->get_id();
-
-		$meta_key_to_props = array(
-			'_answer_counts'    => 'answer_counts',
-			'_vote_up_counts'   => 'vote_up_counts',
-			'_vote_down_counts' => 'vote_down_counts',
-			'_vote_net_counts'  => 'vote_net_counts',
-			'_best_answer_id'   => 'best_answer_id',
-			'_view_counts'      => 'view_counts',
-		);
-
-		$props_to_update = $this->get_props_to_update( $question, $meta_key_to_props );
+		$updated_props   = array();
+		$id              = $question->get_id();
+		$props_to_update = $this->get_props_to_update( $question, $question->get_meta_props() );
 
 		foreach ( $props_to_update as $meta_key => $prop ) {
 			$value = $question->{"get_$prop"}( 'edit' );
+			// If date object get timestamp.
+			if ( $value instanceof \AnsPress\DateTime ) {
+				$value = $value->date( 'Y-m-d H:i:s' );
+			}
 
 			if ( update_post_meta( $question->get_id(), $meta_key, $value ) ) {
 				$updated_props[] = $prop;
@@ -322,7 +316,7 @@ class Question_Data_Store_CPT extends Data_Store_WP {
 		$items = wp_list_filter( $items, array( 'order_item_type' => $type ) );
 
 		if ( ! empty( $items ) ) {
-			$items = array_map( array( 'WC_Order_Factory', 'get_order_item' ), array_combine( wp_list_pluck( $items, 'order_item_id' ), $items ) );
+			//$items = array_map( array( 'WC_Order_Factory', 'get_order_item' ), array_combine( wp_list_pluck( $items, 'order_item_id' ), $items ) );
 		} else {
 			$items = array();
 		}

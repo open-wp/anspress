@@ -102,6 +102,13 @@ abstract class Data {
 	protected $meta_data = null;
 
 	/**
+	 * All meta keys props.
+	 *
+	 * @var array
+	 */
+	protected $meta_props = [];
+
+	/**
 	 * Default constructor.
 	 *
 	 * @param int|object|array $read ID to load from the DB (optional) or already queried data.
@@ -150,6 +157,26 @@ abstract class Data {
 	}
 
 	/**
+	 * Magic getter method.
+	 *
+	 * @param string $name Name of method.
+	 * @return void
+	 */
+	public function __call( $name, $arguments ) {
+		if ( preg_match( '/^the_(.+)/', $name, $matches ) ) {
+
+			$getter = 'get_' . preg_replace( '/^the_/', '', $name );
+			if ( method_exists( $this, $getter ) ) {
+				echo call_user_func_array( [ $this, $getter ], $arguments );
+			} else {
+				trigger_error( "Method {$getter}() does not exists. Create method {$getter}() to echo it using {$name}() in " . \get_class( $this ), E_USER_ERROR );
+			}
+		} elseif ( ! method_exists( $this, $name ) ) {
+			trigger_error( "Method {$name}() does not exists in " . \get_class( $this ), E_USER_ERROR );
+		}
+    }
+
+	/**
 	 * Get the data store.
 	 *
 	 * @return object
@@ -165,6 +192,15 @@ abstract class Data {
 	 */
 	public function get_id() {
 		return $this->id;
+	}
+
+	/**
+	 * Get meta key props.
+	 *
+	 * @return array
+	 */
+	public function get_meta_props() {
+		return $this->meta_props;
 	}
 
 	/**
@@ -605,7 +641,7 @@ abstract class Data {
 						$this->{$setter}( $value );
 					}
 				}
-			} catch ( \WC_Data_Exception  $e ) {
+			} catch ( \Exception $e ) {
 				$errors->add( $e->getErrorCode(), $e->getMessage() );
 			}
 		}
@@ -724,7 +760,7 @@ abstract class Data {
 	/**
 	 * When invalid data is found, throw an exception unless reading from the DB.
 	 *
-	 * @throws WC_Data_Exception Data Exception.
+	 * @throws AnsPress\Exception Data Exception.
 	 * @param string $code             Error code.
 	 * @param string $message          Error message.
 	 * @param int    $http_status_code HTTP status code.

@@ -9,227 +9,304 @@
  * @copyright 2014 Rahul Aryan
  */
 
-namespace AnsPress;
-
-// Bail if accessed directly.
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
-
-/**
- * Register custom post type question.
- *
- * @return void
- * @since 4.2.0 Moved from `AnsPress_PostTypes` class.
- */
-function _register_question() {
-
-	add_rewrite_tag( '%question_id%', '([0-9]+)', 'post_type=question&p=' );
-	add_rewrite_tag( '%question%', '([^/]+)' );
-
-	// Question CPT labels.
-	$labels = array(
-		'name'               => _x( 'Questions', 'Post Type General Name', 'anspress-question-answer' ),
-		'singular_name'      => _x( 'Question', 'Post Type Singular Name', 'anspress-question-answer' ),
-		'menu_name'          => __( 'Questions', 'anspress-question-answer' ),
-		'parent_item_colon'  => __( 'Parent question:', 'anspress-question-answer' ),
-		'all_items'          => __( 'All questions', 'anspress-question-answer' ),
-		'view_item'          => __( 'View question', 'anspress-question-answer' ),
-		'add_new_item'       => __( 'Add new question', 'anspress-question-answer' ),
-		'add_new'            => __( 'New question', 'anspress-question-answer' ),
-		'edit_item'          => __( 'Edit question', 'anspress-question-answer' ),
-		'update_item'        => __( 'Update question', 'anspress-question-answer' ),
-		'search_items'       => __( 'Search questions', 'anspress-question-answer' ),
-		'not_found'          => __( 'No question found', 'anspress-question-answer' ),
-		'not_found_in_trash' => __( 'No questions found in trash', 'anspress-question-answer' ),
-	);
+namespace AnsPress{
+	defined( 'ABSPATH' ) || exit;
 
 	/**
-	 * Override default question CPT labels.
+	 * Register custom post type question.
 	 *
-	 * @param array $labels Default question labels.
+	 * @return void
+	 * @since 4.2.0 Moved from `AnsPress_PostTypes` class.
 	 */
-	$labels = apply_filters( 'ap_question_cpt_labels', $labels );
+	function _register_question() {
 
-	// Question CPT arguments.
-	$args = array(
-		'label'               => __( 'question', 'anspress-question-answer' ),
-		'description'         => __( 'Question', 'anspress-question-answer' ),
-		'labels'              => $labels,
-		'supports'            => array(
-			'title',
-			'editor',
-			'author',
-			'comments',
-			'excerpt',
-			'trackbacks',
-			'revisions',
-			'custom-fields',
-			'buddypress-activity',
-		),
-		'hierarchical'        => false,
-		'public'              => true,
-		'show_ui'             => true,
-		'show_in_menu'        => false,
-		'show_in_nav_menus'   => false,
-		'show_in_admin_bar'   => true,
-		'menu_icon'           => ANSPRESS_URL . '/assets/question.png',
-		'can_export'          => true,
-		'has_archive'         => true,
-		'exclude_from_search' => true,
-		'publicly_queryable'  => true,
-		'capability_type'     => 'post',
-		'rewrite'             => false,
-		'query_var'           => 'question',
-		'delete_with_user'    => true,
-		'capabilities' => array(
-			'edit_post'          => 'ap_edit_question',
-			'read_post'          => 'ap_read_question',
-			'delete_post'        => 'ap_delete_question',
-			'edit_posts'         => 'ap_edit_questions',
-			'edit_others_posts'  => 'ap_edit_others_question',
-			'publish_posts'      => 'ap_new_question',
-			'read_private_posts' => 'ap_read_question',
-			'create_posts'       => 'ap_new_question',
-		),
-	);
+		add_rewrite_tag( '%question_id%', '([0-9]+)', 'post_type=question&p=' );
+		add_rewrite_tag( '%question%', '([^/]+)' );
 
-	/**
-	 * Filter default question CPT arguments.
-	 *
-	 * @param array $args CPT arguments.
-	 */
-	$args = apply_filters( 'ap_question_cpt_args', $args );
+		// Question CPT labels.
+		$labels = array(
+			'name'               => _x( 'Questions', 'Post Type General Name', 'anspress-question-answer' ),
+			'singular_name'      => _x( 'Question', 'Post Type Singular Name', 'anspress-question-answer' ),
+			'menu_name'          => __( 'Questions', 'anspress-question-answer' ),
+			'parent_item_colon'  => __( 'Parent question:', 'anspress-question-answer' ),
+			'all_items'          => __( 'All questions', 'anspress-question-answer' ),
+			'view_item'          => __( 'View question', 'anspress-question-answer' ),
+			'add_new_item'       => __( 'Add new question', 'anspress-question-answer' ),
+			'add_new'            => __( 'New question', 'anspress-question-answer' ),
+			'edit_item'          => __( 'Edit question', 'anspress-question-answer' ),
+			'update_item'        => __( 'Update question', 'anspress-question-answer' ),
+			'search_items'       => __( 'Search questions', 'anspress-question-answer' ),
+			'not_found'          => __( 'No question found', 'anspress-question-answer' ),
+			'not_found_in_trash' => __( 'No questions found in trash', 'anspress-question-answer' ),
+		);
 
-	// Call it before registering cpt.
-	\AnsPress_Rewrite::rewrite_rules();
+		/**
+		 * Override default question CPT labels.
+		 *
+		 * @param array $labels Default question labels.
+		 */
+		$labels = apply_filters( 'ap_question_cpt_labels', $labels );
 
-	// Register CPT question.
-	register_post_type( 'question', $args );
-}
+		// Question CPT arguments.
+		$args = array(
+			'label'               => __( 'question', 'anspress-question-answer' ),
+			'description'         => __( 'Question', 'anspress-question-answer' ),
+			'labels'              => $labels,
+			'supports'            => array(
+				'title',
+				'editor',
+				'author',
+				'comments',
+				'excerpt',
+				'trackbacks',
+				'revisions',
+				'custom-fields',
+				'buddypress-activity',
+			),
+			'hierarchical'        => false,
+			'public'              => true,
+			'show_ui'             => true,
+			'show_in_menu'        => false,
+			'show_in_nav_menus'   => false,
+			'show_in_admin_bar'   => true,
+			'menu_icon'           => ANSPRESS_URL . '/assets/question.png',
+			'can_export'          => true,
+			'has_archive'         => true,
+			'exclude_from_search' => true,
+			'publicly_queryable'  => true,
+			'capability_type'     => 'post',
+			'rewrite'             => false,
+			'query_var'           => 'question',
+			'delete_with_user'    => true,
+			'capabilities' => array(
+				'edit_post'          => 'ap_edit_question',
+				'read_post'          => 'ap_read_question',
+				'delete_post'        => 'ap_delete_question',
+				'edit_posts'         => 'ap_edit_questions',
+				'edit_others_posts'  => 'ap_edit_others_question',
+				'publish_posts'      => 'ap_new_question',
+				'read_private_posts' => 'ap_read_question',
+				'create_posts'       => 'ap_new_question',
+			),
+		);
 
-/**
- * Filters question cpt archive link.
- *
- * @param string $link      The post type archive permalink.
- * @param string $post_type Post type name.
- * @since 4.2.0 Moved from `AnsPress_PostTypes` class.
- */
-function _question_archive_link( $link, $post_type ) {
-	if ( 'question' === $post_type ) {
-		return get_permalink( ap_opt( 'base_page' ) );
-	}
+		/**
+		 * Filter default question CPT arguments.
+		 *
+		 * @param array $args CPT arguments.
+		 */
+		$args = apply_filters( 'ap_question_cpt_args', $args );
 
-	return $link;
-}
+		// Call it before registering cpt.
+		\AnsPress_Rewrite::rewrite_rules();
 
-/**
- * Return question cpt permalink structure.
- *
- * @return object
- * @since 4.2.0
- */
-function question_permalink_structure() {
-	$question_permalink = ap_opt( 'question_page_permalink' );
-	$question_slug      = ap_get_page_slug( 'question' );
-
-	$rewrites = [];
-	if ( 'question_perma_2' === $question_permalink ) {
-		$rewrites['rule'] = $question_slug . '/%question%';
-	} elseif ( 'question_perma_3' === $question_permalink ) {
-		$rewrites['rule'] = $question_slug . '/%question_id%';
-	} elseif ( 'question_perma_4' === $question_permalink ) {
-		$rewrites['rule'] = $question_slug . '/%question_id%/%question%';
-	} elseif ( 'question_perma_5' === $question_permalink ) {
-		$rewrites['rule'] = $question_slug . '/%question%/%question_id%';
-	} elseif ( 'question_perma_6' === $question_permalink ) {
-		$rewrites['rule'] = $question_slug . '/%question_id%-%question%';
-	} elseif ( 'question_perma_7' === $question_permalink ) {
-		$rewrites['rule'] = $question_slug . '/%question%-%question_id%';
-	} else {
-		$rewrites['rule'] = ap_base_page_slug() . '/' . $question_slug . '/%question%';
+		// Register CPT question.
+		register_post_type( 'question', $args );
 	}
 
 	/**
-	 * Allows filtering question permalink structure.
+	 * Filters question cpt archive link.
 	 *
-	 * @param array $rewrite Question permalink structure.
-	 * @since 4.1.0
+	 * @param string $link      The post type archive permalink.
+	 * @param string $post_type Post type name.
+	 * @since 4.2.0 Moved from `AnsPress_PostTypes` class.
 	 */
-	return (object) apply_filters( 'ap_question_perm_structure', $rewrites );
-}
+	function _question_archive_link( $link, $post_type ) {
+		if ( 'question' === $post_type ) {
+			return get_permalink( ap_opt( 'base_page' ) );
+		}
 
-/**
- * Modify question cpt permalink.
- *
- * @param  string $link Link.
- * @param  object $post Post object.
- * @return string
- * @since 4.2.0
- */
-function _question_type_link( $link, $post ) {
-	if ( 'question' !== $post->post_type ) {
 		return $link;
 	}
 
-	$question_slug = ap_opt( 'question_page_permalink' );
+	/**
+	 * Return question cpt permalink structure.
+	 *
+	 * @return object
+	 * @since 4.2.0
+	 */
+	function question_permalink_structure() {
+		$question_permalink = ap_opt( 'question_page_permalink' );
+		$question_slug      = ap_get_page_slug( 'question' );
 
-	if ( empty( $question_slug ) ) {
-		$question_slug = 'question_perma_1';
-	}
+		$rewrites = [];
+		if ( 'question_perma_2' === $question_permalink ) {
+			$rewrites['rule'] = $question_slug . '/%question%';
+		} elseif ( 'question_perma_3' === $question_permalink ) {
+			$rewrites['rule'] = $question_slug . '/%question_id%';
+		} elseif ( 'question_perma_4' === $question_permalink ) {
+			$rewrites['rule'] = $question_slug . '/%question_id%/%question%';
+		} elseif ( 'question_perma_5' === $question_permalink ) {
+			$rewrites['rule'] = $question_slug . '/%question%/%question_id%';
+		} elseif ( 'question_perma_6' === $question_permalink ) {
+			$rewrites['rule'] = $question_slug . '/%question_id%-%question%';
+		} elseif ( 'question_perma_7' === $question_permalink ) {
+			$rewrites['rule'] = $question_slug . '/%question%-%question_id%';
+		} else {
+			$rewrites['rule'] = ap_base_page_slug() . '/' . $question_slug . '/%question%';
+		}
 
-	$default_lang = '';
-
-	// Support polylang permalink.
-	if ( function_exists( 'pll_default_language' ) ) {
-		$default_lang = pll_default_language();
-	}
-
-	if ( get_option( 'permalink_structure' ) ) {
-		$structure = question_permalink_structure();
-		$rule      = str_replace( '%question_id%', $post->ID, $structure->rule );
-		$rule      = str_replace( '%question%', $post->post_name, $rule );
-		$link      = home_url( $default_lang . '/' . $rule . '/' );
-	} else {
-		$link = add_query_arg( array( 'question' => $post->ID ), ap_base_page_link() );
+		/**
+		 * Allows filtering question permalink structure.
+		 *
+		 * @param array $rewrite Question permalink structure.
+		 * @since 4.1.0
+		 */
+		return (object) apply_filters( 'ap_question_perm_structure', $rewrites );
 	}
 
 	/**
-	 * Allow overriding of question post type permalink
+	 * Modify question cpt permalink.
 	 *
-	 * @param string $link Question link.
-	 * @param object $post Post object.
+	 * @param  string $link Link.
+	 * @param  object $post Post object.
+	 * @return string
+	 * @since 4.2.0
 	 */
-	return apply_filters( 'ap_question_post_type_link', $link, $post );
+	function _question_type_link( $link, $post ) {
+		if ( 'question' !== $post->post_type ) {
+			return $link;
+		}
 
-	return $link;
+		$question_slug = ap_opt( 'question_page_permalink' );
+
+		if ( empty( $question_slug ) ) {
+			$question_slug = 'question_perma_1';
+		}
+
+		$default_lang = '';
+
+		// Support polylang permalink.
+		if ( function_exists( 'pll_default_language' ) ) {
+			$default_lang = pll_default_language();
+		}
+
+		if ( get_option( 'permalink_structure' ) ) {
+			$structure = question_permalink_structure();
+			$rule      = str_replace( '%question_id%', $post->ID, $structure->rule );
+			$rule      = str_replace( '%question%', $post->post_name, $rule );
+			$link      = home_url( $default_lang . '/' . $rule . '/' );
+		} else {
+			$link = add_query_arg( array( 'question' => $post->ID ), ap_base_page_link() );
+		}
+
+		/**
+		 * Allow overriding of question post type permalink
+		 *
+		 * @param string $link Question link.
+		 * @param object $post Post object.
+		 */
+		return apply_filters( 'ap_question_post_type_link', $link, $post );
+
+		return $link;
+	}
+
+	/**
+	 * Register custom question cpt status.
+	 *
+	 * @return void
+	 * @since 4.2.0
+	 * @todo improve arguments based on https://codex.wordpress.org/Function_Reference/register_post_status. Remove private post status.
+	 */
+	function _register_question_status() {
+		register_post_status(
+			'moderate', array(
+				'label'                     => __( 'Moderate', 'anspress-question-answer' ),
+				'public'                    => true,
+				'show_in_admin_all_list'    => false,
+				'show_in_admin_status_list' => true,
+				'label_count'               => _n_noop( 'Moderate <span class="count">(%s)</span>', 'Moderate <span class="count">(%s)</span>', 'anspress-question-answer' ),
+			)
+		);
+
+		register_post_status(
+			'private_post', array(
+				'label'                     => __( 'Private', 'anspress-question-answer' ),
+				'public'                    => true,
+				'show_in_admin_all_list'    => false,
+				'show_in_admin_status_list' => true,
+				'label_count'               => _n_noop( 'Private Post <span class="count">(%s)</span>', 'Private Post <span class="count">(%s)</span>', 'anspress-question-answer' ),
+			)
+		);
+	}
 }
 
-/**
- * Register custom question cpt status.
- *
- * @return void
- * @since 4.2.0
- * @todo improve arguments based on https://codex.wordpress.org/Function_Reference/register_post_status. Remove private post status.
- */
-function _register_question_status() {
-	register_post_status(
-		'moderate', array(
-			'label'                     => __( 'Moderate', 'anspress-question-answer' ),
-			'public'                    => true,
-			'show_in_admin_all_list'    => false,
-			'show_in_admin_status_list' => true,
-			'label_count'               => _n_noop( 'Moderate <span class="count">(%s)</span>', 'Moderate <span class="count">(%s)</span>', 'anspress-question-answer' ),
-		)
-	);
+namespace {
 
-	register_post_status(
-		'private_post', array(
-			'label'                     => __( 'Private', 'anspress-question-answer' ),
-			'public'                    => true,
-			'show_in_admin_all_list'    => false,
-			'show_in_admin_status_list' => true,
-			'label_count'               => _n_noop( 'Private Post <span class="count">(%s)</span>', 'Private Post <span class="count">(%s)</span>', 'anspress-question-answer' ),
-		)
-	);
+	/**
+	 * Get current question ID in single question page.
+	 *
+	 * @param integer $question_id Question ID.
+	 *
+	 * @return integer|false
+	 * @since unknown
+	 * @since 4.1.0 Remove `question_name` query var check. Get question ID from queried object.
+	 * @since 4.2.0 Added new argument `$question_id` and template compatibility.
+	 */
+	function get_question_id( $question_id = 0 ) {
+		$ap = anspress();
+
+		if ( ! empty( $question_id ) && is_numeric( $question_id ) ) {
+			$q_id = $question_id;
+		} elseif ( ap_is_single_question() && ! empty( $ap->current_question_id ) ) {
+			$q_id = $ap->current_question_id;
+		} elseif ( ap_is_single_question() ) {
+			$q_id = get_queried_object_id();
+		} elseif ( get_query_var( 'edit_q' ) ) {
+			$q_id = get_query_var( 'edit_q' );
+		} elseif ( ap_is_answer() ) {
+			$q_id = $ap->answers_query->post->post_parent;
+		} else {
+			$q_id = 0;
+		}
+
+		/**
+		 * Filter `get_question_id` value.
+		 *
+		 * @param integer $q_id Question ID.
+		 * @since 4.2.0
+		 */
+		return apply_filters( 'get_question_id', (int) $q_id );
+	}
+
+	/**
+	 * Get an question by ID.
+	 *
+	 * @param  integer $question_id Question ID.
+	 * @return Question_Query
+	 * @since 2.1
+	 * @since 4.2.0 Use new Question class.
+	 */
+	function ap_get_question( $question ) {
+		global $post;
+
+		$question_id = 0;
+
+		if ( false === $question && is_a( $post, 'WP_Post' ) && 'question' === get_post_type( $post ) ) {
+			$question_id = absint( $post->ID );
+		} elseif ( is_numeric( $question ) ) {
+			$question_id = $question;
+		} elseif ( $question instanceof \AnsPress\Question ) {
+			$question_id = $question->get_id();
+		} elseif ( ! empty( $question->ID ) ) {
+			$question_id = $question->ID;
+		}
+
+		if ( ! $question_id ) {
+			return false;
+		}
+
+		// Filter classname so that the class can be overridden if extended.
+		$classname = apply_filters( 'ap_question_class', '\AnsPress\Question', 'question', $question_id );
+
+		if ( ! class_exists( $classname ) ) {
+			return false;
+		}
+
+		try {
+			return new $classname( $question_id );
+		} catch ( Exception $e ) {
+			return false;
+		}
+	}
 }

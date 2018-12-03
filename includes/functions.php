@@ -118,42 +118,6 @@ function ap_get_theme_url( $file, $plugin = false, $ver = true ) {
 }
 
 /**
- * Get current question ID in single question page.
- *
- * @param integer $question_id Question ID.
- *
- * @return integer|false
- * @since unknown
- * @since 4.1.0 Remove `question_name` query var check. Get question ID from queried object.
- * @since 4.2.0 Added new argument `$question_id` and template compatibility.
- */
-function get_question_id( $question_id = 0 ) {
-	$ap = anspress();
-
-	if ( ! empty( $question_id ) && is_numeric( $question_id ) ) {
-		$q_id = $question_id;
-	} elseif ( ap_is_single_question() && ! empty( $ap->current_question_id ) ) {
-		$q_id = $ap->current_question_id;
-	} elseif ( ap_is_single_question() ) {
-		$q_id = get_queried_object_id();
-	} elseif ( get_query_var( 'edit_q' ) ) {
-		$q_id = get_query_var( 'edit_q' );
-	} elseif ( ap_is_answer() ) {
-		$q_id = $ap->answers_query->post->post_parent;
-	} else {
-		$q_id = 0;
-	}
-
-	/**
-	 * Filter `get_question_id` value.
-	 *
-	 * @param integer $q_id Question ID.
-	 * @since 4.2.0
-	 */
-	return apply_filters( 'get_question_id', (int) $q_id );
-}
-
-/**
  * Return human readable time format.
  *
  * @param  string         $time Time.
@@ -290,13 +254,13 @@ function ap_truncate_chars( $text, $limit = 40, $ellipsis = '...' ) {
  */
 function ap_short_num( $num, $precision = 2 ) {
 	if ( $num >= 1000 && $num < 1000000 ) {
-		$n_format = number_format( $num / 1000, $precision ) . 'K';
+		$n_format = number_format_i18n( $num / 1000, $precision ) . 'K';
 	} elseif ( $num >= 1000000 && $num < 1000000000 ) {
-		$n_format = number_format( $num / 1000000, $precision ) . 'M';
+		$n_format = number_format_i18n( $num / 1000000, $precision ) . 'M';
 	} elseif ( $num >= 1000000000 ) {
-		$n_format = number_format( $num / 1000000000, $precision ) . 'B';
+		$n_format = number_format_i18n( $num / 1000000000, $precision ) . 'B';
 	} else {
-		$n_format = $num;
+		$n_format = number_format_i18n( $num );
 	}
 
 	return $n_format;

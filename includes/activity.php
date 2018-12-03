@@ -188,6 +188,7 @@ function ap_get_recent_activity( $_post = false, $deprecated = null ) {
  * @param boolean              $echo  Echo or return. Default is `echo`.
  * @param boolean              $query_db  Get rows from database. Default is `false`.
  * @return void|string
+ * @todo Move this to question object.
  */
 function ap_recent_activity( $_post = null, $echo = true, $query_db = null ) {
 	$html     = '';

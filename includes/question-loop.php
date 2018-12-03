@@ -42,34 +42,6 @@ if ( ! defined( 'WPINC' ) ) {
 
 
 /**
- * Get an question by ID.
- *
- * @param  integer $question_id Question ID.
- * @return Question_Query
- * @since 2.1
- */
-function ap_get_question( $question_id ) {
-	$args = array(
-		'p'        => $question_id,
-		'ap_query' => 'single_question',
-	);
-
-	if ( ap_user_can_view_future_post( $question_id ) ) {
-		$args['post_status'][] = 'future';
-	}
-
-	if ( ap_user_can_view_private_post( $question_id ) ) {
-		$args['post_status'][] = 'private_post';
-	}
-
-	if ( ap_user_can_view_moderate_post( $question_id ) ) {
-		$args['post_status'][] = 'moderate';
-	}
-
-	return new Question_Query( $args );
-}
-
-/**
  * Output questions page pagination.
  *
  * @param integer|false $paged Current paged value.

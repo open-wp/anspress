@@ -722,20 +722,7 @@ function get_post_classes( $class = '', $post_id = 0 ) {
 	return apply_filters( 'ap_get_post_status', $classes, $_post );
 }
 
-/**
- * Output post classes.
- *
- * @param integer|\WP_Post $post_id Post id or object.
- * @return array
- * @since 4.2.0
- */
-function post_classes( $class = '', $post_id = 0 ) {
-	$list = get_post_classes( $class, $post_id );
 
-	if ( is_array( $list ) ) {
-		echo esc_attr( implode( ' ', $list ) );
-	}
-}
 
 /**
  * Get sorting of questions.

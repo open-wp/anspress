@@ -342,6 +342,7 @@ function ap_profile_link() {
  * @param  integer $size Avatar size.
  * @param  mixed   $_post Post.
  * @return string
+ * @todo Deprecate this.
  */
 function ap_get_author_avatar( $size = 45, $_post = null ) {
 	$_post = ap_get_post( $_post );
@@ -415,6 +416,7 @@ function ap_votes_net( $_post = null ) {
  * Echo post status of a question.
  *
  * @param  mixed $_post Post ID, Object or null.
+ * @todo Deprecate this.
  */
 function ap_question_status( $_post = null ) {
 	$_post = ap_get_post( $_post );
@@ -435,6 +437,7 @@ function ap_question_status( $_post = null ) {
  * @since 4.1.2 Use @see ap_recent_activity() for showing activity.
  * @since 4.1.8 Show short views count.
  * @since 4.2.0 Use `get_question_id`.
+ * @todo Mark as deprecated.
  */
 function ap_question_metas( $question_id = 0 ) {
 	$question_id = get_question_id( $question_id );

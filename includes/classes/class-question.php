@@ -14,27 +14,58 @@
 namespace AnsPress;
 defined( 'ABSPATH' ) || exit;
 
-class Question extends Abstracts\Data {
+class Question extends Data_Cpt {
+	/**
+	 * Stores data about status changes so relevant hooks can be fired.
+	 *
+	 * @var bool|array
+	 */
+	protected $status_transition = false;
 
 	/**
 	 * Question Data array.
 	 *
 	 * @var array
 	 */
-	protected $data = array(
-		'title'            => '',
-		'content'          => '',
-		'parent_id'        => 0,
-		'status'           => 'draft',
-		'date_created'     => null,
-		'date_modified'    => null,
-		'answer_counts'    => 0,
-		'vote_up_counts'   => 0,
-		'vote_down_counts' => 0,
-		'vote_net_counts'  => 0,
-		'best_answer_id'   => 0,
-		'view_counts'      => 0,
-	);
+	protected $data = [
+		'title'                 => '',
+		'content'               => '',
+		'author_id'             => 0,
+		'parent_id'             => 0,
+		'status'                => 'draft',
+		'date_created'          => null,
+		'date_modified'         => null,
+		'version'               => 0,
+		'last_active'           => null,
+		'last_activity'         => 'posted',
+		'last_activity_user_id' => 0,
+		'answer_counts'         => 0,
+		'vote_up_counts'        => 0,
+		'vote_down_counts'      => 0,
+		'vote_net_counts'       => 0,
+		'best_answer_id'        => 0,
+		'view_counts'           => 0,
+		'is_featured'           => false,
+	];
+
+	/**
+	 * All default meta keys to load and map.
+	 *
+	 * @var array
+	 */
+	protected $meta_props = [
+		'_ap_version'               => 'version',
+		'_ap_last_active'           => 'last_active',
+		'_ap_last_activity'         => 'last_activity',
+		'_ap_last_activity_user_id' => 'last_activity_user_id',
+		'_ap_answer_counts'         => 'answer_counts',
+		'_ap_vote_up_counts'        => 'vote_up_counts',
+		'_ap_vote_down_counts'      => 'vote_down_counts',
+		'_ap_vote_net_counts'       => 'vote_net_counts',
+		'_ap_best_answer_id'        => 'best_answer_id',
+		'_ap_view_counts'           => 'view_counts',
+		'_ap_is_featured'           => 'is_featured',
+	];
 
 	/**
 	 * Stores meta in cache for future reads.
@@ -253,6 +284,16 @@ class Question extends Abstracts\Data {
 	}
 
 	/**
+	 * Set parent id.
+	 *
+	 * @param string $value Value.
+	 * @return void
+	 */
+	public function set_parent_id( $value ) {
+		$this->set_prop( 'parent_id', absint( $value ) );
+	}
+
+	/**
 	 * Set question title.
 	 *
 	 * @param string $value Value.
@@ -293,36 +334,6 @@ class Question extends Abstracts\Data {
 	}
 
 	/**
-	 * Set question up vote counts.
-	 *
-	 * @param integer $value Value.
-	 * @return void
-	 */
-	public function set_vote_up_counts( $value ) {
-		$this->set_prop( 'vote_up_counts', absint( $value ) );
-	}
-
-	/**
-	 * Set question down vote counts.
-	 *
-	 * @param integer $value Value.
-	 * @return void
-	 */
-	public function set_vote_down_counts( $value ) {
-		$this->set_prop( 'vote_down_counts', absint( $value ) );
-	}
-
-	/**
-	 * Set question net vote counts.
-	 *
-	 * @param integer $value Value.
-	 * @return void
-	 */
-	public function set_vote_net_counts( $value ) {
-		$this->set_prop( 'vote_net_counts', absint( $value ) );
-	}
-
-	/**
 	 * Set question view counts.
 	 *
 	 * @param integer $value Value.
@@ -333,31 +344,13 @@ class Question extends Abstracts\Data {
 	}
 
 	/**
-	 * Set date_created.
+	 * Set is_featured.
 	 *
-	 * @param  string|integer|null $date UTC timestamp, or ISO 8601 DateTime. If the DateTime string has no timezone or offset, WordPress site timezone will be assumed. Null if there is no date.
-	 * @throws \Exception Exception may be thrown if value is invalid.
+	 * @param boolean $value Value.
+	 * @return void
 	 */
-	public function set_date_created( $date = null ) {
-		$this->set_date_prop( 'date_created', $date );
-	}
-
-	/**
-	 * Set date_modified.
-	 *
-	 * @param  string|integer|null $date UTC timestamp, or ISO 8601 DateTime. If the DateTime string has no timezone or offset, WordPress site timezone will be assumed. Null if there is no date.
-	 * @throws \Exception Exception may be thrown if value is invalid.
-	 */
-	public function set_date_modified( $date = null ) {
-		$this->set_date_prop( 'date_modified', $date );
-	}
-
-	/**
-	 * Expands the shipping and billing information in the changes array.
-	 */
-	public function get_changes() {
-		$changed_props = parent::get_changes();
-		return $changed_props;
+	public function set_is_featured( $value ) {
+		$this->set_prop( 'is_featured', (bool) $value );
 	}
 
 	/*
@@ -367,23 +360,11 @@ class Question extends Abstracts\Data {
 	*/
 
 	/**
-	 * Get question title.
-	 *
-	 * @param string $context Context.
-	 * @return string
+	 * Expands the shipping and billing information in the changes array.
 	 */
-	public function get_title( $context = 'view' ) {
-		return $this->get_prop( 'title', $context );
-	}
-
-	/**
-	 * Get question content.
-	 *
-	 * @param string $context Context.
-	 * @return string
-	 */
-	public function get_content( $context = 'view' ) {
-		return $this->get_prop( 'content', $context );
+	public function get_changes() {
+		$changed_props = parent::get_changes();
+		return $changed_props;
 	}
 
 	/**
@@ -407,36 +388,6 @@ class Question extends Abstracts\Data {
 	}
 
 	/**
-	 * Get question up vote counts.
-	 *
-	 * @param string $context Context.
-	 * @return integer
-	 */
-	public function get_vote_up_counts( $context = 'view' ) {
-		return $this->get_prop( 'vote_up_counts', $context );
-	}
-
-	/**
-	 * Get question down vote counts.
-	 *
-	 * @param string $context Context.
-	 * @return integer
-	 */
-	public function get_vote_down_counts( $context = 'view' ) {
-		return $this->get_prop( 'vote_down_counts', $context );
-	}
-
-	/**
-	 * Get question net vote counts.
-	 *
-	 * @param string $context Context.
-	 * @return integer
-	 */
-	public function get_vote_net_counts( $context = 'view' ) {
-		return $this->get_prop( 'vote_net_counts', $context );
-	}
-
-	/**
 	 * Get question's best answer id.
 	 *
 	 * @param string $context Context.
@@ -456,33 +407,32 @@ class Question extends Abstracts\Data {
 		return $this->get_prop( 'view_counts', $context );
 	}
 
-		/**
-	 * Get date_created.
-	 *
-	 * @param  string $context View or edit context.
-	 * @return \AnsPress\DateTime|NULL object if the date is set or null if there is no date.
-	 */
-	public function get_date_created( $context = 'view' ) {
-		return $this->get_prop( 'date_created', $context );
-	}
 	/**
-	 * Get date_modified.
+	 * Get question featured status.
 	 *
-	 * @param  string $context View or edit context.
-	 * @return \AnsPress\DateTime|NULL object if the date is set or null if there is no date.
+	 * @param string $context Context.
+	 * @return boolean
 	 */
-	public function get_date_modified( $context = 'view' ) {
-		return $this->get_prop( 'date_modified', $context );
+	public function get_is_featured( $context = 'view' ) {
+		return $this->get_prop( 'is_featured', $context );
 	}
 
 	/**
-	 * Return the question statuses without wc- internal prefix.
+	 * Check if question is set as featured.
 	 *
-	 * @param  string $context View or edit context.
-	 * @return string
+	 * @return boolean
 	 */
-	public function get_status( $context = 'view' ) {
-		return $this->get_prop( 'status', $context );
+	public function is_featured() {
+		return (bool) $this->get_is_featured();
+	}
+
+	/**
+	 * Check if question has best answer selected.
+	 *
+	 * @return boolean
+	 */
+	public function is_solved() {
+		return $this->get_best_answer_id() > 0;
 	}
 
 }

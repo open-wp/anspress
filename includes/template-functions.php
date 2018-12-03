@@ -10,9 +10,7 @@
 namespace AnsPress;
 
 // Bail if accessed directly.
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
+defined( 'ABSPATH' ) || exit;
 
 /**
  * Add checks for AnsPress conditions to parse_query.

@@ -12,19 +12,13 @@
  */
 
 namespace AnsPress;
-$question = new Question();
-var_dump($question->get_title());
-//$question->set_title('');
-//$question->set_content('Sed id lacus enim, sit amet imperdiet orci.');
-// $question->set_best_answer_id(23456);
-// $question->set_view_counts(3002);
-// $question->set_answer_counts(41);
-// $question->set_vote_down_counts(20);
-// $question->set_vote_up_counts(5);
-// $question->set_status( 'private' );
-var_dump($question->save());
-$question = new Question(4658);
-var_dump($question->get_title());
+$q = new Question( get_the_ID() );
+
+$q->set_last_activity( 'edit_q' );
+//$q->set_last_active( current_time( 'timestamp', true ) );
+$q->set_view_counts( 4263 );
+$q->save();
+var_dump($q->get_view_counts());
 ?>
 <div id="ap-single" class="ap-q clearfix">
 
