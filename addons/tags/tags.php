@@ -21,7 +21,7 @@ if ( ! defined( 'WPINC' ) ) {
 /**
  * Tags addon for AnsPress
  */
-class Tags extends \AnsPress\Singleton {
+class Tags extends \AnsPress\Abstracts\Singleton {
 	/**
 	 * Instance of this class.
 	 *

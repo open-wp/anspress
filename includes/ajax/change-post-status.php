@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @since 4.2.0
  * @todo Change post status to private not working.
  */
-class Change_Post_Status extends \AnsPress\Classes\Ajax {
+class Change_Post_Status extends \AnsPress\Abstracts\Ajax {
 	/**
 	 * Instance of this class.
 	 */

@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 4.1.8
  */
-class Upload_Avatar extends \AnsPress\Classes\Ajax {
+class Upload_Avatar extends \AnsPress\Abstracts\Ajax {
 	/**
 	 * Instance of this class.
 	 */

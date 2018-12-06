@@ -30,7 +30,7 @@ namespace AnsPress;
 								__( 'Posted %s', 'anspress-question-answer' ),
 								ap_human_time( ap_get_time( get_the_ID(), 'U' ) )
 							);
-								?>
+							?>
 						</time>
 					</a>
 					<span class="ap-comments-count">
@@ -68,7 +68,7 @@ namespace AnsPress;
 				</div>
 
 			</div>
-			<?php comments(); ?>
+			<?php //comments(); ?>
 		</div>
 
 		<div class="ap-single-vote ap-content-col">

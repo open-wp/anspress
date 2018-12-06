@@ -111,10 +111,11 @@ class Question_Data_Store_CPT extends Data_Store_WP {
 			'author_id'     => $post_object->post_author,
 			'parent_id'     => $post_object->post_parent,
 			'date_created'  => $post_object->post_date_gmt,
-			'date_created'  => 0 < $post_object->post_date_gmt ? string_to_timestamp( $post_object->post_date_gmt ) : null,
+			'date_created'  => ( 0 < $post_object->post_date_gmt ? string_to_timestamp( $post_object->post_date_gmt ) : null ),
 			'date_modified' => $post_object->post_modified_gmt,
-			'date_modified' => 0 < $post_object->post_modified_gmt ? string_to_timestamp( $post_object->post_modified_gmt ) : null,
+			'date_modified' => ( 0 < $post_object->post_modified_gmt ? string_to_timestamp( $post_object->post_modified_gmt ) : null ),
 			'status'        => $post_object->post_status,
+			'comment_count' => $post_object->comment_count,
 		) );
 
 		$this->read_question_data( $question, $post_object );
@@ -184,6 +185,7 @@ class Question_Data_Store_CPT extends Data_Store_WP {
 				'post_excerpt'      => $this->get_post_excerpt( $question ),
 				'post_modified'     => isset( $changes['date_modified'] ) ? gmdate( 'Y-m-d H:i:s', $question->get_date_modified( 'edit' )->getOffsetTimestamp() ) : current_time( 'mysql' ),
 				'post_modified_gmt' => isset( $changes['date_modified'] ) ? gmdate( 'Y-m-d H:i:s', $question->get_date_modified( 'edit' )->getTimestamp() ) : current_time( 'mysql', 1 ),
+				'comment_count'     => $question->get_comment_count(),
 			);
 
 			/**

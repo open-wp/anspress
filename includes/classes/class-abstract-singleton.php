@@ -10,7 +10,7 @@
  * @since      4.1.8
  */
 
-namespace AnsPress;
+namespace AnsPress\Abstracts;
 
 // If this file is called directly, abort.
 if ( ! defined( 'WPINC' ) ) {
@@ -46,7 +46,7 @@ abstract class Singleton {
 	/**
 	 * Creates or returns an instance of this class.
 	 *
-	 * @return AnsPress\Singleton A single instance of this class.
+	 * @return \AnsPress\Abstracts\Singleton A single instance of this class.
 	 * @since 4.1.8
 	 */
 	public static function init() {

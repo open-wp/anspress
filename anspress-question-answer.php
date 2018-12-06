@@ -282,10 +282,12 @@ if ( ! class_exists( 'AnsPress' ) ) {
 		 */
 		private function includes() {
 			require_once ANSPRESS_DIR . 'loader.php';
+			require_once ANSPRESS_DIR . 'includes/classes/class-abstract-singleton.php';
+			require_once ANSPRESS_DIR . 'includes/classes/class-abstract-data.php';
+			require_once ANSPRESS_DIR . 'includes/classes/class-abstract-ajax.php';
 
 			require_once ANSPRESS_DIR . 'includes/classes/class-query.php';
-			require_once ANSPRESS_DIR . 'includes/classes/class-singleton.php';
-			require_once ANSPRESS_DIR . 'includes/classes/class-abstract-data.php';
+
 			require_once ANSPRESS_DIR . 'includes/classes/class-data-cpt.php';
 			require_once ANSPRESS_DIR . 'includes/classes/class-datetime.php';
 			require_once ANSPRESS_DIR . 'includes/classes/class-data-store.php';

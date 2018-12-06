@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 4.1.8
  */
-class Toggle_Best_Answer extends \AnsPress\Classes\Ajax {
+class Toggle_Best_Answer extends \AnsPress\Abstracts\Ajax {
 	/**
 	 * Instance of this class.
 	 */

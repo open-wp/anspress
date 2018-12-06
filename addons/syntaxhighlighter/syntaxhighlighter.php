@@ -23,7 +23,7 @@ if ( ! defined( 'WPINC' ) ) {
  *
  * @since 4.1.0
  */
-class Syntax_Highlighter extends \AnsPress\Singleton {
+class Syntax_Highlighter extends \AnsPress\Abstracts\Singleton {
 	/**
 	 * Instance of this class.
 	 *

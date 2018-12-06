@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 4.1.8
  */
-class Repeatable_Field extends \AnsPress\Classes\Ajax {
+class Repeatable_Field extends \AnsPress\Abstracts\Ajax {
 	/**
 	 * Instance of this class.
 	 */

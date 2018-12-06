@@ -10,19 +10,17 @@
  * @since      4.1.8
  */
 
-namespace AnsPress\Classes;
+namespace AnsPress\Abstracts;
 
 // If this file is called directly, abort.
-if ( ! defined( 'WPINC' ) ) {
-	die;
-}
+defined( 'ABSPATH' ) || exit;
 
 /**
  * A class to be used as a base for all ajax classes.
  *
  * @since 4.1.8
  */
-abstract class Ajax extends \AnsPress\Singleton {
+abstract class Ajax extends \AnsPress\Abstracts\Singleton {
 	/**
 	 * The response array.
 	 *

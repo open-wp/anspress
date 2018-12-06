@@ -1,6 +1,44 @@
 //
 // Comments
 // --------------------------------------------------
+.ap-comments{
+	&-header{
+		font-size: 12px;
+		margin-top: 5px;
+		margin-bottom: 5px;
+	}
+	&-total{
+		font-weight: bold;
+	}
+	&-orders{
+		a{
+			margin-left: 10px;
+		}
+		.ap-comments-count{
+			background: #FFEB3B;
+			padding: 0px 4px;
+			font-size: 90%;
+			font-weight: normal;
+			border-radius: var(--ap_border-radius );
+			margin-left: 2px;
+		}
+	}
+	&-active{
+		border-bottom: solid 1px currentColor;
+	}
+	.ap-btn-newcomment{
+		font-size: 12px;
+
+		i{
+			margin-right: 5px;
+		}
+	}
+}
+.ap-comment{
+	&-header{
+		margin-bottom: 5px;
+	}
+}
 .anspress{
 	.ap-cell apcomment{
 		padding: 10px 10px;
@@ -39,9 +77,7 @@
 		&.unapproved {
 			background: #FFF9C4 !important;
 		}
-		&:nth-child(2n) {
-			background: #f7f7f7;
-		}
+
 		.ap-avatar{
 			float: left;
 		}

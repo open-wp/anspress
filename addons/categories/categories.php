@@ -22,7 +22,7 @@ if ( ! defined( 'WPINC' ) ) {
 /**
  * Categories addon class.
  */
-class Categories extends \AnsPress\Singleton {
+class Categories extends \AnsPress\Abstracts\Singleton {
 
 	/**
 	 * Refers to a single instance of this class.

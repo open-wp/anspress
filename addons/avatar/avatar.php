@@ -35,7 +35,7 @@ require_once 'class-generator.php';
  *
  * @since 4.1.8
  */
-class Avatar extends \AnsPress\Singleton {
+class Avatar extends \AnsPress\Abstracts\Singleton {
 	/**
 	 * Refers to a single instance of this class.
 	 *

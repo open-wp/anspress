@@ -95,7 +95,10 @@ window.AnsPress = _.extend({
 		var isText = jQuery(elm).is('input[type="text"]');
 		var uid = this.uniqueId();
 
-		if(jQuery(elm).is('button')||jQuery(elm).is('.ap-btn')){
+		if(jQuery(elm).is('a')){
+			jQuery(elm).addClass('ap-spinner');
+			jQuery(elm).get(0).style.setProperty("--ap-size", jQuery(elm).css('font-size'));
+		} else if(jQuery(elm).is('button')||jQuery(elm).is('.ap-btn')){
 			jQuery(elm).addClass('show-loading');
 			$loading = jQuery('<span class="ap-loading-span"></span>');
 			$loading.height(jQuery(elm).height());
@@ -120,7 +123,9 @@ window.AnsPress = _.extend({
 	},
 
 	hideLoading: function(elm) {
-		if(jQuery(elm).is('button')||jQuery(elm).is('.ap-btn')){
+		if(jQuery(elm).is('.ap-spinner')){
+			jQuery(elm).removeClass('ap-spinner');
+		}else if(jQuery(elm).is('button')||jQuery(elm).is('.ap-btn')){
 			jQuery(elm).removeClass('show-loading');
 			jQuery(elm).find('.ap-loading-span').remove();
 			jQuery(elm).prop('disabled', false);

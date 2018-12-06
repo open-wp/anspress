@@ -31,7 +31,7 @@ define( 'BP_AP_NOTIFIER_SLUG', 'ap_notification' );
  *
  * @since 4.1.8 Renamed from AnsPress_BP_Hooks.
  */
-class BuddyPress extends \AnsPress\Singleton {
+class BuddyPress extends \AnsPress\Abstracts\Singleton {
 
 	/**
 	 * Refers to a single instance of this class.

@@ -22,11 +22,22 @@ class Data_Cpt extends Abstracts\Data {
 	 * @var array
 	 */
 	protected $meta_props = [
-		'_ap_version'               => 'version',
-		'_ap_last_active'           => 'last_active',
-		'_ap_last_activity'         => 'last_active',
-		'_ap_last_activity_user_id' => 'last_activity_user_id',
+		'_ap_version'                  => 'version',
+		'_ap_last_active'              => 'last_active',
+		'_ap_last_activity'            => 'last_active',
+		'_ap_last_activity_user_id'    => 'last_activity_user_id',
+		'_ap_unapproved_comment_count' => 'unapproved_comment_count',
 	];
+
+	/**
+	 * Set question content.
+	 *
+	 * @param string $value Value.
+	 * @return void
+	 */
+	public function set_content( $value ) {
+		$this->set_prop( 'content', $value );
+	}
 
 	/**
 	 * Set version of AnsPress.
@@ -109,7 +120,7 @@ class Data_Cpt extends Abstracts\Data {
 	}
 
 	/**
-	 * Set question down vote counts.
+	 * Set down vote counts.
 	 *
 	 * @param integer $value Value.
 	 * @return void
@@ -119,13 +130,44 @@ class Data_Cpt extends Abstracts\Data {
 	}
 
 	/**
-	 * Set question net vote counts.
+	 * Set net vote counts.
 	 *
 	 * @param integer $value Value.
 	 * @return void
 	 */
 	public function set_vote_net_counts( $value ) {
 		$this->set_prop( 'vote_net_counts', absint( $value ) );
+	}
+
+	/**
+	 * Set comment count.
+	 *
+	 * @param integer $value Value.
+	 * @return void
+	 */
+	public function set_comment_count( $value ) {
+		$this->set_prop( 'comment_count', absint( $value ) );
+	}
+
+	/**
+	 * Set unapproved comment count.
+	 *
+	 * @param integer $value Value.
+	 * @return void
+	 */
+	public function set_unapproved_comment_count( $value ) {
+		$this->set_prop( 'unapproved_comment_count', absint( $value ) );
+	}
+
+	/**
+	 * Immediately updates total unapproved comment count.
+	 *
+	 * @return void
+	 */
+	public function update_unapproved_comment_count() {
+		$comment_count = wp_count_comments( $this->get_id() );
+		$this->set_unapproved_comment_count( $comment_count->moderated + $comment_count->spam );
+		$this->save();
 	}
 
 	/*
@@ -240,15 +282,6 @@ class Data_Cpt extends Abstracts\Data {
 	}
 
 	/**
-	 * Check if post is published.
-	 *
-	 * @return boolean
-	 */
-	public function is_published() {
-		return 'publish' === $this->get_status();
-	}
-
-	/**
 	 * Get last active date.
 	 *
 	 * @param string $context Context.
@@ -342,12 +375,85 @@ class Data_Cpt extends Abstracts\Data {
 	}
 
 	/**
+	 * Get comment count.
+	 *
+	 * @param  string $context What the value is for. Valid values are view and edit.
+	 * @return int
+	 */
+	public function get_comment_count( $context = 'view' ) {
+		return $this->get_prop( 'comment_count', $context );
+	}
+
+	/**
+	 * Get unapproved comment count.
+	 *
+	 * @param  string $context What the value is for. Valid values are view and edit.
+	 * @return int
+	 * @todo make sure to recount unapproved comments @migrate.
+	 */
+	public function get_unapproved_comment_count( $context = 'view' ) {
+		return $this->get_prop( 'unapproved_comment_count', $context );
+	}
+
+	/**
 	 * Output method `get_last_activity_formatted`.
 	 *
 	 * @return void
 	 */
 	public function the_last_activity() {
 		echo $this->get_last_activity_formatted(); // WPCS: XSS safe.
+	}
+
+	/**
+	 * List comments.
+	 *
+	 * @return array
+	 */
+	public function get_comments() {
+		$active_order = ap_sanitize_unslash( 'comments_order', 'r' );
+		$active_order = empty( $active_order ) ? 'oldest' : $active_order;
+
+		$args = array(
+			'post_id' => $this->get_id(),
+			'status'  => 'approve',
+			'type'    => '',
+			'order'   => 'newest' === $active_order ? 'DESC' : 'ASC',
+		);
+
+		// If unapproved order is selcted then show all unapproved comments.
+		if ( 'unapproved' === $active_order && ap_user_can_edit_comments() ) {
+			$args['status'] = 'hold';
+		}
+
+		remove_filter( 'comments_clauses', array( 'WC_Comments', 'exclude_order_comments' ) );
+
+		$comments = get_comments( $args );
+
+		add_filter( 'comments_clauses', array( 'WC_Comments', 'exclude_order_comments' ) );
+		return $comments;
+	}
+
+	/**
+	 * Output date created.
+	 *
+	 * @param string $context
+	 * @return void
+	 */
+	public function the_date_created( $context = 'view' ) {
+		$core_date_format = get_option( 'date_format' );
+		$core_time_format = get_option( 'time_format' );
+
+		echo esc_attr( $this->get_date_created( $context )->date_i18n( $core_date_format . ' ' . $core_time_format ) );
+	}
+
+	/**
+	 * Output the content of post.
+	 *
+	 * @param string $context
+	 * @return void
+	 */
+	public function the_content( $context = 'view' ) {
+		echo apply_filters( 'the_content', $this->get_content() ); // XSS safe.
 	}
 
 	/**
@@ -358,5 +464,33 @@ class Data_Cpt extends Abstracts\Data {
 	 */
 	public function get_author_avatar( $size = 40 ) {
 		return get_avatar( $this->get_author_id(), $size );
+	}
+
+	/**
+	 * Check if post is published.
+	 *
+	 * @return boolean
+	 */
+	public function is_published() {
+		return 'publish' === $this->get_status();
+	}
+
+	/**
+	 * Check if post is future.
+	 *
+	 * @return boolean
+	 */
+	public function is_future() {
+		return 'future' === $this->get_status();
+	}
+
+	/**
+	 * Output vote button for question or answer.
+	 *
+	 * @param integer $post_id Post id.
+	 * @return void
+	 */
+	function the_votes_button() {
+		ap_vote_btn( $this->get_id() );
 	}
 }

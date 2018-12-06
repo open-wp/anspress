@@ -12,22 +12,26 @@
  */
 
 namespace AnsPress;
-$q = new Question( get_the_ID() );
 
-$q->set_last_activity( 'edit_q' );
-//$q->set_last_active( current_time( 'timestamp', true ) );
-$q->set_view_counts( 4263 );
-$q->save();
-var_dump($q->get_view_counts());
+global $post;
+$question = ap_get_question( $post );
+
+// $q = new Question( get_the_ID() );
+
+// $q->set_last_activity( 'edit_q' );
+// $q->set_last_active( current_time( 'timestamp', true ) );
+// $q->set_view_counts( 4263 );
+//$question->update_unapproved_comment_count();
+//var_dump($question);
 ?>
 <div id="ap-single" class="ap-q clearfix">
 
 	<div class="ap-question-lr ap-row" itemtype="https://schema.org/Question" itemscope="">
 		<div class="ap-q-left <?php echo ( is_active_sidebar( 'ap-qsidebar' ) ) ? 'ap-col-8' : 'ap-col-12'; ?>">
 			<?php
-			ap_get_template_part( 'loop-single-question' );
+			ap_get_template_part( 'loop-single-question', [ 'question' => $question ] );
 
-			ap_get_template_part( 'loop-answers' );
+			//ap_get_template_part( 'loop-answers' );
 
 			// Get answer form.
 			ap_get_template_part( 'answer-form' );

@@ -402,7 +402,7 @@
 				AnsPress.hideModal('commentForm');
 				if(data.action === 'new-comment')
 					$('#comments-'+data.post_id).html(data.html);
-
+				console.log(data.html);
 				if(data.action === 'edit-comment'){
 					$old = $('#comment-'+data.comment_id);
 					$(data.html).insertAfter($old);

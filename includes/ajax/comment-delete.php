@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 4.1.8
  */
-class Comment_Delete extends \AnsPress\Classes\Ajax {
+class Comment_Delete extends \AnsPress\Abstracts\Ajax {
 	/**
 	 * Instance of this class.
 	 */

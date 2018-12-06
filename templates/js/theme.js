@@ -7,7 +7,8 @@
             'submit [apDisableEmptyFields]'  : 'disableEmptyFields',
             'click [ap="removeQFilter"]'     : 'removeFilter',
             'click [ap="toggleAnswer"]'      : 'toggleAnswer',
-            'click [ap="loadMoreActivities"]': 'loadedMoreActivities'
+            'click [ap="loadMoreActivities"]': 'loadedMoreActivities',
+            'click [ap="apCommentOrder"]'    : 'apCommentOrder'
         },
 
         bindEvents: function() {
@@ -72,6 +73,25 @@
                 }
             })
         },
+        apCommentOrder: function(e){
+            e.preventDefault();
+            var elm = $(this);
+            AnsPress.showLoading(elm);
+            AnsPress.ajax({
+                data:{
+                    action: 'ap_order_comments',
+                    post_id: elm.attr('data-post_id'),
+                    comments_order: elm.attr('data-order')
+                },
+                success: function(data){
+                    AnsPress.hideLoading(elm);
+                    console.log(data.success);
+                    if(data.success){
+                        $('#comments-' + elm.attr('data-post_id')).replaceWith(data.html);
+                    }
+                }
+            })
+        },
         /**
          * Reload the page.
          */
@@ -123,7 +143,6 @@
             data: args,
             success: function(data){
                 AnsPress.hideLoading(self);
-                console.log(data.element);
                 if(data.success){
                     $(data.element).append(data.html);
                     $(self).attr('ap-loadmore', JSON.stringify(data.args));

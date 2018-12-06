@@ -32,7 +32,7 @@ if ( ! defined( 'WPINC' ) ) {
  *
  * @since 4.1.11
  */
-class Akismet extends \AnsPress\Singleton {
+class Akismet extends \AnsPress\Abstracts\Singleton {
 
 	/**
 	 * Refers to a single instance of this class.

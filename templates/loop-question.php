@@ -12,7 +12,7 @@
  * @since      4.2.0
  */
 
-namespace AnsPress;
+defined( 'ABSPATH' ) || exit;
 
 ?>
 <div id="question-<?php $question->the_id(); ?>" class="<?php $question->the_css_classes( 'ap-questions-item ap-loop-question' ); ?>" itemtype="https://schema.org/Question" itemscope>
@@ -73,7 +73,7 @@ namespace AnsPress;
 				<span class='ap__info-item views'><i class="apicon-eye"></i><?php printf( _n( '%s view', '%s views', $question->get_view_counts(), 'anspress-question-answer' ), ap_short_num( $question->get_view_counts() ) ); ?></span>
 
 				<?php // Show recent activity. ?>
-				<span class='ap__info-item views'><i class="apicon-pulse"></i><?php $question->the_last_activity(); ?></span>
+				<span class='ap__info-item last-activity'><i class="apicon-pulse"></i><?php $question->the_last_activity(); ?></span>
 
 				<?php
 					/**

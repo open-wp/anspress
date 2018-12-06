@@ -29,7 +29,7 @@ require_once ANSPRESS_ADDONS_DIR . '/notifications/query.php';
  * @author  Rahul Aryan <support@anspress.io>
  * @since   4.0.0
  */
-class Notifications extends \AnsPress\Singleton {
+class Notifications extends \AnsPress\Abstracts\Singleton {
 
 	/**
 	 * Instance of this class.

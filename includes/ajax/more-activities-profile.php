@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 4.1.8
  */
-class More_Activities_Profile extends \AnsPress\Classes\Ajax {
+class More_Activities_Profile extends \AnsPress\Abstracts\Ajax {
 	/**
 	 * Instance of this class.
 	 */

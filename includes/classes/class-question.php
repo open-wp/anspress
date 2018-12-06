@@ -28,24 +28,26 @@ class Question extends Data_Cpt {
 	 * @var array
 	 */
 	protected $data = [
-		'title'                 => '',
-		'content'               => '',
-		'author_id'             => 0,
-		'parent_id'             => 0,
-		'status'                => 'draft',
-		'date_created'          => null,
-		'date_modified'         => null,
-		'version'               => 0,
-		'last_active'           => null,
-		'last_activity'         => 'posted',
-		'last_activity_user_id' => 0,
-		'answer_counts'         => 0,
-		'vote_up_counts'        => 0,
-		'vote_down_counts'      => 0,
-		'vote_net_counts'       => 0,
-		'best_answer_id'        => 0,
-		'view_counts'           => 0,
-		'is_featured'           => false,
+		'title'                    => '',
+		'content'                  => '',
+		'author_id'                => 0,
+		'parent_id'                => 0,
+		'status'                   => 'draft',
+		'date_created'             => null,
+		'date_modified'            => null,
+		'comment_count'            => 0,
+		'version'                  => 0,
+		'last_active'              => null,
+		'last_activity'            => 'posted',
+		'last_activity_user_id'    => 0,
+		'answer_counts'            => 0,
+		'vote_up_counts'           => 0,
+		'vote_down_counts'         => 0,
+		'vote_net_counts'          => 0,
+		'best_answer_id'           => 0,
+		'view_counts'              => 0,
+		'is_featured'              => false,
+		'unapproved_comment_count' => false,
 	];
 
 	/**
@@ -54,17 +56,18 @@ class Question extends Data_Cpt {
 	 * @var array
 	 */
 	protected $meta_props = [
-		'_ap_version'               => 'version',
-		'_ap_last_active'           => 'last_active',
-		'_ap_last_activity'         => 'last_activity',
-		'_ap_last_activity_user_id' => 'last_activity_user_id',
-		'_ap_answer_counts'         => 'answer_counts',
-		'_ap_vote_up_counts'        => 'vote_up_counts',
-		'_ap_vote_down_counts'      => 'vote_down_counts',
-		'_ap_vote_net_counts'       => 'vote_net_counts',
-		'_ap_best_answer_id'        => 'best_answer_id',
-		'_ap_view_counts'           => 'view_counts',
-		'_ap_is_featured'           => 'is_featured',
+		'_ap_version'                  => 'version',
+		'_ap_last_active'              => 'last_active',
+		'_ap_last_activity'            => 'last_activity',
+		'_ap_last_activity_user_id'    => 'last_activity_user_id',
+		'_ap_answer_counts'            => 'answer_counts',
+		'_ap_vote_up_counts'           => 'vote_up_counts',
+		'_ap_vote_down_counts'         => 'vote_down_counts',
+		'_ap_vote_net_counts'          => 'vote_net_counts',
+		'_ap_best_answer_id'           => 'best_answer_id',
+		'_ap_view_counts'              => 'view_counts',
+		'_ap_is_featured'              => 'is_featured',
+		'_ap_unapproved_comment_count' => 'unapproved_comment_count',
 	];
 
 	/**
@@ -301,16 +304,6 @@ class Question extends Data_Cpt {
 	 */
 	public function set_title( $value ) {
 		$this->set_prop( 'title', $value );
-	}
-
-	/**
-	 * Set question content.
-	 *
-	 * @param string $value Value.
-	 * @return void
-	 */
-	public function set_content( $value ) {
-		$this->set_prop( 'content', $value );
 	}
 
 	/**

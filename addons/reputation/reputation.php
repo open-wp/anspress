@@ -20,7 +20,7 @@ if ( ! defined( 'WPINC' ) ) {
 /**
  * Reputation hooks.
  */
-class Reputation extends \AnsPress\Singleton {
+class Reputation extends \AnsPress\Abstracts\Singleton {
 
 	/**
 	 * Instance of this class.

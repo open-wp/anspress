@@ -421,6 +421,7 @@ function ap_the_comments( $_post = null, $args = [], $single = false ) {
  *
  * @return void
  * @since 4.1.2
+ * @todo deprecate this
  */
 function ap_post_comments() {
 	echo '<apcomments id="comments-' . esc_attr( get_the_ID() ) . '" class="have-comments">';
@@ -450,7 +451,7 @@ function ap_new_comment_btn( $post_id, $echo = true ) {
 		) );
 
 		$output .= '<a href="#" class="ap-btn-newcomment" aponce="false" apajaxbtn apquery="' . esc_js( $btn_args ) . '"><i class="apicon-comment"></i>';
-		$output .= esc_attr__( 'Comment', 'anspress-question-answer' );
+		$output .= esc_attr__( 'Add Comment', 'anspress-question-answer' );
 		$output .= '</a>';
 
 		if ( false === $echo ) {

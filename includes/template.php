@@ -147,29 +147,6 @@ function comment_number( $post_id = 0 ) {
 }
 
 /**
- * A wrapper function for @see ap_the_comments() for using in
- * post templates.
- *
- * @return void
- * @since 4.2.0
- */
-function comments( $post_id = 0 ) {
-	$post_id = ap_is_answer() ? ap_get_answer_id( $post_id ) : get_question_id( $post_id );
-
-	// Check if user can read.
-	if ( ! ap_user_can_read_post( $post_id ) ) {
-		return false;
-	}
-
-	echo '<apcomments id="comments-' . esc_attr( $post_id ) . '" class="have-comments">';
-	ap_the_comments( $post_id, [], true );
-	echo '</apcomments>';
-
-	// New comment button.
-	//echo ap_comment_btn_html( $post_id );
-}
-
-/**
  * Post actions button.
  *
  * @param integer $post_id Question or answer id.
@@ -189,19 +166,6 @@ function actions_button( $post_id = 0 ) {
 	] );
 
 	echo '<postActions class="ap-dropdown"><a href="#" class="apicon-dots ap-actions-handle ap-dropdown-toggle" ap="actiontoggle" apquery="' . esc_js( $args ) . '"></a><ul class="ap-actions ap-dropdown-menu"></ul></postActions>';
-}
-
-/**
- * Output vote button for question or answer.
- *
- * @param integer $post_id Post id.
- * @return void
- * @since 4.2.0
- */
-function vote_buttons( $post_id = 0 ) {
-	$post_id = ap_is_answer() ? ap_get_answer_id( $post_id ) : get_question_id( $post_id );
-
-	ap_vote_btn( $post_id );
 }
 
 /**

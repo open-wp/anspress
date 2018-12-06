@@ -29,7 +29,7 @@ require_once ANSPRESS_ADDONS_DIR . '/recaptcha/recaptcha/class-captcha.php';
 /**
  * The reCaptcha class.
  */
-class Captcha extends \AnsPress\Singleton {
+class Captcha extends \AnsPress\Abstracts\Singleton {
 	/**
 	 * Instance of this class.
 	 *

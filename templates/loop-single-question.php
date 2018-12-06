@@ -11,7 +11,7 @@
  * @since      4.2.0
  */
 
-namespace AnsPress;
+defined( 'ABSPATH' ) || exit;
 ?>
 <?php
 	/**
@@ -23,7 +23,22 @@ namespace AnsPress;
 ?>
 
 <div class="ap-question-meta clearfix">
-	<?php question_metas(); // xss ok. ?>
+
+	<?php if ( $question->is_featured() ) : // Show featured label. ?>
+		<span class="ap-display-meta-item check"><?php esc_attr_e( 'Featured', 'anspress-question-answer' ); ?></span>
+	<?php endif; ?>
+
+	<?php if ( $question->is_solved() ) : // Show solved label. ?>
+		<span class='ap-display-meta-item solved'><i class="apicon-check"></i><?php esc_attr_e( 'Solved', 'anspress-question-answer' ); ?></span>
+	<?php endif; ?>
+
+	<?php // Show view counts. ?>
+	<span class='ap-display-meta-item views'><i class="apicon-eye"></i><?php printf( _n( '%s view', '%s views', $question->get_view_counts(), 'anspress-question-answer' ), ap_short_num( $question->get_view_counts() ) ); ?></span>
+
+	<?php // Show recent activity. ?>
+	<span class='ap-display-meta-item last-activity'><i class="apicon-pulse"></i><?php $question->the_last_active_human_diff(); ?></span>
+
+	<?php //question_metas(); // xss ok. ?>
 </div>
 
 <?php
@@ -34,7 +49,7 @@ namespace AnsPress;
 	 */
 	do_action( 'ap_after_question_meta' );
 ?>
-<div ap="question" apid="<?php qustion_id(); ?>">
+<div ap="question" apid="<?php $question->the_id(); ?>">
 	<?php
 	/**
 	 * Action triggered before question title.
@@ -46,7 +61,7 @@ namespace AnsPress;
 
 	<div id="question" role="main" class="ap-content ap-display-flex">
 		<a class="ap-content-col ap-avatar-col" href="<?php ap_profile_link(); ?>">
-			<?php ap_author_avatar( ap_opt( 'avatar_size_qquestion' ) ); ?>
+			<?php $question->the_author_avatar( ap_opt( 'avatar_size_qquestion' ) ); ?>
 		</a>
 
 		<div class="ap-content-col ap-cell">
@@ -56,23 +71,18 @@ namespace AnsPress;
 						<?php echo ap_user_display_name( [ 'html' => true ] ); ?>
 					</span>
 
-					<a href="<?php question_permalink(); ?>" class="ap-posted">
+					<a href="<?php the_permalink(); ?>" class="ap-posted">
 						<?php
-						$posted = 'future' === get_post_status() ? __( 'Scheduled for', 'anspress-question-answer' ) : __( 'Published', 'anspress-question-answer' );
+						$posted = $question->is_future() ? __( 'Scheduled for', 'anspress-question-answer' ) : __( 'Published', 'anspress-question-answer' );
 
 						$time = ap_get_time( get_question_id(), 'U' );
 
-						if ( 'future' !== get_post_status() ) {
+						if ( $question->is_future() ) {
 							$time = ap_human_time( $time );
 						}
-
-						printf( '<time itemprop="datePublished" datetime="%1$s">%2$s</time>', ap_get_time( get_question_id(), 'c' ), $time );
 						?>
+						<time itemprop="datePublished" datetime="<?php echo esc_attr( $question->get_date_created()->date( 'c' ) ); ?>"><?php $question->the_date_created(); ?></time>
 					</a>
-					<span class="ap-comments-count">
-						<?php $comment_count = get_comment_number(); ?>
-						<?php printf( _n( '%s Comment', '%s Comments', $comment_count, 'anspress-question-answer' ), '<span itemprop="commentCount">' . (int) $comment_count . '</span>' ); ?>
-					</span>
 				</div>
 
 				<!-- Start ap-content-inner -->
@@ -87,7 +97,7 @@ namespace AnsPress;
 					?>
 
 					<div class="question-content ap-q-content" itemprop="text">
-						<?php question_content(); ?>
+						<?php $question->the_content(); ?>
 					</div>
 
 					<?php
@@ -105,10 +115,13 @@ namespace AnsPress;
 				</div>
 			</div>
 
-			<?php comments(); ?>
+			<?php ap_get_template_part( 'comments/comments', [ 'question' => $question ] ); // Load comments template. ?>
 		</div>
 
-		<div class="ap-content-col ap-single-vote"><?php vote_buttons(); ?></div>
+		<!-- Votes button -->
+		<div class="ap-content-col ap-single-vote">
+			<?php $question->the_votes_button(); ?>
+		</div>
 	</div>
 </div>
 

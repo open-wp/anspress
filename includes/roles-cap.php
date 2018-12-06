@@ -561,7 +561,7 @@ function ap_user_can_edit_comment( $comment_id, $user_id = false ) {
 		$user_id = get_current_user_id();
 	}
 
-	if ( is_super_admin() || current_user_can( 'ap_mod_comment' ) ) {
+	if ( is_super_admin() || current_user_can( 'ap_edit_others_comment' ) ) {
 		return true;
 	}
 
@@ -596,6 +596,42 @@ function ap_user_can_edit_comment( $comment_id, $user_id = false ) {
 
 	if ( user_can( $user_id, 'ap_edit_comment' ) && $user_id == $comment->user_id ) { // loose comparison ok.
 		return true;
+	}
+
+	return false;
+}
+
+/**
+ * Check if user can edit comments.
+ *
+ * @param  integer       $comment_id Comment ID.
+ * @param  integer|false $user_id User ID.
+ * @return boolean
+ * @since 4.2.0
+ */
+function ap_user_can_edit_comments( $user_id = false ) {
+	if ( false === $user_id ) {
+		$user_id = get_current_user_id();
+	}
+
+	if ( is_super_admin() || current_user_can( 'ap_edit_others_comment' ) ) {
+		return true;
+	}
+
+	/**
+	 * Filter to hijack ap_user_can_edit_comments.
+	 *
+	 * @param  boolean|string   $apply_filter   Apply current filter, empty string by default.
+	 * @param  integer          $user_id        User ID.
+	 * @return boolean
+	 * @since  4.2.0
+	 */
+	$filter = apply_filters( 'ap_user_can_edit_comments', '', $user_id );
+
+	if ( true === $filter ) {
+		return true;
+	} elseif ( false === $filter ) {
+		return false;
 	}
 
 	return false;

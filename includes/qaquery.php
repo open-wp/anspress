@@ -574,6 +574,7 @@ function ap_is_selected( $_post = null ) {
  * @param  mixed  $_post   Post ID, Object or null.
  * @param  string $format Date format.
  * @return String
+ * @todo Deprecate this.
  */
 function ap_get_time( $_post = null, $format = '' ) {
 	$_post = ap_get_post( $_post );

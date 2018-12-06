@@ -34,7 +34,7 @@ require_once ANSPRESS_ADDONS_DIR . '/profile/helpers.php';
 /**
  * User profile hooks.
  */
-class Profile extends \AnsPress\Singleton {
+class Profile extends \AnsPress\Abstracts\Singleton {
 	/**
 	 * Instance of this class.
 	 *
