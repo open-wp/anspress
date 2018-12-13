@@ -204,6 +204,22 @@ class AnsPress_Comment_Hooks {
 
 		return $template;
 	}
+
+	/**
+	 * Update unpublished comments count when comment count gets updated.
+	 *
+	 * @param integer $post_id Post ID.
+	 * @since 4.2.0
+	 */
+	public static function update_comment_count( $post_id ) {
+		$post = get_post( $post_id );
+		if ( ! ap_is_cpt( $post ) ) {
+			return;
+		}
+
+		$question = ap_get_question( $post );
+		$question->update_unapproved_comment_count();
+	}
 }
 
 /**
@@ -282,6 +298,7 @@ function ap_comment_actions( $comment ) {
 				'__nonce'        => wp_create_nonce( 'delete_comment_' . $comment->comment_ID ),
 				'ap_ajax_action' => 'delete_comment',
 				'comment_id'     => $comment->comment_ID,
+				'post_id'        => $comment->comment_post_ID,
 			),
 		);
 	}
@@ -445,12 +462,12 @@ function ap_new_comment_btn( $post_id, $echo = true ) {
 		$output = '';
 
 		$btn_args = wp_json_encode( array(
-			'action'  => 'comment_modal',
+			'action'  => 'ap_comment_form',
 			'post_id' => $post_id,
 			'__nonce' => wp_create_nonce( 'new_comment_' . $post_id ),
 		) );
 
-		$output .= '<a href="#" class="ap-btn-newcomment" aponce="false" apajaxbtn apquery="' . esc_js( $btn_args ) . '"><i class="apicon-comment"></i>';
+		$output .= '<a href="#" class="ap-btn-newcomment" aponce="false" ap="newCommentBtn" apquery="' . esc_js( $btn_args ) . '"><i class="apicon-comment"></i>';
 		$output .= esc_attr__( 'Add Comment', 'anspress-question-answer' );
 		$output .= '</a>';
 
@@ -495,4 +512,35 @@ function ap_get_user_comments_count( $user_id, $approved = true ) {
 	wp_cache_set( 'ap_user_comments_count_' . $key, $comments_count, 'counts' );
 
 	return $comments_count;
+}
+
+/**
+ * Generate comment form.
+ *
+ * @param  false|integer $post_id  Question or answer id.
+ * @param  false|object  $_comment Comment id or object.
+ * @return void
+ *
+ * @since 4.1.0
+ * @since 4.1.5 Don't use ap_ajax.
+ */
+function ap_comment_form( $post_id = false, $_comment = false ) {
+	// if ( false === $post_id ) {
+	// 	$post_id = get_the_ID();
+	// }
+
+	// if ( ! ap_user_can_comment( $post_id ) ) {
+	// 	return;
+	// }
+
+	//$_comment = get_comment( $_comment );
+
+	echo '<form id="ap_form_comment-' . (int) $post_id . '" class="ap-comment-form" name="ap_form_comment" method="POST" enctype="multipart/form-data" apform="submitComment">';
+
+	ap_get_template_part( 'comments/form' );
+
+	echo '<input type="hidden" name="__nonce" value="' . wp_create_nonce( 'submit_comment_' . $post_id ) . '">';
+	echo '<input type="hidden" name="action" value="ap_comment_submit">';
+	echo '<input type="hidden" name="post_id" value="' . (int) $post_id . '">';
+	echo '</form>';
 }

@@ -324,7 +324,7 @@ _.templateSettings = {
 
 	AnsPress.views.Snackbar = Backbone.View.extend({
 		id: 'ap-snackbar',
-		template: '<div class="ap-snackbar<# if(success){ #> success<# } #>">{{message}}</div>',
+		template: '<div class="ap-snackbar<# if(success){ #> success<# } #>"><div>{{message}}</div><div class="ap-snackbar-info">'+aplang.click_on_it_to_hide+'</div></div>',
 		hover: false,
 		initialize: function(){
 			AnsPress.on('snackbar', this.show, this);
@@ -332,6 +332,7 @@ _.templateSettings = {
 		events: {
 			'mouseover': 'toggleHover',
 			'mouseout': 'toggleHover',
+			'click': 'hideOnClick',
 		},
 		show: function(data){
 			var self = this;
@@ -339,6 +340,7 @@ _.templateSettings = {
 			this.data.success = data.success;
 			this.$el.removeClass('snackbar-show');
 			this.render();
+			clearTimeout(this.hoveTimeOut);
 			setTimeout(function(){
 				self.$el.addClass('snackbar-show');
 			}, 0);
@@ -355,12 +357,15 @@ _.templateSettings = {
 			if(!self.hover)
 				this.hoveTimeOut = setTimeout(function(){
 					self.$el.removeClass('snackbar-show');
-				}, 5000);
+				}, 10000);
+		},
+		hideOnClick: function(){
+			this.$el.removeClass('snackbar-show');
 		},
 		render: function(){
 			if(this.data){
 				var t = _.template(this.template);
-				this.$el.html(t(this.data));
+				this.$el.html(_.unescape(t(this.data)));
 			}
 			return this;
 		}
@@ -719,6 +724,9 @@ jQuery(document).ready(function($){
 		var submitBtn = $(this).find('button[type="submit"]');
 		var formCb = $(this).attr('apform');
 
+		$('.ap-form-errors, .ap-form-control-err').remove();
+		$('.ap-have-errors, .ap-has-error').removeClass('ap-have-errors ap-has-error');
+
 		if(submitBtn.length>0)
 			AnsPress.showLoading(submitBtn);
 
@@ -727,9 +735,6 @@ jQuery(document).ready(function($){
 			beforeSerialize: function() {
 				if(typeof tinymce !== 'undefined')
 					tinymce.triggerSave();
-
-				$('.ap-form-errors, .ap-field-errors').remove();
-				$('.ap-have-errors').removeClass('ap-have-errors');
 			},
 			success: function(data) {
 				if(submitBtn.length>0)
@@ -750,18 +755,28 @@ jQuery(document).ready(function($){
 					AnsPress.theme[formCb](data);
 
 				if(typeof data.form_errors !== 'undefined'){
-					$formError = $('<div class="ap-form-errors"></div>').prependTo(self);
+					//$formError = $('<div class="ap-form-errors"></div>').prependTo(self);
 
-					$.each(data.form_errors, function(i, err){
-						$formError.append('<span class="ap-form-error ecode-'+i+'">'+err+'</div>');
-					});
+					// $.each(data.form_errors, function(i, err){
+					// 	$formError.append('<span class="ap-form-error">'+err+'</div>');
+					// });
 
-					$.each(data.fields_errors, function(i, errs){
+					$.each(data.form_errors, function(i, errs){
+						var field = $('[name="'+i+'"]');
+						console.log(field);
+						if(typeof errs === 'string')
+							if(field.is('form'))
+								field.prepend('<div class="ap-form-errors">'+errs+'</div>');
+							else
+								field.after('<span class="ap-form-control-err">'+errs+'</span>');
+
+						field.addClass('ap-has-error');
 						$('.ap-field-'+i).addClass('ap-have-errors');
 						$('.ap-field-'+i).find('.ap-field-errorsc').html('<div class="ap-field-errors"></div>');
 
 						$.each(errs.error, function(code, err){
 							$('.ap-field-' + i).find('.ap-field-errors').append('<span class="ap-field-error ecode-'+code+'">'+err+'</span>');
+
 						});
 					});
 
@@ -1546,9 +1561,6 @@ window.AnsPress.Helper = {
 			AnsPress.on('answerCountUpdated', this.answerCountUpdated, this);
 			AnsPress.on('formPosted', this.formPosted, this);
 			this.listenTo(AnsPress, 'commentApproved', this.commentApproved);
-			this.listenTo(AnsPress, 'commentDeleted', this.commentDeleted);
-			this.listenTo(AnsPress, 'commentCount', this.commentCount);
-			this.listenTo(AnsPress, 'formPosted', this.submitComment);
 		},
 		events: {
 			'click [ap="loadEditor"]': 'loadEditor',
@@ -1616,54 +1628,6 @@ window.AnsPress.Helper = {
 		},
 		answerCountUpdated: function(counts){
 			$('[ap="answers_count_t"]').text(counts.text);
-		},
-		commentApproved: function(data, elm){
-			$('#comment-' + data.comment_ID ).removeClass('unapproved');
-			$(elm).remove();
-			if(data.commentsCount)
-				AnsPress.trigger('commentCount', {count: data.commentsCount, postID: data.post_ID });
-		},
-		commentDeleted: function(data, elm){
-			$(elm).closest('apcomment').css('background', 'red');
-			setTimeout(function(){
-				$(elm).closest('apcomment').remove();
-			}, 1000);
-			if(data.commentsCount)
-				AnsPress.trigger('commentCount', {count: data.commentsCount, postID: data.post_ID });
-		},
-		commentCount: function(args){
-			var find = $('[apid="'+args.postID+'"]');
-			find.find('[ap-commentscount-text]').text(args.count.text);
-			if(args.count.unapproved > 0 )
-				find.find('[ap-un-commentscount]').addClass('have');
-			else
-				find.find('[ap-un-commentscount]').removeClass('have');
-
-			find.find('[ap-un-commentscount]').text(args.count.unapproved);
-		},
-		submitComment: function(data){
-			if(!('new-comment' !== data.action || 'edit-comment' !== data.action))
-				return;
-
-			if(data.success){
-				AnsPress.hideModal('commentForm');
-				if(data.action === 'new-comment')
-					$('#comments-'+data.post_id).html(data.html);
-				console.log(data.html);
-				if(data.action === 'edit-comment'){
-					$old = $('#comment-'+data.comment_id);
-					$(data.html).insertAfter($old);
-					$old.remove();
-
-					$('#comment-'+data.comment_id).css('backgroundColor', 'rgba(255, 235, 59, 1)');
-					setTimeout(function(){
-						$('#comment-'+data.comment_id).removeAttr('style');
-					}, 500)
-				}
-
-				if(data.commentsCount)
-					AnsPress.trigger('commentCount', {count: data.commentsCount, postID: data.post_id });
-			}
 		}
 	});
 

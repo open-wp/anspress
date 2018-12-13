@@ -324,7 +324,7 @@ _.templateSettings = {
 
 	AnsPress.views.Snackbar = Backbone.View.extend({
 		id: 'ap-snackbar',
-		template: '<div class="ap-snackbar<# if(success){ #> success<# } #>">{{message}}</div>',
+		template: '<div class="ap-snackbar<# if(success){ #> success<# } #>"><div>{{message}}</div><div class="ap-snackbar-info">'+aplang.click_on_it_to_hide+'</div></div>',
 		hover: false,
 		initialize: function(){
 			AnsPress.on('snackbar', this.show, this);
@@ -332,6 +332,7 @@ _.templateSettings = {
 		events: {
 			'mouseover': 'toggleHover',
 			'mouseout': 'toggleHover',
+			'click': 'hideOnClick',
 		},
 		show: function(data){
 			var self = this;
@@ -339,6 +340,7 @@ _.templateSettings = {
 			this.data.success = data.success;
 			this.$el.removeClass('snackbar-show');
 			this.render();
+			clearTimeout(this.hoveTimeOut);
 			setTimeout(function(){
 				self.$el.addClass('snackbar-show');
 			}, 0);
@@ -355,12 +357,15 @@ _.templateSettings = {
 			if(!self.hover)
 				this.hoveTimeOut = setTimeout(function(){
 					self.$el.removeClass('snackbar-show');
-				}, 5000);
+				}, 10000);
+		},
+		hideOnClick: function(){
+			this.$el.removeClass('snackbar-show');
 		},
 		render: function(){
 			if(this.data){
 				var t = _.template(this.template);
-				this.$el.html(t(this.data));
+				this.$el.html(_.unescape(t(this.data)));
 			}
 			return this;
 		}
@@ -719,6 +724,9 @@ jQuery(document).ready(function($){
 		var submitBtn = $(this).find('button[type="submit"]');
 		var formCb = $(this).attr('apform');
 
+		$('.ap-form-errors, .ap-form-control-err').remove();
+		$('.ap-have-errors, .ap-has-error').removeClass('ap-have-errors ap-has-error');
+
 		if(submitBtn.length>0)
 			AnsPress.showLoading(submitBtn);
 
@@ -727,9 +735,6 @@ jQuery(document).ready(function($){
 			beforeSerialize: function() {
 				if(typeof tinymce !== 'undefined')
 					tinymce.triggerSave();
-
-				$('.ap-form-errors, .ap-field-errors').remove();
-				$('.ap-have-errors').removeClass('ap-have-errors');
 			},
 			success: function(data) {
 				if(submitBtn.length>0)
@@ -750,18 +755,28 @@ jQuery(document).ready(function($){
 					AnsPress.theme[formCb](data);
 
 				if(typeof data.form_errors !== 'undefined'){
-					$formError = $('<div class="ap-form-errors"></div>').prependTo(self);
+					//$formError = $('<div class="ap-form-errors"></div>').prependTo(self);
 
-					$.each(data.form_errors, function(i, err){
-						$formError.append('<span class="ap-form-error ecode-'+i+'">'+err+'</div>');
-					});
+					// $.each(data.form_errors, function(i, err){
+					// 	$formError.append('<span class="ap-form-error">'+err+'</div>');
+					// });
 
-					$.each(data.fields_errors, function(i, errs){
+					$.each(data.form_errors, function(i, errs){
+						var field = $('[name="'+i+'"]');
+						console.log(field);
+						if(typeof errs === 'string')
+							if(field.is('form'))
+								field.prepend('<div class="ap-form-errors">'+errs+'</div>');
+							else
+								field.after('<span class="ap-form-control-err">'+errs+'</span>');
+
+						field.addClass('ap-has-error');
 						$('.ap-field-'+i).addClass('ap-have-errors');
 						$('.ap-field-'+i).find('.ap-field-errorsc').html('<div class="ap-field-errors"></div>');
 
 						$.each(errs.error, function(code, err){
 							$('.ap-field-' + i).find('.ap-field-errors').append('<span class="ap-field-error ecode-'+code+'">'+err+'</span>');
+
 						});
 					});
 

@@ -44,6 +44,7 @@ function ap_scripts_front() {
 		'mark_all_seen'          => __( 'Mark all as seen', 'anspress-question-answer' ),
 		'search'                 => __( 'Search', 'anspress-question-answer' ),
 		'no_permission_comments' => __( 'Sorry, you don\'t have permission to read comments.', 'anspress-question-answer' ),
+		'click_on_it_to_hide'    => __( 'Click on it to hide.', 'anspress-question-answer' ),
 	);
 
 	echo '<script type="text/javascript">';

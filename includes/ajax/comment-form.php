@@ -1,6 +1,6 @@
 <?php
 /**
- * Class used for ajax callback `comment_modal`.
+ * Class used for ajax callback `comment_form`.
  * This class is auto loaded by AnsPress loader on demand.
  *
  * @author Rahul Aryan <support@anspress.io>
@@ -17,15 +17,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * The `comment_modal` ajax callback.
+ * The `comment_form` ajax callback.
  *
  * @since 4.1.8
  */
-class Comment_Modal extends \AnsPress\Abstracts\Ajax {
+class Comment_Form extends \AnsPress\Abstracts\Ajax {
 	/**
 	 * Instance of this class.
 	 */
 	static $instance;
+
+	/**
+	 * Post object.
+	 *
+	 * @var \WP_Post
+	 */
+	private $post;
 
 	/**
 	 * The class constructor.
@@ -33,10 +40,12 @@ class Comment_Modal extends \AnsPress\Abstracts\Ajax {
 	 * Set requests and nonce key.
 	 */
 	protected function __construct() {
+		$this->req( 'post_id', ap_sanitize_unslash( 'post_id', 'r' ) );
+		$this->post = get_post( $this->req( 'post_id' ) );
+
 		$comment_id = ap_sanitize_unslash( 'comment_id', 'r' );
 
 		if ( empty( $comment_id ) ) {
-			$this->req( 'post_id', ap_sanitize_unslash( 'post_id', 'r' ) );
 			$this->nonce_key = 'new_comment_' . $this->req( 'post_id' );
 		} else {
 			$this->req( 'comment_id', $comment_id );
@@ -79,13 +88,8 @@ class Comment_Modal extends \AnsPress\Abstracts\Ajax {
 
 		$this->set_success();
 
-		$title = $this->req( 'comment_id' ) ? __( 'Edit comment', 'anspress-question-answer' ) : __( 'Add a comment', 'anspress-question-answer' );
-
-		$this->add_res( 'modal', array(
-			'name'    => 'comment',
-			'title'   => $title,
-			'content' => $html,
-		) );
+		$this->add_res( 'post_id', $this->req( 'post_id' ) );
+		$this->add_res( 'html', $html );
 	}
 
 	/**

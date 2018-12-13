@@ -12,9 +12,7 @@
 namespace AnsPress\Ajax;
 
 // Die if called directly.
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
+defined( 'ABSPATH' ) || exit;
 
 /**
  * The `comment_delete` ajax callback.
@@ -28,15 +26,26 @@ class Comment_Delete extends \AnsPress\Abstracts\Ajax {
 	static $instance;
 
 	/**
+	 * Current comment object.
+	 *
+	 * @var object Comment object.
+	 */
+	private $comment;
+
+	/**
 	 * The class constructor.
 	 *
 	 * Set requests and nonce key.
 	 */
 	protected function __construct() {
-		$comment_id      = ap_sanitize_unslash( 'comment_id', 'r' );
-		$this->nonce_key = 'delete_comment_' . $comment_id;
+		$this->req( 'comment_id', (int) ap_sanitize_unslash( 'comment_id', 'r' ) );
+		$this->req( 'post_id', (int) ap_sanitize_unslash( 'post_id', 'r' ) );
 
-		$this->req( 'comment_id', $comment_id );
+		$comment_id = $this->req( 'comment_id' );
+		$comment = get_comment( $comment_id );
+		$this->comment = $comment;
+
+		$this->nonce_key = 'delete_comment_' . $this->req( 'comment_id' );
 
 		// Call parent.
 		parent::__construct();
@@ -48,9 +57,7 @@ class Comment_Delete extends \AnsPress\Abstracts\Ajax {
 	 * @return void
 	 */
 	protected function verify_permission() {
-		$comment_id = $this->req( 'comment_id' );
-
-		if ( ! empty( $comment_id ) && ! ap_user_can_delete_comment( $comment_id ) ) {
+		if ( ! $this->comment || $this->comment->comment_post_ID != $this->req( 'post_id' ) || ! ap_user_can_delete_comment( $this->comment->Comment_ID ) ) {
 			parent::verify_permission();
 		}
 	}
@@ -61,42 +68,33 @@ class Comment_Delete extends \AnsPress\Abstracts\Ajax {
 	 * @return void
 	 */
 	public function logged_in() {
-		$comment_id = $this->req( 'comment_id' );
-		$_comment = get_comment( $comment_id );
+		$question = ap_get_question( $this->req( 'post_id' ) );
 
 		// Check if deleting comment is locked.
-		if ( ap_comment_delete_locked( $_comment->comment_ID ) && ! is_super_admin() ) {
+		if ( ap_comment_delete_locked( $this->comment->comment_ID ) && ! is_super_admin() ) {
 			$this->set_fail();
-			$this->snackbar( sprintf(
-				// Translators: %s contain comment created date. i.e. 10 hours.
-				__( 'The comment is locked and cannot be deleted. Any comments posted before %s cannot be deleted.', 'anspress-question-answer' ),
-				human_time_diff( current_time( 'U' ) + ap_opt( 'disable_delete_after' ) )
-			) );
+			$this->snackbar( __( 'Comment is locked, cannot be deleted.', 'anspress-question-answer' ) );
 
 			$this->send();
 		}
 
-		$delete = wp_delete_comment( (integer) $_comment->comment_ID, true );
+		$delete = wp_delete_comment( (integer) $this->comment->comment_ID, true );
 
 		if ( $delete ) {
-			do_action( 'ap_unpublish_comment', $_comment );
-			do_action( 'ap_after_deleting_comment', $_comment );
+			do_action( 'ap_unpublish_comment', $this->comment );
+			do_action( 'ap_after_deleting_comment', $this->comment );
 
-			$count = get_comment_count( $_comment->comment_post_ID );
+			$count = get_comment_count( $this->comment->comment_post_ID );
 
 			$this->set_success();
-			$this->snackbar( __( 'Comment successfully deleted', 'anspress-question-answer' ) );
-			$this->add_res( 'cb', 'commentDeleted' );
-			$this->add_res( 'post_ID', $_comment->comment_post_ID );
-			$this->add_res( 'commentsCount', array(
-				'text' => sprintf(
-					// Translators: %d contain comment count.
-					_n( '%d Comment', '%d Comments', $count['all'], 'anspress-question-answer' ),
-					$count['all']
-				),
-				'number'     => $count['all'],
-				'unapproved' => $count['awaiting_moderation'],
-			) );
+			$this->snackbar( __( 'Comment deleted successfully', 'anspress-question-answer' ) );
+			$this->add_res( 'post_id', $this->comment->comment_post_ID );
+			$this->add_res( 'comment_id', $this->comment->comment_ID );
+
+			ob_start();
+			ap_get_template_part( 'comments/comments', [ 'question' => $question ] );
+			$html = ob_get_clean();
+			$this->add_res( 'html', $html );
 		}
 	}
 }

@@ -52,9 +52,9 @@ class Comment_Order extends \AnsPress\Abstracts\Ajax {
 		$post_id = $this->req( 'post_id' );
 		$status = $this->req( 'status' );
 
-		// if ( empty( $post_id ) || ! ap_user_can_change_status( $post_id ) || ! in_array( $status, [ 'publish', 'moderate', 'trash' ], true ) ) {
-		// 	parent::verify_permission();
-		// }
+		if ( ! ap_user_can_read_post( $post_id ) ) {
+			parent::verify_permission();
+		}
 	}
 
 	/**
@@ -73,5 +73,14 @@ class Comment_Order extends \AnsPress\Abstracts\Ajax {
 		$this->add_res( 'html', $html );
 
 		$this->send();
+	}
+
+	/**
+	 * Handle ajax for non logged in users.
+	 *
+	 * @return void
+	 */
+	public function nopriv() {
+		$this->logged_in();
 	}
 }

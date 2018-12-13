@@ -15,63 +15,85 @@ if ( ! ap_user_can_read_post( $question->get_id() ) ) {
 }
 
 $active_order = ap_sanitize_unslash( 'comments_order', 'r' );
-$active_order = empty( $active_order ) ? 'oldest' : $active_order;
+
 
 $comments_links = array(
 	'oldest'     => __( 'Oldest first', 'anspress-question-answer' ),
 	'newest'     => __( 'Newest first', 'anspress-question-answer' ),
-	'unapproved' => __( 'Unapproved', 'anspress-question-answer' ),
 );
 
+if ( $question->get_unapproved_comment_count() > 0 ) {
+	$comments_links['unapproved'] = __( 'Unapproved', 'anspress-question-answer' );
+}
+
+// Show unapproved comments if not approved comments.
+if ( empty( $active_order ) && $question->get_unapproved_comment_count() > 0 && 0 === $question->get_comment_count() && ap_user_can_approve_comment() ) {
+	$active_order = 'unapproved';
+} else {
+	$active_order = ! isset( $comments_links[ $active_order ] ) ? 'oldest' : $active_order;
+}
+
+$comments = $question->get_comments( [ 'display_order' => $active_order ] );
 ?>
 
-<?php if ( $question->get_comments() ) : ?>
+<?php if ( $comments || ( $question->get_unapproved_comment_count() > 0 && ap_user_can_approve_comment() ) ) : ?>
+	<apcomments id="comments-<?php $question->the_id(); ?>" class="ap-question-comments ap-comments">
+		<div class="ap-comments-header ap-display-flex justify-space-betw">
+			<div class="ap-comments-total">
+				<?php
+					$counts = 'unapproved' !== $active_order ? $question->get_comment_count() : $question->get_unapproved_comment_count();
 
-<apcomments id="comments-<?php $question->the_id(); ?>" class="ap-question-comments ap-comments have-comments">
-	<div class="ap-comments-header ap-display-flex justify-space-betw">
-		<div class="ap-comments-total">
-			<?php
-				// Translators: Comments count.
-				printf( _n( '%s Comment', '%s Comments', $question->get_comment_count(), 'anspress-question-answer' ), '<span itemprop="commentCount">' . esc_html( number_format_i18n( $question->get_comment_count() ) ) . '</span>' );
-			?>
-		</div>
+					// Translators: Comments count.
+					printf( _n( '%s Comment', '%s Comments', $counts, 'anspress-question-answer' ), '<span itemprop="commentCount" ap="commentCount-' . $question->get_id() . '">' . esc_html( number_format_i18n( $counts ) ) . '</span>' );
+				?>
+			</div>
 
-		<div class="ap-comments-orders">
-			<?php foreach ( $comments_links as $link_slug => $link_name ) : ?>
+			<div class="ap-comments-orders">
+				<?php foreach ( $comments_links as $link_slug => $link_name ) : ?>
 
-				<?php if ( 'unapproved' === $link_slug && ! ap_user_can_edit_comments() ) : ?>
-					<?php continue; ?>
-				<?php endif; ?>
-
-				<a ap="apCommentOrder" href="<?php echo esc_url( add_query_arg( [ 'comment_order' => $link_slug ], get_permalink() ) ); ?>"<?php echo $active_order === $link_slug ? ' class="ap-comments-active"' : ''; ?> data-post_id="<?php $question->the_id(); ?>" data-order="<?php echo esc_attr( $link_slug ); ?>">
-					<?php echo esc_html( $link_name ); ?>
-					<?php if ( 'unapproved' === $link_slug ) : ?>
-						<span class="ap-comments-count"><?php $question->the_unapproved_comment_count(); ?></span>
+					<?php if ( 'unapproved' === $link_slug && ! ap_user_can_approve_comment() ) : ?>
+						<?php continue; ?>
 					<?php endif; ?>
-				</a>
-			<?php endforeach; ?>
+
+					<a ap="apCommentOrder" href="<?php echo esc_url( add_query_arg( [ 'comment_order' => $link_slug ], get_permalink() ) ); ?>"<?php echo $active_order === $link_slug ? ' class="ap-comments-active"' : ''; ?> data-post_id="<?php $question->the_id(); ?>" data-order="<?php echo esc_attr( $link_slug ); ?>">
+						<?php echo esc_html( $link_name ); ?>
+						<?php if ( 'unapproved' === $link_slug ) : ?>
+							<span class="ap-comments-count"><?php $question->the_unapproved_comment_count(); ?></span>
+						<?php endif; ?>
+					</a>
+				<?php endforeach; ?>
+			</div>
 		</div>
-	</div>
 
-	<?php foreach ( $question->get_comments() as $c ) : ?>
-		<?php
-			global $comment;
-			$comment = $c;
+		<?php if ( $comments ) : ?>
+			<?php foreach ( $comments as $c ) : ?>
+				<?php
+					global $comment;
+					$comment = $c;
 
-			ap_get_template_part(
-				'comments/comment', [
-					'question' => $question,
-					'comment'  => $comment,
-				]
-			);
+					ap_get_template_part(
+						'comments/comment', [
+							'question' => $question,
+							'comment'  => $comment,
+						]
+					);
 
-			// Clear global comment.
-			$comment = null;
-		?>
-	<?php endforeach; ?>
+					// Clear global comment.
+					$comment = null;
+				?>
+			<?php endforeach; ?>
+		<?php else : ?>
+			<div class="ap-feedback ap-feedback-comments ap-feedback-small">
+				<div class="ap-display-flex align-item-center">
+					<i class="ap-feedback-icon apicon-lock ap-text-muted"></i>
+					<div>
+						<p class="mb-0 ap-feedback-msg"><?php esc_attr_e( 'No comments to show.', 'anspress-question-answer' ); ?></p>
+					</div>
+				</div>
+			</div>
+			<p><?php esc_attr_e( '', 'anspress-question-answer' ); ?></p>
+		<?php endif; ?>
 
-	<?php ap_new_comment_btn( $question->get_id() ); ?>
-
-</apcomments>
+	</apcomments>
 
 <?php endif; ?>

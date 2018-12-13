@@ -64,7 +64,7 @@ defined( 'ABSPATH' ) || exit;
 			<?php $question->the_author_avatar( ap_opt( 'avatar_size_qquestion' ) ); ?>
 		</a>
 
-		<div class="ap-content-col ap-cell">
+		<div apcontentbody class="ap-content-col ap-cell">
 			<div class="ap-cell-inner">
 				<div class="ap-q-metas">
 					<span class="ap-author" itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -115,7 +115,10 @@ defined( 'ABSPATH' ) || exit;
 				</div>
 			</div>
 
-			<?php ap_get_template_part( 'comments/comments', [ 'question' => $question ] ); // Load comments template. ?>
+			<?php
+				ap_get_template_part( 'comments/comments', [ 'question' => $question ] ); // Load comments template.
+				ap_new_comment_btn( $question->get_id() );
+			?>
 		</div>
 
 		<!-- Votes button -->

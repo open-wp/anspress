@@ -26,17 +26,22 @@
 	&-active{
 		border-bottom: solid 1px currentColor;
 	}
-	.ap-btn-newcomment{
-		font-size: 12px;
+}
+.ap-btn-newcomment{
+	font-size: 12px;
 
-		i{
-			margin-right: 5px;
-		}
+	i{
+		margin-right: 5px;
 	}
 }
 .ap-comment{
 	&-header{
 		margin-bottom: 5px;
+	}
+	&-form {
+		margin-top: 15px;
+		border-radius: var(--ap_border-radius);
+		font-size: 12px;
 	}
 }
 .anspress{
@@ -106,9 +111,6 @@
 				font-weight: normal;
 			}
 		}
-	}
-	.ap-btn-newcomment{
-    float: right;
 	}
 	#ap-commentform{
 		margin-top: 10px;

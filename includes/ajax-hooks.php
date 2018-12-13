@@ -33,10 +33,13 @@ class AnsPress_Ajax {
 		anspress()->add_action( 'ap_ajax_vote', 'AnsPress_Vote', 'vote' );
 
 		anspress()->add_action( 'ap_ajax_delete_comment', 'AnsPress\Ajax\Comment_Delete', 'init' );
-		anspress()->add_action( 'wp_ajax_comment_modal', 'AnsPress\Ajax\Comment_Modal', 'init' );
-		anspress()->add_action( 'wp_ajax_nopriv_comment_modal', 'AnsPress\Ajax\Comment_Modal', 'init' );
+		anspress()->add_action( 'wp_ajax_ap_comment_form', 'AnsPress\Ajax\Comment_Form', 'init' );
+		anspress()->add_action( 'wp_ajax_nopriv_ap_comment_form', 'AnsPress\Ajax\Comment_Form', 'init' );
 		anspress()->add_action( 'wp_ajax_ap_order_comments', 'AnsPress\Ajax\Comment_Order', 'init' );
 		anspress()->add_action( 'wp_ajax_nopriv_ap_order_comments', 'AnsPress\Ajax\Comment_Order', 'init' );
+		anspress()->add_action( 'wp_ajax_ap_comment_submit', 'AnsPress\Ajax\Comment_Submit', 'init' );
+		anspress()->add_action( 'wp_ajax_nopriv_ap_comment_submit', 'AnsPress\Ajax\Comment_Submit', 'init' );
+
 		anspress()->add_action( 'wp_ajax_ap_toggle_best_answer', 'AnsPress\Ajax\Toggle_Best_Answer', 'init' );
 
 		anspress()->add_action( 'wp_ajax_ap_load_more_activities_profile', 'AnsPress\Ajax\More_Activities_Profile', 'init' );

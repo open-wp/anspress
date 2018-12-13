@@ -106,6 +106,7 @@ class AnsPress_Hooks {
 			anspress()->add_filter( 'get_comment_link', 'AnsPress_Comment_Hooks', 'comment_link', 10, 3 );
 			anspress()->add_filter( 'preprocess_comment', 'AnsPress_Comment_Hooks', 'preprocess_comment' );
 			anspress()->add_filter( 'comments_template', 'AnsPress_Comment_Hooks', 'comments_template' );
+			anspress()->add_action( 'wp_update_comment_count', 'AnsPress_Comment_Hooks', 'update_comment_count' );
 
 			// Rewrite rules hooks.
 			anspress()->add_filter( 'request', 'AnsPress_Rewrite', 'alter_the_query' );
@@ -141,7 +142,8 @@ class AnsPress_Hooks {
 			anspress()->add_action( 'before_delete_post', __CLASS__, 'delete_subscriptions' );
 			anspress()->add_action( 'ap_publish_comment', __CLASS__, 'comment_subscription' );
 			anspress()->add_action( 'deleted_comment', __CLASS__, 'delete_comment_subscriptions', 10, 2 );
-			//anspress()->add_action( 'get_comments_number', __CLASS__, 'get_comments_number', 11, 2 );
+
+
 	}
 
 	/**

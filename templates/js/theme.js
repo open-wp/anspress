@@ -8,7 +8,9 @@
             'click [ap="removeQFilter"]'     : 'removeFilter',
             'click [ap="toggleAnswer"]'      : 'toggleAnswer',
             'click [ap="loadMoreActivities"]': 'loadedMoreActivities',
-            'click [ap="apCommentOrder"]'    : 'apCommentOrder'
+            'click [ap="apCommentOrder"]'    : 'apCommentOrder',
+            'click [ap="newCommentBtn"]'     : 'newCommentBtn',
+            'click [ap="newCommentBtn"]'     : 'newCommentBtn'
         },
 
         bindEvents: function() {
@@ -19,7 +21,9 @@
                     return console.log('AnsPress: Selector missing for ' + event[0]);
 
                 $('body').on( event[0], event[1], AnsPress.theme[fn] );
-            })
+            });
+
+            AnsPress.on('ajaxBtnDone', AnsPress.theme.commentDelete);
         },
         toggleClassOf: function(e) {
             e.preventDefault();
@@ -91,6 +95,66 @@
                     }
                 }
             })
+        },
+        newCommentBtn: function(e){
+            e.preventDefault();
+            var self = $(this);
+            var apquery = JSON.parse(self.attr('apquery'));
+            var form = $('[apid="'+apquery.post_id+'"] [apcontentbody] .ap-comment-form');
+
+            // Toggle form if already loaded.
+            if ( form.length > 0 ) {
+                $('html, body').animate({
+                    scrollTop: (form.offset().top - 50)
+                }, 1000);
+
+                return;
+            }
+
+            AnsPress.showLoading(self);
+            AnsPress.ajax({
+                data: apquery,
+                success: function(data){
+                    AnsPress.hideLoading(self);
+                    var html = $(data.html);
+                    $('[apid="'+data.post_id+'"] [apcontentbody]').append(html);
+
+                    setTimeout(function(){
+                        html.find('.ap-animate-slide-y').removeClass('ap-animate-closed');
+                    }, 100)
+                    $('html, body').animate({
+                        scrollTop: (html.offset().top - 50)
+                    }, 1000);
+                }
+            })
+        },
+        submitComment: function(data){
+            if(!data.success) return;
+
+            // Reload page if comments div doesn't exists.
+            if(data.html && $('#comments-'+data.post_id).length==0){
+                AnsPress.theme.reloadPage();
+                return;
+            }
+
+            if(data.html){
+                var html = $(data.html);
+                $('#comments-'+data.post_id).replaceWith(html);
+                $('#comment-'+data.comment_id).addClass('ap-animate-highlight');
+            }
+
+            $('#ap_form_comment-'+data.post_id).find('.ap-animate-slide-y').addClass('ap-animate-closed');
+            setTimeout(function(){
+                $('#ap_form_comment-'+data.post_id).remove();
+            },2000);
+        },
+        commentDelete: function(data){
+            if(data.action !== 'ap_comment_delete') return;
+
+            if(data.html){
+                var html = $(data.html);
+                $('#comments-'+data.post_id).replaceWith(html);
+            }
         },
         /**
          * Reload the page.

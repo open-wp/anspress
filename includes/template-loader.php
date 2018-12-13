@@ -463,13 +463,6 @@ function after_question_content() {
  */
 function question_footer() {
 	if ( ap_user_can_read_question() ) {
-		AnsPress\select_button();
-	}
-
-	// Comment button id.
-	echo ap_comment_btn_html( get_question_id() );
-
-	if ( ap_user_can_read_question() ) {
 		AnsPress\actions_button();
 	}
 }

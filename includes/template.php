@@ -165,7 +165,7 @@ function actions_button( $post_id = 0 ) {
 		'nonce'   => wp_create_nonce( 'post-actions-' . $post_id ),
 	] );
 
-	echo '<postActions class="ap-dropdown"><a href="#" class="apicon-dots ap-actions-handle ap-dropdown-toggle" ap="actiontoggle" apquery="' . esc_js( $args ) . '"></a><ul class="ap-actions ap-dropdown-menu"></ul></postActions>';
+	echo '<postActions class="ap-dropdown"><a href="#" class="apicon-gear ap-actions-handle ap-dropdown-toggle" ap="actiontoggle" apquery="' . esc_js( $args ) . '"></a><ul class="ap-actions ap-dropdown-menu"></ul></postActions>';
 }
 
 /**

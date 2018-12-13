@@ -24,6 +24,12 @@
 		&.autogrow{
 			overflow: hidden;
 		}
+		&.ap-has-error{
+			border-color: var(--ap_color-error);
+		}
+		&-err{
+			color: red;
+		}
 	}
 
 

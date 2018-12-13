@@ -602,42 +602,6 @@ function ap_user_can_edit_comment( $comment_id, $user_id = false ) {
 }
 
 /**
- * Check if user can edit comments.
- *
- * @param  integer       $comment_id Comment ID.
- * @param  integer|false $user_id User ID.
- * @return boolean
- * @since 4.2.0
- */
-function ap_user_can_edit_comments( $user_id = false ) {
-	if ( false === $user_id ) {
-		$user_id = get_current_user_id();
-	}
-
-	if ( is_super_admin() || current_user_can( 'ap_edit_others_comment' ) ) {
-		return true;
-	}
-
-	/**
-	 * Filter to hijack ap_user_can_edit_comments.
-	 *
-	 * @param  boolean|string   $apply_filter   Apply current filter, empty string by default.
-	 * @param  integer          $user_id        User ID.
-	 * @return boolean
-	 * @since  4.2.0
-	 */
-	$filter = apply_filters( 'ap_user_can_edit_comments', '', $user_id );
-
-	if ( true === $filter ) {
-		return true;
-	} elseif ( false === $filter ) {
-		return false;
-	}
-
-	return false;
-}
-
-/**
  * Check if user can delete comment.
  *
  * @param  integer       $comment_id Comment_ID.
@@ -1183,7 +1147,6 @@ function ap_role_caps( $role ) {
 			'ap_view_private'           => true,
 			'ap_view_moderate'          => true,
 			'ap_change_status_other'    => true,
-			'ap_approve_comment'        => true,
 			'ap_no_moderation'          => true,
 			'ap_restore_posts'          => true,
 			'ap_toggle_featured'        => true,
@@ -1389,7 +1352,7 @@ function ap_user_can_vote_on_post( $post_id, $type, $user_id = false, $wp_error 
 }
 
 /**
- * Check if user can delete comment.
+ * Check if user can approve comments.
  *
  * @param  integer|boolean $user_id User ID.
  * @return boolean
@@ -1415,7 +1378,7 @@ function ap_user_can_approve_comment( $user_id = false ) {
 		return false;
 	}
 
-	if ( is_super_admin( $user_id ) || user_can( $user_id, 'ap_approve_comment' ) ) {
+	if ( is_super_admin( $user_id ) || user_can( $user_id, 'ap_edit_others_comment' ) ) {
 		return true;
 	}
 

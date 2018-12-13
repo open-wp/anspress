@@ -299,9 +299,6 @@
 			AnsPress.on('answerCountUpdated', this.answerCountUpdated, this);
 			AnsPress.on('formPosted', this.formPosted, this);
 			this.listenTo(AnsPress, 'commentApproved', this.commentApproved);
-			this.listenTo(AnsPress, 'commentDeleted', this.commentDeleted);
-			this.listenTo(AnsPress, 'commentCount', this.commentCount);
-			this.listenTo(AnsPress, 'formPosted', this.submitComment);
 		},
 		events: {
 			'click [ap="loadEditor"]': 'loadEditor',
@@ -369,54 +366,6 @@
 		},
 		answerCountUpdated: function(counts){
 			$('[ap="answers_count_t"]').text(counts.text);
-		},
-		commentApproved: function(data, elm){
-			$('#comment-' + data.comment_ID ).removeClass('unapproved');
-			$(elm).remove();
-			if(data.commentsCount)
-				AnsPress.trigger('commentCount', {count: data.commentsCount, postID: data.post_ID });
-		},
-		commentDeleted: function(data, elm){
-			$(elm).closest('apcomment').css('background', 'red');
-			setTimeout(function(){
-				$(elm).closest('apcomment').remove();
-			}, 1000);
-			if(data.commentsCount)
-				AnsPress.trigger('commentCount', {count: data.commentsCount, postID: data.post_ID });
-		},
-		commentCount: function(args){
-			var find = $('[apid="'+args.postID+'"]');
-			find.find('[ap-commentscount-text]').text(args.count.text);
-			if(args.count.unapproved > 0 )
-				find.find('[ap-un-commentscount]').addClass('have');
-			else
-				find.find('[ap-un-commentscount]').removeClass('have');
-
-			find.find('[ap-un-commentscount]').text(args.count.unapproved);
-		},
-		submitComment: function(data){
-			if(!('new-comment' !== data.action || 'edit-comment' !== data.action))
-				return;
-
-			if(data.success){
-				AnsPress.hideModal('commentForm');
-				if(data.action === 'new-comment')
-					$('#comments-'+data.post_id).html(data.html);
-				console.log(data.html);
-				if(data.action === 'edit-comment'){
-					$old = $('#comment-'+data.comment_id);
-					$(data.html).insertAfter($old);
-					$old.remove();
-
-					$('#comment-'+data.comment_id).css('backgroundColor', 'rgba(255, 235, 59, 1)');
-					setTimeout(function(){
-						$('#comment-'+data.comment_id).removeAttr('style');
-					}, 500)
-				}
-
-				if(data.commentsCount)
-					AnsPress.trigger('commentCount', {count: data.commentsCount, postID: data.post_id });
-			}
 		}
 	});
 

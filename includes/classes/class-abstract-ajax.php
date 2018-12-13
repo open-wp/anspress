@@ -57,6 +57,13 @@ abstract class Ajax extends \AnsPress\Abstracts\Singleton {
 	public $req;
 
 	/**
+	 * Form errors
+	 *
+	 * @var array
+	 */
+	public $form_errors = [];
+
+	/**
 	 * Class constructor.
 	 */
 	protected function __construct() {
@@ -164,6 +171,15 @@ abstract class Ajax extends \AnsPress\Abstracts\Singleton {
 	}
 
 	/**
+	 * Set error of field.
+	 *
+	 * @return void
+	 */
+	public function set_field_error( $name, $msg ) {
+		$this->form_errors[ $name ] = $msg;
+	}
+
+	/**
 	 * Add snackbar.
 	 *
 	 * @param string $msg Snackbar message.
@@ -200,6 +216,7 @@ abstract class Ajax extends \AnsPress\Abstracts\Singleton {
 	 * @return void
 	 */
 	public function send() {
+		$this->add_res( 'form_errors', $this->form_errors );
 		$this->add_res( 'success', $this->success );
 		$this->add_res( 'action', $this->action );
 
@@ -208,6 +225,23 @@ abstract class Ajax extends \AnsPress\Abstracts\Singleton {
 			$this->snackbar( __( 'Something went wrong.', 'anspress-question-answer' ) );
 		}
 
+		/**
+		 * Action triggered before sending ajax response.
+		 *
+		 * @param \AnsPress\Abstracts\Ajax $ajax Ajax class.
+		 * @since 4.2.0
+		 */
+		do_action_ref_array( 'ap_ajax_class_send', [ &$this ] );
+
 		ap_send_json( $this->res );
+	}
+
+	/**
+	 * Check for form errors.
+	 *
+	 * @return boolean
+	 */
+	public function has_form_errors() {
+		return ! empty( $this->form_errors );
 	}
 }

@@ -927,7 +927,7 @@ class AP_Form_Hooks {
 			$count = get_comment_count( $c->comment_post_ID );
 
 			ob_start();
-			ap_the_comments( $c->comment_post_ID );
+			ap_get_template_part( 'comments/comments', [ 'question' => ap_get_question( $c->comment_post_ID ) ] );
 			$html = ob_get_clean();
 
 			$result = array(

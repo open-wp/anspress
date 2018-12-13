@@ -20,7 +20,8 @@
 	.ap-cell {
 		&-inner {
 			border: 2px solid rgba(0, 0, 0, .1);
-			border-radius: 3px;
+			border-radius: var(--ap_border-radius);
+			padding: 10px;
 		}
 	}
 	.ap-status-trash .ap-cell-inner {
@@ -59,9 +60,7 @@
 			}
 		}
 	}
-	.ap-q-inner {
-		padding: 15px;
-	}
+
 	.ap-post-updated{
 		font-size: 12px;
 		margin-top: 10px;

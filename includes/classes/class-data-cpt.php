@@ -170,6 +170,66 @@ class Data_Cpt extends Abstracts\Data {
 		$this->save();
 	}
 
+	/**
+	 * Adds comment to the question.
+	 *
+	 * @param  array $args Comment arguments.
+	 * @return int Comment ID.
+	 * @todo Change all previous comments type to `ap_cpt_comment`.
+	 */
+	public function add_comment( $args ) {
+		if ( ! $this->get_id() ) {
+			return 0;
+		}
+
+		$args = wp_array_slice_assoc( $args, [ 'comment_author', 'comment_author_email', 'user_id', 'comment_content' ] );
+
+		$comment_author_email  = strtolower( __( 'anonymous', 'anspress-question-answer' ) ) . '@';
+		$comment_author_email .= isset( $_SERVER['HTTP_HOST'] ) ? str_replace( 'www.', '', sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) ) : 'noreply.com'; // WPCS: input var ok.
+		$comment_author_email  = sanitize_email( $comment_author_email );
+
+		$args = wp_parse_args( $args, array(
+			'comment_author'       => __( 'Anonymous', 'anspress-question-answer' ),
+			'comment_author_email' => $comment_author_email,
+			'user_id'              => get_current_user_id(),
+			'comment_content'      => '',
+		) );
+
+		extract( $args );
+
+		$user = get_user_by( 'id', $user_id );
+
+		if ( $user ) {
+			$args['comment_author']       = $user->display_name;
+			$args['comment_author_email'] = $user->user_email;
+			$args['user_id']              = $user->ID;
+		}
+
+		$commentdata = apply_filters(
+			'ap_new_cpt_comment_data',
+			array(
+				'comment_post_ID'      => $this->get_id(),
+				'comment_author'       => $comment_author,
+				'comment_author_email' => $comment_author_email,
+				'comment_author_url'   => '',
+				'comment_content'      => $comment_content,
+				'comment_agent'        => 'AnsPress',
+				'comment_type'         => 'ap_cpt_comment',
+				'comment_parent'       => 0,
+				'user_id'              => $user_id,
+			)
+		);
+
+		$comment_id = wp_new_comment( $commentdata, true );
+
+		$this->update_unapproved_comment_count();
+
+		$comment_count = wp_count_comments( $this->get_id() );
+		$this->set_comment_count( $comment_count->approved );
+
+		return $comment_id;
+	}
+
 	/*
 	|--------------------------------------------------------------------------
 	| Getters
@@ -409,11 +469,15 @@ class Data_Cpt extends Abstracts\Data {
 	 *
 	 * @return array
 	 */
-	public function get_comments() {
+	public function get_comments( $args = [] ) {
+		$args = wp_parse_args( $args, array(
+			'display_order' => 'newest',
+		) );
+
 		$active_order = ap_sanitize_unslash( 'comments_order', 'r' );
 		$active_order = empty( $active_order ) ? 'oldest' : $active_order;
 
-		$args = array(
+		$comments_args = array(
 			'post_id' => $this->get_id(),
 			'status'  => 'approve',
 			'type'    => '',
@@ -421,15 +485,11 @@ class Data_Cpt extends Abstracts\Data {
 		);
 
 		// If unapproved order is selcted then show all unapproved comments.
-		if ( 'unapproved' === $active_order && ap_user_can_edit_comments() ) {
-			$args['status'] = 'hold';
+		if ( 'unapproved' === $args['display_order'] ) {
+			$comments_args['status'] = 'hold';
 		}
 
-		remove_filter( 'comments_clauses', array( 'WC_Comments', 'exclude_order_comments' ) );
-
-		$comments = get_comments( $args );
-
-		add_filter( 'comments_clauses', array( 'WC_Comments', 'exclude_order_comments' ) );
+		$comments = get_comments( $comments_args );
 		return $comments;
 	}
 

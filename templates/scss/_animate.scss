@@ -1,0 +1,26 @@
+.ap-animate{
+    &-slide-y{
+        overflow-y: hidden;
+        max-height: 500px; /* approximate max height */
+        box-sizing: border-box;
+        transition-property: all;
+        transition-duration: .3s;
+        transition-timing-function: ease;
+
+        &.ap-animate-closed{
+            max-height: 0;
+        }
+    }
+
+    &-highlight {
+        animation: ap-yellow-fade 2s ease-in 1;
+    }
+}
+@-webkit-keyframes ap-yellow-fade {
+    0% {background: yellow;}
+    100% {background: none;}
+ }
+ @keyframes ap-yellow-fade {
+    0% {background: yellow;}
+    100% {background: none;}
+ }
