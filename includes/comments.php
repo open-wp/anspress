@@ -100,47 +100,6 @@ class AnsPress_Comment_Hooks {
 	}
 
 	/**
-	 * Ajax callback to approve comment.
-	 */
-	public static function approve_comment() {
-		$comment_id = (int) ap_sanitize_unslash( 'comment_id', 'r' );
-
-		if ( ! ap_verify_nonce( 'approve_comment_' . $comment_id ) || ! ap_user_can_approve_comment() ) {
-			ap_ajax_json(
-				array(
-					'success'  => false,
-					'snackbar' => [ 'message' => __( 'Sorry, unable to approve comment', 'anspress-question-answer' ) ],
-				)
-			);
-		}
-
-		$success  = wp_set_comment_status( $comment_id, 'approve' );
-		$_comment = get_comment( $comment_id );
-		$count    = get_comment_count( $_comment->comment_post_ID );
-
-		if ( $success ) {
-			$_comment = get_comment( $comment_id );
-			ap_ajax_json(
-				array(
-					'success'       => true,
-					'cb'            => 'commentApproved',
-					'comment_ID'    => $comment_id,
-					'post_ID'       => $_comment->comment_post_ID,
-					'commentsCount' => array(
-						'text'       => sprintf(
-							_n( '%d Comment', '%d Comments', $count['all'], 'anspress-question-answer' ),
-							$count['all']
-						),
-						'number'     => $count['all'],
-						'unapproved' => $count['awaiting_moderation'],
-					),
-					'snackbar'      => array( 'message' => __( 'Comment approved successfully.', 'anspress-question-answer' ) ),
-				)
-			);
-		}
-	}
-
-	/**
 	 * Manipulate question and answer comments link.
 	 *
 	 * @param string     $link    The comment permalink with '#comment-$id' appended.
@@ -208,11 +167,13 @@ class AnsPress_Comment_Hooks {
 	/**
 	 * Update unpublished comments count when comment count gets updated.
 	 *
-	 * @param integer $post_id Post ID.
+	 * @param integer|object $comment Comment id or integer.
 	 * @since 4.2.0
 	 */
-	public static function update_comment_count( $post_id ) {
-		$post = get_post( $post_id );
+	public static function update_unapproved_comment( $comment ) {
+		$comment = is_object( $comment ) ? $comment : get_comment( $comment );
+		$post    = get_post( $comment->comment_post_ID );
+
 		if ( ! ap_is_cpt( $post ) ) {
 			return;
 		}
@@ -308,9 +269,10 @@ function ap_comment_actions( $comment ) {
 			'label' => __( 'Approve', 'anspress-question-answer' ),
 			'href'  => '#',
 			'query' => array(
-				'__nonce'        => wp_create_nonce( 'approve_comment_' . $comment->comment_ID ),
-				'ap_ajax_action' => 'approve_comment',
-				'comment_id'     => $comment->comment_ID,
+				'__nonce'    => wp_create_nonce( 'approve_comment_' . $comment->comment_ID ),
+				'action'     => 'ap_comment_approve',
+				'comment_id' => $comment->comment_ID,
+				'post_id'    => $comment->comment_post_ID,
 			),
 		);
 	}

@@ -14,8 +14,8 @@ if ( ! ap_user_can_read_post( $question->get_id() ) ) {
 	return;
 }
 
-$active_order = ap_sanitize_unslash( 'comments_order', 'r' );
 
+$active_order = ap_sanitize_unslash( 'comments_order', 'r' );
 
 $comments_links = array(
 	'oldest'     => __( 'Oldest first', 'anspress-question-answer' ),

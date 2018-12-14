@@ -24,6 +24,7 @@
             });
 
             AnsPress.on('ajaxBtnDone', AnsPress.theme.commentDelete);
+            AnsPress.on('ajaxBtnDone', AnsPress.theme.commentApprove);
         },
         toggleClassOf: function(e) {
             e.preventDefault();
@@ -151,6 +152,13 @@
         commentDelete: function(data){
             if(data.action !== 'ap_comment_delete') return;
 
+            if(data.html){
+                var html = $(data.html);
+                $('#comments-'+data.post_id).replaceWith(html);
+            }
+        },
+        commentApprove: function(data){
+            if(data.action !== 'ap_comment_approve') return;
             if(data.html){
                 var html = $(data.html);
                 $('#comments-'+data.post_id).replaceWith(html);

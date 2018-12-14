@@ -106,7 +106,10 @@ class AnsPress_Hooks {
 			anspress()->add_filter( 'get_comment_link', 'AnsPress_Comment_Hooks', 'comment_link', 10, 3 );
 			anspress()->add_filter( 'preprocess_comment', 'AnsPress_Comment_Hooks', 'preprocess_comment' );
 			anspress()->add_filter( 'comments_template', 'AnsPress_Comment_Hooks', 'comments_template' );
-			anspress()->add_action( 'wp_update_comment_count', 'AnsPress_Comment_Hooks', 'update_comment_count' );
+			anspress()->add_action( 'deleted_comment', 'AnsPress_Comment_Hooks', 'update_unapproved_comment' );
+			anspress()->add_action( 'comment_approved_to_unapproved', 'AnsPress_Comment_Hooks', 'update_unapproved_comment' );
+			anspress()->add_action( 'comment_unapproved_to_approved', 'AnsPress_Comment_Hooks', 'update_unapproved_comment' );
+			anspress()->add_action( 'comment_post', 'AnsPress_Comment_Hooks', 'update_unapproved_comment' );
 
 			// Rewrite rules hooks.
 			anspress()->add_filter( 'request', 'AnsPress_Rewrite', 'alter_the_query' );

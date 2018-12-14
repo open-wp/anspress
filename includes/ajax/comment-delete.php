@@ -41,8 +41,8 @@ class Comment_Delete extends \AnsPress\Abstracts\Ajax {
 		$this->req( 'comment_id', (int) ap_sanitize_unslash( 'comment_id', 'r' ) );
 		$this->req( 'post_id', (int) ap_sanitize_unslash( 'post_id', 'r' ) );
 
-		$comment_id = $this->req( 'comment_id' );
-		$comment = get_comment( $comment_id );
+		$comment_id    = $this->req( 'comment_id' );
+		$comment       = get_comment( $comment_id );
 		$this->comment = $comment;
 
 		$this->nonce_key = 'delete_comment_' . $this->req( 'comment_id' );
@@ -68,8 +68,6 @@ class Comment_Delete extends \AnsPress\Abstracts\Ajax {
 	 * @return void
 	 */
 	public function logged_in() {
-		$question = ap_get_question( $this->req( 'post_id' ) );
-
 		// Check if deleting comment is locked.
 		if ( ap_comment_delete_locked( $this->comment->comment_ID ) && ! is_super_admin() ) {
 			$this->set_fail();
@@ -80,6 +78,7 @@ class Comment_Delete extends \AnsPress\Abstracts\Ajax {
 
 		$delete = wp_delete_comment( (integer) $this->comment->comment_ID, true );
 
+		$question = ap_get_question( $this->req( 'post_id' ) );
 		if ( $delete ) {
 			do_action( 'ap_unpublish_comment', $this->comment );
 			do_action( 'ap_after_deleting_comment', $this->comment );
