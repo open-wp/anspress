@@ -35,13 +35,45 @@ class Comment_Submit extends \AnsPress\Abstracts\Ajax {
 	private $post;
 
 	/**
+	 * Post id.
+	 *
+	 * @var integer
+	 */
+	private $post_id;
+
+	/**
+	 * Comment id.
+	 *
+	 * @var integer
+	 */
+	private $comment_id;
+
+	/**
+	 * Comment data.
+	 *
+	 * @var object|null
+	 */
+	private $comment_data;
+
+	/**
+	 * Current comment object.
+	 *
+	 * @var object
+	 */
+
+	/**
 	 * The class constructor.
 	 *
 	 * Set requests and nonce key.
 	 */
 	protected function __construct() {
-		$this->req( 'post_id', (int) ap_sanitize_unslash( 'post_id', 'r' ) );
-		$this->post = get_post( $this->req( 'post_id' ) );
+		$this->post_id    = (int) ap_sanitize_unslash( 'post_id', 'r' );
+		$this->comment_id = (int) ap_sanitize_unslash( 'comment_id', 'r' );
+		$this->post       = get_post( $this->post_id );
+
+		if ( ! empty( $this->comment_id ) ) {
+			$this->comment = get_comment( $this->comment_id );
+		}
 
 		$comment_data          = (object) ap_isset_post_value( 'comment', [] );
 		$comment_data->content = sanitize_textarea_field( trim( $comment_data->content ) );
@@ -51,13 +83,22 @@ class Comment_Submit extends \AnsPress\Abstracts\Ajax {
 			$comment_data->email = sanitize_text_field( $comment_data->email );
 		}
 
-		$this->req( 'comment_data', $comment_data );
+		$this->comment_data = $comment_data;
 		$this->validate_fields();
 
-		$this->nonce_key = 'submit_comment_' . $this->req( 'post_id' );
+		$this->nonce_key = 'submit_comment_' . $this->post_id;
 
 		// Call parent.
 		parent::__construct();
+	}
+
+	/**
+	 * Check if currently editing a comment.
+	 *
+	 * @return boolean
+	 */
+	private function is_editing() {
+		return is_object( $this->comment ) && $this->comment->comment_ID == $this->comment_id;
 	}
 
 	/**
@@ -66,7 +107,12 @@ class Comment_Submit extends \AnsPress\Abstracts\Ajax {
 	 * @return void
 	 */
 	protected function verify_permission() {
-		$post_id = $this->req( 'post_id' );
+
+		if ( $this->is_editing() && ! ap_user_can_edit_comment( $this->comment_id ) ) {
+			$this->set_fail();
+			$this->snackbar( __( 'You are not allowed to edit this comment', 'anspress-question-answer' ) );
+			$this->send();
+		}
 
 		// Send errors if there are any.
 		if ( $this->has_form_errors() ) {
@@ -89,7 +135,7 @@ class Comment_Submit extends \AnsPress\Abstracts\Ajax {
 			$this->send();
 		}
 
-		if ( empty( $post_id ) || ! ap_user_can_comment( $post_id ) ) {
+		if ( empty( $this->post_id ) || ! ap_user_can_comment( $this->post_id ) ) {
 			parent::verify_permission();
 		}
 	}
@@ -100,7 +146,11 @@ class Comment_Submit extends \AnsPress\Abstracts\Ajax {
 	 * @return void
 	 */
 	private function validate_fields() {
-		$data = $this->req( 'comment_data' );
+		$data = $this->comment_data;
+
+		if ( $this->is_editing() && $data->content === $this->comment->comment_content ) {
+			$this->set_field_error( 'comment[content]', __( 'No changes detected in comment content', 'anspress-question-answer' ) );
+		}
 
 		// Content field.
 		if ( empty( $data->content ) ) {
@@ -134,28 +184,19 @@ class Comment_Submit extends \AnsPress\Abstracts\Ajax {
 	}
 
 	/**
-	 * Handle ajax for logged in users.
+	 * Create new comment.
 	 *
 	 * @return void
 	 */
-	public function logged_in() {
-		// Check comment content.
-		if ( empty( $this->req( 'comment_data' )->content ) ) {
-			$this->set_fail();
-			$this->snackbar( __( 'Comment content must not be empty!', 'anspress-question-answer' ) );
-			$this->send();
-		}
-
-		$question   = ap_get_question( $this->req( 'post_id' ) );
-
+	private function new_comment() {
 		$comment_data = array(
 			'user_id'         => get_current_user_id(),
-			'comment_content' => $this->req( 'comment_data' )->content,
+			'comment_content' => $comment_data->content,
 		);
 
 		if ( ! is_user_logged_in() ) {
-			$comment_data['comment_author']       = $this->req( 'comment_data' )->name;
-			$comment_data['comment_author_email'] = $this->req( 'comment_data' )->email;
+			$comment_data['comment_author']       = $this->comment_data->name;
+			$comment_data['comment_author_email'] = $this->comment_data->email;
 		}
 
 		$comment_id = $question->add_comment( $comment_data );
@@ -172,17 +213,51 @@ class Comment_Submit extends \AnsPress\Abstracts\Ajax {
 			$this->send();
 		}
 
-		$comment = get_comment( $comment_id );
+		$this->comment = get_comment( $comment_id );
+	}
+
+	/**
+	 * Update existing comment.
+	 *
+	 * @return void
+	 */
+	private function update_comment() {
+		$updated = wp_update_comment( array(
+			'comment_ID'      => $this->comment_id,
+			'comment_content' => $this->comment_data->content,
+		) );
+
+		if ( ! $updated ) {
+			$this->set_fail();
+			$this->snackbar( __( 'Unable to update comment.', 'anspress-question-answer' ) );
+		}
+
+		$this->comment = get_comment( $this->comment_id );
+	}
+
+	/**
+	 * Handle ajax for logged in users.
+	 *
+	 * @return void
+	 */
+	public function logged_in() {
+		if ( $this->is_editing() ) {
+			$this->update_comment();
+		} else {
+			$this->new_comment();
+		}
+
+		$question   = ap_get_question( $this->post_id );
 
 		$this->set_success();
-		$this->add_res( 'post_id', $this->req( 'post_id' ) );
-		$this->add_res( 'comment_id', $comment_id );
+		$this->add_res( 'post_id', $this->post_id );
+		$this->add_res( 'comment_id', $this->comment->comment_ID );
 
 		ob_start();
 		ap_get_template_part( 'comments/comments', [ 'question' => $question ] );
 
 		// When comment is not approved.
-		if ( '1' !== $comment->comment_approved && ! ap_user_can_approve_comment() ) {
+		if ( '1' !== $this->comment->comment_approved && ! ap_user_can_approve_comment() ) {
 			\AnsPress\alert(
 				__( 'Comment awaiting moderation', 'anspress-question-answer' ),
 				__( 'Your comment is awaiting moderation. Comment will be visible once approved.', 'anspress-question-answer' ), 'warning mt-10'

@@ -35,25 +35,54 @@ class Comment_Form extends \AnsPress\Abstracts\Ajax {
 	private $post;
 
 	/**
+	 * Post id.
+	 *
+	 * @var integer
+	 */
+	private $post_id;
+
+	/**
+	 * Comment id.
+	 *
+	 * @var integer
+	 */
+	private $comment_id;
+
+	/**
+	 * Current comment object.
+	 *
+	 * @var object
+	 */
+	private $comment;
+
+	/**
 	 * The class constructor.
 	 *
 	 * Set requests and nonce key.
 	 */
 	protected function __construct() {
-		$this->req( 'post_id', ap_sanitize_unslash( 'post_id', 'r' ) );
-		$this->post = get_post( $this->req( 'post_id' ) );
+		$this->post_id    = (int) ap_sanitize_unslash( 'post_id', 'r' );
+		$this->comment_id = (int) ap_sanitize_unslash( 'comment_id', 'r' );
+		$this->post       = get_post( $this->post_id );
 
-		$comment_id = ap_sanitize_unslash( 'comment_id', 'r' );
-
-		if ( empty( $comment_id ) ) {
-			$this->nonce_key = 'new_comment_' . $this->req( 'post_id' );
+		if ( empty( $this->comment_id ) ) {
+			$this->nonce_key = 'new_comment_' . $this->post_id;
 		} else {
-			$this->req( 'comment_id', $comment_id );
-			$this->nonce_key = 'edit_comment_' . $comment_id;
+			$this->comment   = get_comment( $this->comment_id );
+			$this->nonce_key = 'edit_comment_' . $this->comment_id;
 		}
 
 		// Call parent.
 		parent::__construct();
+	}
+
+	/**
+	 * Check if currently editing a comment.
+	 *
+	 * @return boolean
+	 */
+	private function is_editing() {
+		return is_object( $this->comment ) && (int) $this->comment->comment_ID === $this->comment_id;
 	}
 
 	/**
@@ -62,17 +91,8 @@ class Comment_Form extends \AnsPress\Abstracts\Ajax {
 	 * @return void
 	 */
 	protected function verify_permission() {
-		$comment_id = $this->req( 'comment_id' );
-		$post_id    = $this->req( 'post_id' );
-
-		if ( ( ! empty( $comment_id ) && ! ap_user_can_edit_comment( $comment_id ) ) || ( ! empty( $post_id ) && ! ap_user_can_comment( $post_id ) ) ) {
+		if ( ( $this->is_editing() && ! ap_user_can_edit_comment( $this->comment_id ) ) || ! $this->post || ! ap_user_can_comment( $this->post_id ) ) {
 			parent::verify_permission();
-		}
-
-		// Get comment object.
-		if ( ! empty( $comment_id ) ) {
-			$_comment = get_comment( $comment_id );
-			$this->req( 'post_id', $_comment->comment_post_ID );
 		}
 	}
 
@@ -83,12 +103,15 @@ class Comment_Form extends \AnsPress\Abstracts\Ajax {
 	 */
 	public function logged_in() {
 		ob_start();
-		ap_comment_form( $this->req( 'post_id' ), $this->req( 'comment_id' ) );
+		ap_comment_form( $this->post_id, $this->comment );
 		$html = ob_get_clean();
 
 		$this->set_success();
 
-		$this->add_res( 'post_id', $this->req( 'post_id' ) );
+		$this->add_res( 'post_id', $this->post_id );
+		if ( $this->is_editing() ) {
+			$this->add_res( 'comment_id', $this->comment_id );
+		}
 		$this->add_res( 'html', $html );
 	}
 

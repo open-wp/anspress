@@ -8,9 +8,7 @@
             'click [ap="removeQFilter"]'     : 'removeFilter',
             'click [ap="toggleAnswer"]'      : 'toggleAnswer',
             'click [ap="loadMoreActivities"]': 'loadedMoreActivities',
-            'click [ap="apCommentOrder"]'    : 'apCommentOrder',
-            'click [ap="newCommentBtn"]'     : 'newCommentBtn',
-            'click [ap="newCommentBtn"]'     : 'newCommentBtn'
+            'click [ap="apCommentOrder"]'    : 'apCommentOrder'
         },
 
         bindEvents: function() {
@@ -23,8 +21,10 @@
                 $('body').on( event[0], event[1], AnsPress.theme[fn] );
             });
 
-            AnsPress.on('ajaxBtnDone', AnsPress.theme.commentDelete);
-            AnsPress.on('ajaxBtnDone', AnsPress.theme.commentApprove);
+            AnsPress.on('ap_action_before_ap_comment_form', AnsPress.theme.beforeCommentForm);
+            AnsPress.on('ap_action_ap_comment_form', AnsPress.theme.commentForm);
+            AnsPress.on('ap_action_ap_comment_delete', AnsPress.theme.commentDelete);
+            AnsPress.on('ap_action_ap_comment_approve', AnsPress.theme.commentApprove);
         },
         toggleClassOf: function(e) {
             e.preventDefault();
@@ -97,37 +97,30 @@
                 }
             })
         },
-        newCommentBtn: function(e){
-            e.preventDefault();
-            var self = $(this);
-            var apquery = JSON.parse(self.attr('apquery'));
-            var form = $('[apid="'+apquery.post_id+'"] [apcontentbody] .ap-comment-form');
+        beforeCommentForm: function(btn, apquery){
 
             // Toggle form if already loaded.
-            if ( form.length > 0 ) {
+            if ( btn.data('commentForm') && btn.data('commentForm')[0].isConnected ) {
                 $('html, body').animate({
-                    scrollTop: (form.offset().top - 50)
+                    scrollTop: (btn.data('commentForm').offset().top - 50)
                 }, 1000);
-
-                return;
+                btn.data('commentForm').find('textarea').focus();
+                btn.data('ajaxBtnRet', true);
             }
+        },
+        commentForm: function(data, btn, apquery){
+            $('#ap_form_comment-'+data.post_id).remove();
+            var html = $(data.html);
+            $('[apid="'+data.post_id+'"] [apcontentbody]').append(html);
+            btn.data('commentForm', html);
 
-            AnsPress.showLoading(self);
-            AnsPress.ajax({
-                data: apquery,
-                success: function(data){
-                    AnsPress.hideLoading(self);
-                    var html = $(data.html);
-                    $('[apid="'+data.post_id+'"] [apcontentbody]').append(html);
-
-                    setTimeout(function(){
-                        html.find('.ap-animate-slide-y').removeClass('ap-animate-closed');
-                    }, 100)
-                    $('html, body').animate({
-                        scrollTop: (html.offset().top - 50)
-                    }, 1000);
-                }
-            })
+            setTimeout(function(){
+                html.find('.ap-animate-slide-y').removeClass('ap-animate-closed');
+            }, 100);
+            html.find('textarea').focus();
+            $('html, body').animate({
+                scrollTop: (html.offset().top - 50)
+            }, 1000);
         },
         submitComment: function(data){
             if(!data.success) return;
@@ -150,15 +143,12 @@
             },2000);
         },
         commentDelete: function(data){
-            if(data.action !== 'ap_comment_delete') return;
-
             if(data.html){
                 var html = $(data.html);
                 $('#comments-'+data.post_id).replaceWith(html);
             }
         },
         commentApprove: function(data){
-            if(data.action !== 'ap_comment_approve') return;
             if(data.html){
                 var html = $(data.html);
                 $('#comments-'+data.post_id).replaceWith(html);

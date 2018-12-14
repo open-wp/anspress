@@ -406,7 +406,7 @@ h2.ap-subheading{border-bottom:solid 1px var(--ap_border-color);margin-top:0;pad
 .ap-form-control.autogrow{overflow:hidden}
 .ap-form-control.ap-has-error{border-color:var(--ap_color-error)}
 .ap-form-control-err{color:red}
-textarea.ap-form-control{height:auto;width:100%;max-width:100%;min-width:100%;margin-bottom:15px}
+textarea.ap-form-control{height:auto;width:100%;max-width:100%;min-width:100%}
 label.inline-cb{margin-bottom:15px}
 .ap-field-desc{font-size:90%;margin-top:6px}
 .ap-form-group{margin-bottom:20px}

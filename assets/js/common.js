@@ -605,22 +605,33 @@ jQuery(document).ready(function($){
 		var self = this;
 		e.preventDefault();
 
-		if($(this).attr('aponce') != 'false' && $(this).is('.loaded'))
+		if($(this).attr('aponce') == 'true' && true === $(self).data('apLoaded'))
 			return;
 
 		var self = $(this);
 		var query = JSON.parse(self.attr('apquery'));
 
+		if(query.action){
+			AnsPress.trigger('ap_action_before_'+query.action, self, query);
+			if(true == self.data('ajaxBtnRet') ){
+				self.removeData('ajaxBtnRet');
+				return;
+			}
+		}
+
 		AnsPress.showLoading(self);
 		AnsPress.ajax({
 			data: query,
 			success: function(data){
-				if($(this).attr('aponce')!= 'false')
-					$(self).addClass('loaded');
+				if($(self).attr('aponce') == 'true')
+					$(self).data('apLoaded', true);
 
 				AnsPress.hideLoading(e.target);
 
 				AnsPress.trigger('ajaxBtnDone', data);
+
+				if(data.action)
+					AnsPress.trigger('ap_action_'+data.action, data, self, query);
 
 				if(typeof data.btn !== 'undefined')
 					if(data.btn.hide) self.hide();

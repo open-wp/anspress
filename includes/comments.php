@@ -244,9 +244,10 @@ function ap_comment_actions( $comment ) {
 			'label' => __( 'Edit', 'anspress-question-answer' ),
 			'href'  => '#',
 			'query' => array(
-				'action'     => 'comment_modal',
+				'action'     => 'ap_comment_form',
 				'__nonce'    => wp_create_nonce( 'edit_comment_' . $comment->comment_ID ),
 				'comment_id' => $comment->comment_ID,
+				'post_id'    => $comment->comment_post_ID,
 			),
 		);
 	}
@@ -429,7 +430,7 @@ function ap_new_comment_btn( $post_id, $echo = true ) {
 			'__nonce' => wp_create_nonce( 'new_comment_' . $post_id ),
 		) );
 
-		$output .= '<a href="#" class="ap-btn-newcomment" aponce="false" ap="newCommentBtn" apquery="' . esc_js( $btn_args ) . '"><i class="apicon-comment"></i>';
+		$output .= '<a href="#" class="ap-btn-newcomment" aponce="false" apajaxbtn apquery="' . esc_js( $btn_args ) . '"><i class="apicon-comment"></i>';
 		$output .= esc_attr__( 'Add Comment', 'anspress-question-answer' );
 		$output .= '</a>';
 
@@ -486,7 +487,9 @@ function ap_get_user_comments_count( $user_id, $approved = true ) {
  * @since 4.1.0
  * @since 4.1.5 Don't use ap_ajax.
  */
-function ap_comment_form( $post_id = false, $_comment = false ) {
+function ap_comment_form( $post_id = false, $comment_id = false ) {
+	global $comment;
+
 	// if ( false === $post_id ) {
 	// 	$post_id = get_the_ID();
 	// }
@@ -495,14 +498,21 @@ function ap_comment_form( $post_id = false, $_comment = false ) {
 	// 	return;
 	// }
 
-	//$_comment = get_comment( $_comment );
+	if ( false !== $comment_id ) {
+		$comment = get_comment( $comment_id );
+	}
 
 	echo '<form id="ap_form_comment-' . (int) $post_id . '" class="ap-comment-form" name="ap_form_comment" method="POST" enctype="multipart/form-data" apform="submitComment">';
 
-	ap_get_template_part( 'comments/form' );
+	ap_get_template_part( 'comments/form', [ 'comment' => $comment ] );
 
 	echo '<input type="hidden" name="__nonce" value="' . wp_create_nonce( 'submit_comment_' . $post_id ) . '">';
 	echo '<input type="hidden" name="action" value="ap_comment_submit">';
 	echo '<input type="hidden" name="post_id" value="' . (int) $post_id . '">';
+	if ( $comment ) {
+		echo '<input type="hidden" name="comment_id" value="' . (int) $comment->comment_ID . '">';
+	}
 	echo '</form>';
+
+	$comment = null;
 }

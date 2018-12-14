@@ -12,12 +12,23 @@
 
 defined('ABSPATH') || exit;
 
+$content = '';
+$name    = '';
+$email   = '';
+
+// If editing.
+if ( $comment ) {
+	$content = $comment->comment_content;
+	$name    = $comment->comment_author;
+	$email   = $comment->comment_author_email;
+}
+
 ?>
 <div class="ap-animate-slide-y ap-animate-closed">
 	<!-- Content textarea -->
 	<div id="ap-field-comment-content" class="ap-form-group ap-field-comment-content ap-field-type-textarea">
 		<div class="ap-field-group-w">
-			<textarea name="comment[content]" id="comment-content" class="ap-form-control " placeholder="<?php esc_attr_e( 'Write your comment here...', 'anspress-question-answer' ); ?>" rows="4"></textarea>
+			<textarea name="comment[content]" id="comment-content" class="ap-form-control " placeholder="<?php esc_attr_e( 'Write your comment here...', 'anspress-question-answer' ); ?>" rows="4"><?php echo esc_textarea( $content ); ?></textarea>
 		</div>
 	</div>
 	<!-- /Content textarea -->
@@ -28,7 +39,7 @@ defined('ABSPATH') || exit;
 		<div id="ap-field-comment-name" class="ap-form-group ap-field-comment-name ap-field-type-input">
 			<label class="ap-form-label" for="comment-name"><?php esc_attr_e( 'Your Name', 'anspress-question-answer' ); ?></label>
 			<div class="ap-field-group-w">
-				<input type="text" value="" name="comment[name]" id="comment-name" class="ap-form-control" placeholder="<?php esc_attr_e( 'Enter your name to display', 'anspress-question-answer' ); ?>">
+				<input type="text" value="<?php echo esc_html( $name ); ?>" name="comment[name]" id="comment-name" class="ap-form-control" placeholder="<?php esc_attr_e( 'Enter your name to display', 'anspress-question-answer' ); ?>">
 			</div>
 		</div>
 		<!-- /Author name -->
@@ -36,10 +47,10 @@ defined('ABSPATH') || exit;
 		<div id="ap-field-comment-email" class="ap-form-group ap-field-comment-email ap-field-type-input">
 			<label class="ap-form-label" for="comment-email"><?php esc_attr_e( 'Your Email', 'anspress-question-answer' ); ?></label>
 			<div class="ap-field-group-w">
-				<input type="email" value="" name="comment[email]" id="comment-email" class="ap-form-control" placeholder="<?php esc_attr_e( 'Enter your email to get follow up notifications', 'anspress-question-answer' ); ?>">
+				<input type="email" value="<?php echo esc_html( $email ); ?>" name="comment[email]" id="comment-email" class="ap-form-control" placeholder="<?php esc_attr_e( 'Enter your email to get follow up notifications', 'anspress-question-answer' ); ?>">
 			</div>
 		</div>
-		
+
 	<?php endif; ?>
 
 	<input type="hidden" name="ap_form_name" value="form_comment">
