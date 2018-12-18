@@ -147,28 +147,6 @@ function comment_number( $post_id = 0 ) {
 }
 
 /**
- * Post actions button.
- *
- * @param integer $post_id Question or answer id.
- * @since   4.2.0
- * @todo Remove JavaScript rendering and pre render from server.
- */
-function actions_button( $post_id = 0 ) {
-	if ( ! is_user_logged_in() ) {
-		return;
-	}
-
-	$post_id = ap_is_answer() ? ap_get_answer_id( $post_id ) : get_question_id( $post_id );
-
-	$args = wp_json_encode( [
-		'post_id' => $post_id,
-		'nonce'   => wp_create_nonce( 'post-actions-' . $post_id ),
-	] );
-
-	echo '<postActions class="ap-dropdown"><a href="#" class="apicon-gear ap-actions-handle ap-dropdown-toggle" ap="actiontoggle" apquery="' . esc_js( $args ) . '"></a><ul class="ap-actions ap-dropdown-menu"></ul></postActions>';
-}
-
-/**
  * Output question metas.
  *
  * @param integer $question_id Question ID.
@@ -782,14 +760,15 @@ function get_current_questions_filters() {
  * @return void
  * @since 4.2.0
  */
-function alert( $title, $message = '', $class = 'success', $show_close = true ) {
+function alert( $title = '', $message = '', $class = 'success', $show_close = true ) {
 	?>
 	<div class="ap-alert <?php echo esc_attr( $class ); ?>">
 		<?php if ( $show_close ) : ?>
 			<button class="ap-alert-close ap-remove-parent">&times;</button>
 		<?php endif; ?>
-
-		<strong><?php echo esc_html( $title ); ?></strong>
+		<?php if ( ! empty( $title ) ) : ?>
+			<strong><?php echo esc_html( $title ); ?></strong>
+		<?php endif; ?>
 		<?php echo esc_html( $message ); ?>
 	</div>
 	<?php

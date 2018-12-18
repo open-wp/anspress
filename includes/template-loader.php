@@ -357,27 +357,6 @@ function wp_head() {
 }
 
 /**
- * Ajax callback for post actions dropdown.
- *
- * @since 3.0.0
- * @todo move to respective files.
- */
-function post_actions() {
-	$post_id = (int) ap_sanitize_unslash( 'post_id', 'r' );
-
-	if ( ! check_ajax_referer( 'post-actions-' . $post_id, 'nonce', false ) || ! is_user_logged_in() ) {
-		ap_ajax_json( 'something_wrong' );
-	}
-
-	ap_ajax_json(
-		[
-			'success' => true,
-			'actions' => ap_post_actions( $post_id ),
-		]
-	);
-}
-
-/**
  * Shows lists of attachments of a question
  */
 function question_attachments() {
@@ -461,9 +440,10 @@ function after_question_content() {
  *
  * @since 4.2.0
  */
-function question_footer() {
+function question_footer( $question ) {
 	if ( ap_user_can_read_question() ) {
-		AnsPress\actions_button();
+		// Post actions.
+		$question->the_post_options();
 	}
 }
 
@@ -479,10 +459,6 @@ function answer_footer() {
 
 	// Comment button id.
 	echo ap_comment_btn_html( ap_get_answer_id() );
-
-	if ( ap_user_can_read_answer() ) {
-		AnsPress\actions_button();
-	}
 }
 
 /**
@@ -525,3 +501,18 @@ function template_include_theme_supports( $template = '' ) {
 	return $template;
 }
 
+/**
+ * Load action messages template.
+ *
+ * @return void
+ */
+function show_action_message() {
+	$post_action = anspress()->session->get( 'admin_post_action' );
+
+	if ( ! empty( $post_action ) ) {
+		ap_get_template_part( 'feedback-action-message', [ 'post_action' => $post_action ] );
+	}
+
+	// Delete session.
+	anspress()->session->delete( 'admin_post_action' );
+}

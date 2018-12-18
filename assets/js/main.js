@@ -1474,8 +1474,7 @@ window.AnsPress.Helper = {
 			this.listenTo(this.model, 'change:vote', this.voteUpdate);
 		},
 		events: {
-			'click [ap-vote] > a': 'voteClicked',
-			'click [ap="actiontoggle"]:not(.loaded)': 'postActions'
+			'click [ap-vote] > a': 'voteClicked'
 		},
 		voteClicked: function(e){
 			e.preventDefault();
@@ -1533,23 +1532,6 @@ window.AnsPress.Helper = {
 			var attr = this.$el.find('[ap-vote]').attr('ap-vote');
 			this.model.set('vote', $.parseJSON(attr), {silent: true});
 			return this;
-		},
-		postActions: function(e){
-			var self = this;
-			var q = $.parseJSON($(e.target).attr('apquery'));
-			if(typeof q.ap_ajax_action === 'undefined')
-				q.ap_ajax_action = 'post_actions';
-
-			AnsPress.ajax({
-				data: q,
-				success: function(data){
-					AnsPress.hideLoading(e.target);
-					$(e.target).addClass('loaded');
-					self.actions.model = new AnsPress.collections.Actions(data.actions);
-					self.actions.view = new AnsPress.views.Actions({ model: self.actions.model, postID: self.model.get('ID') });
-					self.$el.find('postActions .ap-actions').html(self.actions.view.render().$el);
-				}
-			});
 		}
 	});
 
@@ -1571,7 +1553,6 @@ window.AnsPress.Helper = {
 			AnsPress.on('deletePost', this.deletePost, this);
 			AnsPress.on('answerCountUpdated', this.answerCountUpdated, this);
 			AnsPress.on('formPosted', this.formPosted, this);
-			this.listenTo(AnsPress, 'commentApproved', this.commentApproved);
 		},
 		events: {
 			'click [ap="loadEditor"]': 'loadEditor',
@@ -1642,67 +1623,6 @@ window.AnsPress.Helper = {
 		}
 	});
 
-  var AnsPressRouter = Backbone.Router.extend({
-		routes: {
-			'comment/:commentID': 'commentRoute',
-			//'comment/:commentID/edit': 'editCommentsRoute',
-			'comments/:postID/all': 'commentsRoute',
-			'comments/:postID': 'commentsRoute',
-		},
-		commentRoute: function (commentID) {
-			self = this;
-
-			AnsPress.hideModal('comment', false);
-			$modal = AnsPress.modal('comment', {
-				content: '',
-				size: 'medium',
-				hideCb: function(){
-					AnsPress.removeHash();
-				}
-			});
-			$modal.$el.addClass('single-comment');
-			AnsPress.showLoading($modal.$el.find('.ap-modal-content'));
-			AnsPress.ajax({
-				data: {comment_id: commentID, ap_ajax_action: 'load_comments'},
-				success: function(data){
-					if(data.success){
-						$modal.setTitle(data.modal_title);
-						$modal.setContent(data.html);
-						AnsPress.hideLoading($modal.$el.find('.ap-modal-content'));
-					}
-				}
-			});
-		},
-
-		commentsRoute: function(postId, paged){
-			self = this;
-			AnsPress.ajax({
-				data: {post_id: postId, ap_ajax_action: 'load_comments'},
-				success: function(data){
-					$('#comments-'+postId).html(data.html);
-				}
-			});
-		},
-		editCommentsRoute: function(commentID){
-			self = this;
-			AnsPress.hideModal('commentForm', false);
-			AnsPress.modal('commentForm', {
-				hideCb: function(){
-					AnsPress.removeHash();
-				}
-			});
-
-			AnsPress.showLoading(AnsPress.modal('commentForm').$el.find('.ap-modal-content'));
-			AnsPress.ajax({
-				data: {comment: commentID, ap_ajax_action: 'comment_form'},
-				success: function(data){
-					AnsPress.hideLoading(AnsPress.modal('commentForm').$el.find('.ap-modal-content'));
-					AnsPress.modal('commentForm').setTitle(data.modal_title);
-					AnsPress.modal('commentForm').setContent(data.html);
-				}
-			});
-		}
-  });
 
 	$('[ap="actiontoggle"]').click(function(){
 		if(!$(this).is('.loaded'))
@@ -1713,13 +1633,7 @@ window.AnsPress.Helper = {
 		var apposts = new AnsPress.collections.Posts();
 		var singleQuestionView = new AnsPress.views.SingleQuestion({ model: apposts, el: '#anspress' });
 		singleQuestionView.render();
-
-		var anspressRouter = new AnsPressRouter();
-		if(!Backbone.History.started)
-			Backbone.history.start();
 	});
-
-
 })(jQuery);
 
 (function($){

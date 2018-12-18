@@ -61,7 +61,7 @@ class Notifications extends \AnsPress\Abstracts\Singleton {
 			anspress()->add_action( 'ap_notification_verbs', $this, 'register_verbs' );
 
 			anspress()->add_action( 'ap_after_new_answer', $this, 'new_answer', 10, 2 );
-			anspress()->add_action( 'ap_trash_question', $this, 'trash_question', 10, 2 );
+			anspress()->add_action( 'ap_trash_question', $this, 'trash_question' );
 			anspress()->add_action( 'ap_before_delete_question', $this, 'trash_question', 10, 2 );
 			anspress()->add_action( 'ap_trash_answer', $this, 'trash_answer', 10, 2 );
 			anspress()->add_action( 'ap_before_delete_answer', $this, 'trash_answer', 10, 2 );
@@ -208,9 +208,8 @@ class Notifications extends \AnsPress\Abstracts\Singleton {
 	 * Remove all notifications related to question when its get deleted.
 	 *
 	 * @param integer $post_id Post ID.
-	 * @param object  $_post Post object.
 	 */
-	public function trash_question( $post_id, $_post ) {
+	public function trash_question( $post_id ) {
 		ap_delete_notifications(
 			array(
 				'parent'   => $post_id,

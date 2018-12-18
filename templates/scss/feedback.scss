@@ -4,7 +4,13 @@
     border-radius: 5px;
     box-shadow: 1px 2px 1px #eee;
     background: #fff;
-
+    &-success{
+        border-color: #2196F3;
+        background: #2196f314;
+        .ap-feedback-icon{
+            color: #2196F3;
+        }
+    }
     &-title{
 
     }

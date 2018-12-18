@@ -86,8 +86,9 @@ class AnsPress_Hooks {
 			add_action( 'wp_head', 'AnsPress\Template_Loader\wp_head', 11 );
 			add_action( 'ap_after_question_content', 'AnsPress\Template_Loader\question_attachments', 11 );
 			add_action( 'ap_after_answer_content', 'AnsPress\Template_Loader\question_attachments', 11 );
-			add_filter( 'ap_question_footer', 'AnsPress\Template_Loader\question_footer' );
+			add_action( 'ap_question_footer', 'AnsPress\Template_Loader\question_footer' );
 			add_filter( 'ap_answer_footer', 'AnsPress\Template_Loader\answer_footer' );
+			add_filter( 'ap_shortcode_start', 'AnsPress\Template_Loader\show_action_message' );
 
 			add_filter( 'get_the_excerpt', 'AnsPress\Template_Loader\get_the_excerpt', 9999, 2 );
 			add_filter( 'post_class', 'AnsPress\Template_Loader\remove_hentry_class', 10, 3 );
@@ -102,7 +103,6 @@ class AnsPress_Hooks {
 			anspress()->add_action( 'wp_footer', \AnsPress\Shortcodes::get_instance(), 'check_buffer_ended' );
 
 			anspress()->add_filter( 'the_comments', 'AnsPress_Comment_Hooks', 'the_comments' );
-			//anspress()->add_filter( 'comments_template_query_args', 'AnsPress_Comment_Hooks', 'comments_template_query_args' );
 			anspress()->add_filter( 'get_comment_link', 'AnsPress_Comment_Hooks', 'comment_link', 10, 3 );
 			anspress()->add_filter( 'preprocess_comment', 'AnsPress_Comment_Hooks', 'preprocess_comment' );
 			anspress()->add_filter( 'comments_template', 'AnsPress_Comment_Hooks', 'comments_template' );
@@ -286,12 +286,13 @@ class AnsPress_Hooks {
 	 * @since 2.0.0
 	 * @since 4.1.2 Removed @see ap_update_post_activity_meta().
 	 * @since 4.1.6 Delete cache for `ap_is_answered`.
+	 * @todo Check all ap_trash_question
 	 */
 	public static function trash_post_action( $post_id ) {
 		$post = ap_get_post( $post_id );
 
 		if ( 'question' === $post->post_type ) {
-			do_action( 'ap_trash_question', $post->ID, $post );
+			//do_action( 'ap_trash_question', $post->ID, $post );
 
 			// Save current post status so that it can be restored.
 			update_post_meta( $post->ID, '_ap_last_post_status', $post->post_status );
@@ -342,12 +343,13 @@ class AnsPress_Hooks {
 	 * @since 2.0.0
 	 * @since 4.1.2 Removed @see ap_update_post_activity_meta().
 	 * @since 4.1.11 Renamed method from `untrash_ans_on_question_untrash` to `untrash_posts`.
+	 * @todo replace all old ap_untrash_question hooks to use new hook.
 	 */
 	public static function untrash_posts( $post_id ) {
 		$_post = ap_get_post( $post_id );
 
 		if ( 'question' === $_post->post_type ) {
-			do_action( 'ap_untrash_question', $_post->ID, $_post );
+			//do_action( 'ap_untrash_question', $_post->ID, $_post );
 			//@codingStandardsIgnoreStart
 			$ans = get_posts( array(
 				'post_type'   => 'answer',

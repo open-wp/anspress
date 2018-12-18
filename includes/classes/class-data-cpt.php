@@ -17,6 +17,13 @@ defined( 'ABSPATH' ) || exit;
  */
 class Data_Cpt extends Abstracts\Data {
 	/**
+	 * Stores data about status changes so relevant hooks can be fired.
+	 *
+	 * @var bool|array
+	 */
+	protected $status_transition = false;
+
+	/**
 	 * All default meta keys.
 	 *
 	 * @var array
@@ -157,6 +164,117 @@ class Data_Cpt extends Abstracts\Data {
 	 */
 	public function set_unapproved_comment_count( $value ) {
 		$this->set_prop( 'unapproved_comment_count', absint( $value ) );
+	}
+
+	/**
+	 * Set question status.
+	 *
+	 * @param string $new_status    Status to change the question to.
+	 * @return array
+	 */
+	public function set_status( $new_status ) {
+		$old_status = $this->get_status();
+
+		// If setting the status, ensure it's set to a valid status.
+		if ( true === $this->object_read ) {
+			if ( empty( $old_status ) ) {
+				$old_status = 'draft';
+			}
+		}
+
+		$this->set_prop( 'status', $new_status );
+
+		$result = array(
+			'from' => $old_status,
+			'to'   => $new_status,
+		);
+
+		if ( true === $this->object_read && ! empty( $result['from'] ) && $result['from'] !== $result['to'] ) {
+			$this->status_transition = array(
+				'from'   => ! empty( $this->status_transition['from'] ) ? $this->status_transition['from'] : $result['from'],
+				'to'     => $result['to'],
+			);
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Handle the status transition.
+	 */
+	protected function status_transition() {
+		$status_transition = $this->status_transition;
+
+		// Reset status transition variable.
+		$this->status_transition = false;
+
+		if ( $status_transition ) {
+			try {
+				$to = $status_transition['to'];
+
+				/**
+				 * Action triggered when status of question is updated.
+				 *
+				 * @param integer            $id       Question id.
+				 * @param \AnsPress\Question $instance Question instance.
+				 * @since 4.2.0
+				 */
+				do_action( "ap_question_status_{$to}", $this->get_id(), $this );
+
+				if ( ! empty( $status_transition['from'] ) ) {
+					$from = $status_transition['from'];
+
+					/**
+					 * Triggered on when question status is changed from one to another.
+					 *
+					 * @param integer            $id       Question id.
+					 * @param \AnsPress\Question $instance Question instance.
+					 * @since 4.2.0
+					 */
+					do_action( "ap_question_status_{$from}_to_{$to}", $this->get_id(), $this );
+
+					/**
+					 * Triggered while question status is changed.
+					 *
+					 * @param string            $from       Previous status.
+					 * @param string            $to         New status.
+					 * @param \AnsPress\Question $instance Question instance.
+					 * @since 4.2.0
+					 */
+					do_action( 'ap_question_status_changed', $this->get_id(), $from, $to, $this );
+				}
+			} catch ( Exception $e ) {
+				// TODO: Add to logging.
+			}
+		}
+	}
+
+	/**
+	 * Updates status of question immediately.
+	 *
+	 * @param string $new_status Status to change the question to.
+	 * @return bool
+	 */
+	public function update_status( $new_status ) {
+		if ( ! $this->get_id() ) { // Question must exist.
+			return false;
+		}
+
+		try {
+			if ( 'trash' !== $new_status ) {
+				$this->set_status( $new_status );
+				$this->save();
+			} elseif ( 'trash' === $this->get_status() && 'trash' !== $new_status ) {
+				$this->untrash();
+			} else {
+				$this->delete();
+			}
+		} catch ( Exception $e ) {
+			// TODO: Add logging.
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
@@ -545,12 +663,185 @@ class Data_Cpt extends Abstracts\Data {
 	}
 
 	/**
+	 * Check if post is private.
+	 *
+	 * @return boolean
+	 */
+	public function is_private() {
+		return 'private' === $this->get_status();
+	}
+
+	/**
 	 * Output vote button for question or answer.
 	 *
 	 * @param integer $post_id Post id.
 	 * @return void
 	 */
-	function the_votes_button() {
+	public function the_votes_button() {
 		ap_vote_btn( $this->get_id() );
+	}
+
+	/**
+	 * Get all frontend options for the post.
+	 *
+	 * @param array $options Options.
+	 * @return array
+	 */
+	public function get_post_options( $options = [] ) {
+		$default_options = array(
+			'more' => array(
+				'text'        => __( 'More', 'anspress-question-answer' ),
+				'sub_options' => [],
+				'order'       => 100,
+			),
+		);
+
+		// Edit post link.
+		if ( ap_user_can_edit_post( $this->get_id() ) ) {
+			$default_options['edit'] = array(
+				'text'  => __( 'Edit', 'anspress-question-answer' ),
+				'href'  => ap_post_edit_link( $this->get_id() ),
+				'title' => __( 'Edit post', 'anspress-question-answer' ),
+			);
+		}
+
+		// Make post private.
+		if ( ap_user_can_change_status( $this->get_id() ) ) {
+			$default_options['toggle_private'] = array(
+				'text'  => $this->is_private() ? __( 'Public', 'anspress-question-answer' ) : __( 'Private', 'anspress-question-answer' ),
+				'href'  => add_query_arg(
+					array(
+						'action'    => 'anspress_post_action',
+						'ap_action' => 'toggle_private',
+						'id'        => $this->get_id(),
+						'__nonce'   => wp_create_nonce( 'toggle-private-' . $this->get_id() ),
+					),
+					admin_url( 'admin-post.php' )
+				),
+				'title' => $this->is_private() ? __( 'Change visibility to public', 'anspress-question-answer' ) : __( 'Change visibility to private', 'anspress-question-answer' ),
+			);
+		}
+
+		// Trash post link.
+		if ( 'trash' !== $this->get_status() && ap_user_can_delete_post( $this->get_id() ) ) {
+			$default_options['trash'] = array(
+				'text'  => __( 'Trash', 'anspress-question-answer' ),
+				'href'  => add_query_arg(
+					array(
+						'action'    => 'anspress_post_action',
+						'ap_action' => 'trash_post',
+						'id'        => $this->get_id(),
+						'__nonce'   => wp_create_nonce( 'trash-post-' . $this->get_id() ),
+					),
+					admin_url( 'admin-post.php' )
+				),
+				'title' => __( 'Trash this post, admin and moderators can restore it', 'anspress-question-answer' ),
+			);
+		} elseif ( 'trash' === $this->get_status() && ap_user_can_restore( $this->get_id() ) ) {
+			$default_options['restore'] = array(
+				'text'  => __( 'Restore', 'anspress-question-answer' ),
+				'href'  => add_query_arg(
+					array(
+						'action'    => 'anspress_post_action',
+						'ap_action' => 'restore_post',
+						'id'        => $this->get_id(),
+						'__nonce'   => wp_create_nonce( 'restore-post-' . $this->get_id() ),
+					),
+					admin_url( 'admin-post.php' )
+				),
+				'title' => __( 'Restore post from trash', 'anspress-question-answer' ),
+			);
+		}
+
+		if ( ap_user_can_change_status_to_moderate() ) {
+			$default_options['more']['sub_options']['toggle_unapprove'] = array(
+				'text' => 'moderate' === $this->get_status() ? __( 'Approve', 'anspress-question-answer' ) : __( 'Unapprove', 'anspress-question-answer' ),
+				'href'  => add_query_arg(
+					array(
+						'action'    => 'anspress_post_action',
+						'ap_action' => 'toggle_unapprove',
+						'id'        => $this->get_id(),
+						'__nonce'   => wp_create_nonce( 'toggle_unapprove-' . $this->get_id() ),
+					),
+					admin_url( 'admin-post.php' )
+				),
+			);
+		}
+
+		if ( ap_user_can_permanent_delete( $this->get_id() ) ) {
+			$default_options['more']['sub_options']['delete'] = array(
+				'text' => __( 'Delete', 'anspress-question-answer' ),
+				'href'  => add_query_arg(
+					array(
+						'action'    => 'anspress_post_action',
+						'ap_action' => 'delete_post',
+						'id'        => $this->get_id(),
+						'__nonce'   => wp_create_nonce( 'delete_post-' . $this->get_id() ),
+					),
+					admin_url( 'admin-post.php' )
+				),
+			);
+		}
+
+		if ( isset( $options['more'], $options['more']['sub_options'] ) ) {
+			$more = wp_parse_args( $options['more']['sub_options'], $default_options['more']['sub_options'] );
+			unset( $options['more'] );
+		}
+		$options = wp_parse_args( $options, $default_options );
+
+		if ( isset( $more ) ) {
+			$options['more']['sub_options'] = $more;
+		}
+
+		$options = apply_filters( 'ap_post_options', $options );
+
+		return ap_sort_array_by_order( $options );
+	}
+
+	public function the_post_options() {
+		$options = $this->get_post_options();
+
+		if ( ! empty( $options ) ) {
+			echo '<div class="ap-post-options">';
+			foreach ( $this->get_post_options() as $key => $args ) {
+
+				$href    = ! empty( $args['href'] ) ? $args['href'] : '#';
+				$has_sub = isset( $args['sub_options'] );
+
+				echo '<div' . ( $has_sub ? ' class="ap-dropdown"' : '' ) . '>';
+				echo '<a href="' . esc_url( $href ) . '" class="ap-post-option-' . esc_attr( $key ) . ( $has_sub ? '  ap-dropdown-toggle' : '' ) . '"' . ( isset( $args['title'] ) ? ' title="' . esc_attr( $args['title'] ) . '"' : '' );
+
+				if ( isset( $args['ajaxbtn'] ) ) {
+					$json = wp_json_encode( $args['ajaxbtn'] );
+					echo 'apajaxbtn apquery="' . esc_js( $json ) . '"';
+				}
+				echo '>' . esc_html( $args['text'] ) . '</a>';
+
+				if ( $has_sub ) {
+					echo '<div class="ap-dropdown-menu">';
+					foreach ( $args['sub_options'] as $sub_k => $sub_args ) {
+						$sub_href = ! empty( $sub_args['href'] ) ? $sub_args['href'] : '#';
+						echo '<div><a href="' . esc_url( $sub_href ) . '" class="ap-post-option-' . esc_attr( $sub_k ) . '"';
+
+						if ( isset( $sub_args['ajaxbtn'] ) ) {
+							$json = wp_json_encode( $sub_args['ajaxbtn'] );
+							echo 'apajaxbtn apquery="' . esc_js( $json ) . '"';
+						}
+						echo '>' . esc_html( $sub_args['text'] ) . '</a></div>';
+					}
+					echo '</div>';
+				}
+				echo '</div>';
+			}
+			echo '</div>';
+		}
+	}
+
+	public function can_edit( $user_id = false ) {
+		if ( false === $user_id ) {
+			$user_id = get_current_user_id();
+		}
+
+		return ap_user_can_edit_post( $this->get_id(), $user_id );
 	}
 }

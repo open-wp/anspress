@@ -48,8 +48,8 @@ class Reputation extends \AnsPress\Abstracts\Singleton {
 		anspress()->add_action( 'ap_after_new_question', $this, 'new_question', 10, 2 );
 		anspress()->add_action( 'ap_after_new_answer', $this, 'new_answer', 10, 2 );
 		anspress()->add_action( 'ap_untrash_question', $this, 'new_question', 10, 2 );
-		anspress()->add_action( 'ap_trash_question', $this, 'trash_question', 10, 2 );
-		anspress()->add_action( 'ap_before_delete_question', $this, 'trash_question', 10, 2 );
+		anspress()->add_action( 'ap_trash_question', $this, 'trash_question' );
+		anspress()->add_action( 'ap_before_delete_question', $this, 'trash_question' );
 		anspress()->add_action( 'ap_untrash_answer', $this, 'new_answer', 10, 2 );
 		anspress()->add_action( 'ap_trash_answer', $this, 'trash_answer', 10, 2 );
 		anspress()->add_action( 'ap_before_delete_answer', $this, 'trash_answer', 10, 2 );
@@ -269,7 +269,8 @@ class Reputation extends \AnsPress\Abstracts\Singleton {
 	 * @param integer $post_id Post ID.
 	 * @param object  $_post Post object.
 	 */
-	public function trash_question( $post_id, $_post ) {
+	public function trash_question( $post_id ) {
+		$_post = get_post( $post_id );
 		ap_delete_reputation( 'ask', $post_id, $_post->post_author );
 	}
 

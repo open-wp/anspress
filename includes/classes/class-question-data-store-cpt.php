@@ -182,7 +182,7 @@ class Question_Data_Store_CPT extends Data_Store_WP {
 				'post_date_gmt'     => gmdate( 'Y-m-d H:i:s', $question->get_date_created( 'edit' )->getTimestamp() ),
 				'post_status'       => ( $question->get_status( 'edit' ) ? $question->get_status( 'edit' ) : apply_filters( 'ap_default_question_status', 'pending' ) ),
 				'post_parent'       => $question->get_parent_id( 'edit' ),
-				'post_excerpt'      => $this->get_post_excerpt( $question ),
+				'post_excerpt'      => '',
 				'post_modified'     => isset( $changes['date_modified'] ) ? gmdate( 'Y-m-d H:i:s', $question->get_date_modified( 'edit' )->getOffsetTimestamp() ) : current_time( 'mysql' ),
 				'post_modified_gmt' => isset( $changes['date_modified'] ) ? gmdate( 'Y-m-d H:i:s', $question->get_date_modified( 'edit' )->getTimestamp() ) : current_time( 'mysql', 1 ),
 				'comment_count'     => $question->get_comment_count(),
@@ -244,6 +244,18 @@ class Question_Data_Store_CPT extends Data_Store_WP {
 			$question->set_status( 'trash' );
 			do_action( 'ap_trash_question', $id );
 		}
+	}
+
+	public function untrash( &$question ) {
+		$id = $question->get_id();
+
+		if ( ! $id ) {
+			return;
+		}
+
+		$post = wp_untrash_post( $id );
+		$question->set_status( $post->post_status );
+		do_action( 'ap_untrash_question', $id );
 	}
 
 	/**

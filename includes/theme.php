@@ -52,7 +52,7 @@ function ap_post_status( $post_id = false ) {
  * @return boolean
  */
 function is_private_post( $post_id = false ) {
-	if ( ap_post_status( $post_id ) === 'private_post' ) {
+	if ( ap_post_status( $post_id ) === 'private' ) {
 		return true;
 	}
 
@@ -210,146 +210,6 @@ function ap_page( $current_page = '' ) {
 		status_header( 404 );
 		include ap_get_theme_location( 'not-found.php' );
 	}
-}
-
-/**
- * Return post actions array.
- *
- * @param mixed $_post Post.
- * @return array
- * @since  3.0.0
- */
-function ap_post_actions( $_post = null ) {
-	$_post = ap_get_post( $_post );
-
-	$actions = [];
-
-	if ( ! in_array( $_post->post_type, [ 'question', 'answer' ], true ) ) {
-		return $actions;
-	}
-
-	// Featured link.
-	if ( 'question' === $_post->post_type ) {
-		$actions[] = ap_featured_post_args( $_post->ID );
-	}
-
-	// Question close action.
-	if ( ap_user_can_close_question() && 'question' === $_post->post_type ) {
-		$nonce       = wp_create_nonce( 'close_' . $_post->ID );
-		$close_label = $_post->closed ? __( 'Open', 'anspress-question-answer' ) : __( 'Close', 'anspress-question-answer' );
-		$close_title = $_post->closed ? __( 'Open this question for new answers', 'anspress-question-answer' ) : __( 'Close this question for new answer.', 'anspress-question-answer' );
-
-		$actions[] = array(
-			'cb'    => 'close',
-			'icon'  => 'apicon-check',
-			'query' => [
-				'nonce'   => $nonce,
-				'post_id' => $_post->ID,
-			],
-			'label' => $close_label,
-			'title' => $close_title,
-		);
-	}
-
-	// Edit link.
-	if ( ap_user_can_edit_post( $_post->ID ) ) {
-		$actions[] = array(
-			'cb'    => 'edit',
-			'label' => __( 'Edit', 'anspress-question-answer' ),
-			'href'  => ap_post_edit_link( $_post ),
-		);
-	}
-
-	// Flag link.
-	$actions[] = ap_flag_btn_args( $_post );
-
-	$status_args = ap_post_status_btn_args( $_post );
-
-	if ( ! empty( $status_args ) ) {
-		$actions[] = array(
-			'label'  => __( 'Status', 'anspress-question-answer' ),
-			'header' => true,
-		);
-
-		$actions   = array_merge( $actions, $status_args );
-		$actions[] = array( 'header' => true );
-	}
-
-	if ( ap_user_can_delete_post( $_post->ID ) ) {
-
-		if ( 'trash' === $_post->post_status ) {
-			$label = __( 'Undelete', 'anspress-question-answer' );
-			$title = __( 'Restore this post', 'anspress-question-answer' );
-		} else {
-			$label = __( 'Delete', 'anspress-question-answer' );
-			$title = __( 'Delete this post (can be restored again)', 'anspress-question-answer' );
-		}
-
-		$actions[] = array(
-			'cb'    => 'toggle_delete_post',
-			'query' => [
-				'post_id' => $_post->ID,
-				'__nonce' => wp_create_nonce( 'trash_post_' . $_post->ID ),
-			],
-			'label' => $label,
-			'title' => $title,
-		);
-	}
-
-	// Permanent delete link.
-	if ( ap_user_can_permanent_delete( $_post->ID ) ) {
-		$actions[] = array(
-			'cb'    => 'delete_permanently',
-			'query' => [
-				'post_id' => $_post->ID,
-				'__nonce' => wp_create_nonce( 'delete_post_' . $_post->ID ),
-			],
-			'label' => __( 'Delete Permanently', 'anspress-question-answer' ),
-			'title' => __( 'Delete post permanently (cannot be restored again)', 'anspress-question-answer' ),
-		);
-	}
-
-	// Convert question to a post.
-	if ( ( is_super_admin() || current_user_can( 'manage_options' ) ) && 'question' === $_post->post_type ) {
-
-		$actions[] = array(
-			'cb'    => 'convert_to_post',
-			'query' => [
-				'post_id' => $_post->ID,
-				'__nonce' => wp_create_nonce( 'convert-post-' . $_post->ID ),
-			],
-			'label' => __( 'Convert to post', 'anspress-question-answer' ),
-			'title' => __( 'Convert this question to blog post', 'anspress-question-answer' ),
-		);
-	}
-
-	/**
-	 * For filtering post actions buttons
-	 *
-	 * @var     string
-	 * @since   2.0
-	 */
-	$actions = apply_filters( 'ap_post_actions', array_filter( $actions ) );
-	return array_values( $actions );
-}
-
-/**
- * Post actions buttons.
- *
- * @since   2.0
- * @deprecated 4.2.0
- */
-function ap_post_actions_buttons() {
-	if ( ! is_user_logged_in() ) {
-		return;
-	}
-
-	$args = wp_json_encode( [
-		'post_id' => get_the_ID(),
-		'nonce'   => wp_create_nonce( 'post-actions-' . get_the_ID() ),
-	] );
-
-	echo '<postActions class="ap-dropdown"><button class="ap-btn apicon-gear ap-actions-handle ap-dropdown-toggle" ap="actiontoggle" apquery="' . esc_js( $args ) . '"></button><ul class="ap-actions ap-dropdown-menu"></ul></postActions>';
 }
 
 /**
@@ -827,44 +687,6 @@ function ap_post_status_btn_args( $_post = null ) {
 
 		return $args;
 	}
-}
-
-
-/**
- * Return set featured question action args.
- *
- * @param  boolean|integer $post_id Post ID.
- * @return array
- */
-function ap_featured_post_args( $post_id = false ) {
-	if ( ! is_user_logged_in() || ! ap_user_can_toggle_featured() ) {
-		return [];
-	}
-
-	if ( false === $post_id ) {
-		$post_id = get_question_id();
-	}
-
-	$is_featured = ap_is_featured_question( $post_id );
-
-	if ( $is_featured ) {
-		$title = __( 'Unmark this question as featured', 'anspress-question-answer' );
-		$label = __( 'Unfeature', 'anspress-question-answer' );
-	} else {
-		$title = __( 'Mark this question as featured', 'anspress-question-answer' );
-		$label = __( 'Feature', 'anspress-question-answer' );
-	}
-
-	return array(
-		'cb'     => 'toggle_featured',
-		'active' => $is_featured,
-		'query'  => [
-			'__nonce' => wp_create_nonce( 'set_featured_' . $post_id ),
-			'post_id' => $post_id,
-		],
-		'title'  => esc_attr( $title ),
-		'label'  => esc_attr( $label ),
-	);
 }
 
 /**

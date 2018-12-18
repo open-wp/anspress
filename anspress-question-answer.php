@@ -225,9 +225,11 @@ if ( ! class_exists( 'AnsPress' ) ) {
 				if ( is_admin() ) {
 					require_once ANSPRESS_DIR . 'admin/anspress-admin.php';
 					require_once ANSPRESS_DIR . 'admin/class-list-table-hooks.php';
+					require_once ANSPRESS_DIR . 'includes/classes/class-post-actions.php';
 
 					AnsPress_Admin::init();
 					AnsPress_Post_Table_Hooks::init();
+					AnsPress\Post_Actions::get_instance();
 				}
 
 				new AnsPress_Process_Form();

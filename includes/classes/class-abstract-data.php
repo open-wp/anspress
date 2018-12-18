@@ -218,6 +218,14 @@ abstract class Data {
 		return false;
 	}
 
+	public function untrash() {
+		if ( $this->data_store ) {
+			$this->data_store->untrash( $this );
+			return true;
+		}
+		return false;
+	}
+
 	/**
 	 * Save should create or update based on object existence.
 	 *

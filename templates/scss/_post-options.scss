@@ -1,0 +1,24 @@
+.ap-post-options{
+    display: flex;
+
+    a{
+        font-size: 12px;
+    }
+    > div{
+        margin-top: 5px;
+        margin-right: 10px;
+    }
+    > div:last-child{
+        margin-left: auto;
+        margin-right: 0;
+    }
+    .ap-dropdown-menu{
+        min-width: 120px;
+        right: 0;
+        left: auto;
+        a{
+            padding: 0 10px;
+            display: block;
+        }
+    }
+}

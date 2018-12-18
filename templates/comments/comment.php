@@ -7,7 +7,7 @@
  * @subpackage Templates
  * @license    https://www.gnu.org/licenses/gpl-2.0.txt GNU Public License
  * @author     Rahul Aryan <support@anspress.io>
- * @since      4.1.0
+ * @since      4.2.0
  */
 
 defined( 'ABSPATH' ) || exit;

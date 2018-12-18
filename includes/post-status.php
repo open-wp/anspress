@@ -19,6 +19,7 @@ if ( ! defined( 'WPINC' ) ) {
  * @param mixed $post_id Post.
  * @return string
  * @since 4.0.0
+ * @todo make sure to show closed and private status together.
  */
 function ap_get_post_status_message( $post_id = false ) {
 	$post      = ap_get_post( $post_id );
@@ -49,6 +50,7 @@ function ap_get_post_status_message( $post_id = false ) {
  * Return description of a post status.
  *
  * @param  boolean|integer $post_id Post ID.
+ * @todo Fix this for closed post.
  */
 function ap_post_status_badge( $post_id = false ) {
 	$ret = '<postmessage>';

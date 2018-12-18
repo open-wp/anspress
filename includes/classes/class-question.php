@@ -15,12 +15,7 @@ namespace AnsPress;
 defined( 'ABSPATH' ) || exit;
 
 class Question extends Data_Cpt {
-	/**
-	 * Stores data about status changes so relevant hooks can be fired.
-	 *
-	 * @var bool|array
-	 */
-	protected $status_transition = false;
+
 
 	/**
 	 * Question Data array.
@@ -47,6 +42,7 @@ class Question extends Data_Cpt {
 		'best_answer_id'           => 0,
 		'view_counts'              => 0,
 		'is_featured'              => false,
+		'is_closed'                => false,
 		'unapproved_comment_count' => false,
 	];
 
@@ -67,6 +63,7 @@ class Question extends Data_Cpt {
 		'_ap_best_answer_id'           => 'best_answer_id',
 		'_ap_view_counts'              => 'view_counts',
 		'_ap_is_featured'              => 'is_featured',
+		'_ap_is_closed'                => 'is_closed',
 		'_ap_unapproved_comment_count' => 'unapproved_comment_count',
 	];
 
@@ -180,113 +177,6 @@ class Question extends Data_Cpt {
 	}
 
 	/**
-	 * Set question status.
-	 *
-	 * @param string $new_status    Status to change the question to.
-	 * @return array
-	 */
-	public function set_status( $new_status ) {
-		$old_status = $this->get_status();
-
-		// If setting the status, ensure it's set to a valid status.
-		if ( true === $this->object_read ) {
-			if ( empty( $old_status ) ) {
-				$old_status = 'draft';
-			}
-		}
-
-		$this->set_prop( 'status', $new_status );
-
-		$result = array(
-			'from' => $old_status,
-			'to'   => $new_status,
-		);
-
-		if ( true === $this->object_read && ! empty( $result['from'] ) && $result['from'] !== $result['to'] ) {
-			$this->status_transition = array(
-				'from'   => ! empty( $this->status_transition['from'] ) ? $this->status_transition['from'] : $result['from'],
-				'to'     => $result['to'],
-			);
-
-			// TODO: apply same post status to answers.
-		}
-
-		return $result;
-	}
-
-	/**
-	 * Handle the status transition.
-	 */
-	protected function status_transition() {
-		$status_transition = $this->status_transition;
-
-		// Reset status transition variable.
-		$this->status_transition = false;
-
-		if ( $status_transition ) {
-			try {
-				$to = $status_transition['to'];
-
-				/**
-				 * Action triggered when status of question is updated.
-				 *
-				 * @param integer            $id       Question id.
-				 * @param \AnsPress\Question $instance Question instance.
-				 * @since 4.2.0
-				 */
-				do_action( "ap_question_status_{$to}", $this->get_id(), $this );
-
-				if ( ! empty( $status_transition['from'] ) ) {
-					$from = $status_transition['from'];
-
-					/**
-					 * Triggered on when question status is changed from one to another.
-					 *
-					 * @param integer            $id       Question id.
-					 * @param \AnsPress\Question $instance Question instance.
-					 * @since 4.2.0
-					 */
-					do_action( "ap_question_status_{$from}_to_{$to}", $this->get_id(), $this );
-
-					/**
-					 * Triggered while question status is changed.
-					 *
-					 * @param string            $from       Previous status.
-					 * @param string            $to         New status.
-					 * @param \AnsPress\Question $instance Question instance.
-					 * @since 4.2.0
-					 */
-					do_action( 'ap_question_status_changed', $this->get_id(), $from, $to, $this );
-				}
-			} catch ( Exception $e ) {
-				// TODO: Add to logging.
-			}
-		}
-	}
-
-	/**
-	 * Updates status of question immediately.
-	 *
-	 * @param string $new_status Status to change the question to.
-	 * @return bool
-	 */
-	public function update_status( $new_status ) {
-		if ( ! $this->get_id() ) { // Question must exist.
-			return false;
-		}
-
-		try {
-			$this->set_status( $new_status );
-			$this->save();
-		} catch ( Exception $e ) {
-			// TODO: Add logging.
-			return false;
-		}
-
-		return true;
-	}
-
-	/**
 	 * Set parent id.
 	 *
 	 * @param string $value Value.
@@ -344,6 +234,38 @@ class Question extends Data_Cpt {
 	 */
 	public function set_is_featured( $value ) {
 		$this->set_prop( 'is_featured', (bool) $value );
+	}
+
+	/**
+	 * Instantly toggles question `is_featured` meta.
+	 *
+	 * @return boolean Updated status;
+	 */
+	public function toggle_featured() {
+		$this->set_is_featured( ! $this->is_featured() );
+		$this->save();
+		return $this->is_featured();
+	}
+
+	/**
+	 * Set is_closed.
+	 *
+	 * @param boolean $value Value.
+	 * @return void
+	 */
+	public function set_is_closed( $value ) {
+		$this->set_prop( 'is_closed', (bool) $value );
+	}
+
+	/**
+	 * Instantly toggles question `is_closed` meta.
+	 *
+	 * @return boolean Updated status;
+	 */
+	public function toggle_closed() {
+		$this->set_is_closed( ! $this->is_closed() );
+		$this->save();
+		return $this->is_closed();
 	}
 
 	/*
@@ -407,13 +329,32 @@ class Question extends Data_Cpt {
 	 * @return boolean
 	 */
 	public function get_is_featured( $context = 'view' ) {
+		// Make sure to return string 1 or 0 when editing.
+		if ( 'edit' === $context ) {
+			return $this->get_prop( 'is_featured', $context ) ? '1' : '0';
+		}
 		return $this->get_prop( 'is_featured', $context );
+	}
+
+	/**
+	 * Get question closed status.
+	 *
+	 * @param string $context Context.
+	 * @return boolean
+	 */
+	public function get_is_closed( $context = 'view' ) {
+		// Make sure to return string 1 or 0 when editing.
+		if ( 'edit' === $context ) {
+			return $this->get_prop( 'is_closed', $context ) ? '1' : '0';
+		}
+		return $this->get_prop( 'is_closed', $context );
 	}
 
 	/**
 	 * Check if question is set as featured.
 	 *
 	 * @return boolean
+	 * @todo replace old function
 	 */
 	public function is_featured() {
 		return (bool) $this->get_is_featured();
@@ -423,9 +364,104 @@ class Question extends Data_Cpt {
 	 * Check if question has best answer selected.
 	 *
 	 * @return boolean
+	 * @todo replace old function
 	 */
 	public function is_solved() {
 		return $this->get_best_answer_id() > 0;
+	}
+
+	/**
+	 * Check if question is closed.
+	 *
+	 * @return boolean
+	 * @todo use this previous closed status.
+	 */
+	public function is_closed() {
+		return (bool) $this->get_is_closed();
+	}
+
+	/**
+	 * Get all frontend options for the post.
+	 *
+	 * @param array $options Options.
+	 * @return array
+	 */
+	public function get_post_options( $options = [] ) {
+		// Close question.
+		if ( ap_user_can_close_question( $this->get_id() ) ) {
+			$options['close'] = array(
+				'text'  => $this->is_closed() ? __( 'Open', 'anspress-question-answer' ) : __( 'Close', 'anspress-question-answer' ),
+				'href'  => $this->get_close_link(),
+				'title' => $this->is_closed() ? __( 'Open question for new answers and questions', 'anspress-question-answer' ) :  __( 'Close question for new comments and answers', 'anspress-question-answer' ),
+			);
+		}
+
+		if ( ap_user_can_toggle_featured() ) {
+			$options['more'] = array(
+				'sub_options' => array(
+					'toggle_featured' => array(
+						'text' => $this->is_featured() ? __( 'Unfeature', 'anspress-question-answer' ) : __( 'Set as featured', 'anspress-question-answer' ),
+						'href' => $this->get_toggle_featured_link(),
+					),
+				),
+			);
+		}
+
+		return parent::get_post_options( $options );
+	}
+
+	/**
+	 * Return link to close question.
+	 *
+	 * @param mixed $_post Post.
+	 * @return string
+	 * @since 2.0.1
+	 */
+	function get_close_link() {
+		$link = add_query_arg(
+			array(
+				'action'    => 'anspress_post_action',
+				'ap_action' => 'close_question',
+				'id'        => $this->get_id(),
+				'__nonce'   => wp_create_nonce( 'close-question-' . $this->get_id() ),
+			),
+			admin_url( 'admin-post.php' )
+		);
+
+		/**
+		 * Allows filtering post edit link.
+		 *
+		 * @param string $link Url to edit post.
+		 * @since 4.2.0
+		 */
+		return apply_filters( 'ap_get_close_link', $link );
+	}
+
+	/**
+	 * Return link to toggle featured question.
+	 *
+	 * @param mixed $_post Post.
+	 * @return string
+	 * @since 2.0.1
+	 */
+	function get_toggle_featured_link() {
+		$link = add_query_arg(
+			array(
+				'action'    => 'anspress_post_action',
+				'ap_action' => 'toggle_featured',
+				'id'        => $this->get_id(),
+				'__nonce'   => wp_create_nonce( 'toggle-featured-' . $this->get_id() ),
+			),
+			admin_url( 'admin-post.php' )
+		);
+
+		/**
+		 * Allows filtering post toggle featured link.
+		 *
+		 * @param string $link Url to toggle featured post.
+		 * @since 4.2.0
+		 */
+		return apply_filters( 'ap_toggle_featured_link', $link );
 	}
 
 }

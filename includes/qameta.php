@@ -448,6 +448,7 @@ function ap_update_subscribers_count( $post_id, $count = false ) {
  *
  * @param  integer $post_id Question ID.
  * @return boolean
+ * @todo Remove
  */
 function ap_set_featured_question( $post_id ) {
 	return ap_insert_qameta( $post_id, [ 'featured' => 1 ] );
@@ -534,6 +535,7 @@ function ap_update_post_activity_meta( $post, $type, $user_id, $append_to_questi
  *
  * @param  integer $post_id Question ID.
  * @return boolean
+ * @todo Remove
  */
 function ap_toggle_close_question( $post_id ) {
 	$qameta = ap_get_qameta( $post_id );

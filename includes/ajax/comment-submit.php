@@ -35,6 +35,13 @@ class Comment_Submit extends \AnsPress\Abstracts\Ajax {
 	private $post;
 
 	/**
+	 * Comment object.
+	 *
+	 * @var object|null
+	 */
+	private $comment = null;
+
+	/**
 	 * Post id.
 	 *
 	 * @var integer
@@ -98,7 +105,7 @@ class Comment_Submit extends \AnsPress\Abstracts\Ajax {
 	 * @return boolean
 	 */
 	private function is_editing() {
-		return is_object( $this->comment ) && $this->comment->comment_ID == $this->comment_id;
+		return $this->comment && is_object( $this->comment ) && $this->comment->comment_ID == $this->comment_id;
 	}
 
 	/**
@@ -189,17 +196,18 @@ class Comment_Submit extends \AnsPress\Abstracts\Ajax {
 	 * @return void
 	 */
 	private function new_comment() {
-		$comment_data = array(
+		$comment_args = array(
 			'user_id'         => get_current_user_id(),
-			'comment_content' => $comment_data->content,
+			'comment_content' => $this->comment_data->content,
 		);
 
 		if ( ! is_user_logged_in() ) {
-			$comment_data['comment_author']       = $this->comment_data->name;
-			$comment_data['comment_author_email'] = $this->comment_data->email;
+			$comment_args['comment_author']       = $this->comment_data->name;
+			$comment_args['comment_author_email'] = $this->comment_data->email;
 		}
 
-		$comment_id = $question->add_comment( $comment_data );
+		$question   = ap_get_question( $this->post_id );
+		$comment_id = $question->add_comment( $comment_args );
 
 		// Check if error.
 		if ( is_wp_error( $comment_id ) ) {

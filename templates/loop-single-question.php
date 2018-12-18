@@ -110,9 +110,9 @@ defined( 'ABSPATH' ) || exit;
 					?>
 				</div>
 
-				<div class="ap-post-footer ap-display-flex align-item-center">
-					<?php do_action( 'ap_question_footer' ); ?>
-				</div>
+				<!-- <div class="ap-post-footer ap-display-flex align-item-center"> -->
+					<?php do_action( 'ap_question_footer', $question ); ?>
+				<!-- </div> -->
 			</div>
 
 			<?php

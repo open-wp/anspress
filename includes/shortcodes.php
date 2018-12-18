@@ -116,6 +116,13 @@ class Shortcodes {
 		// Start output buffer
 		ob_start();
 		echo '<div id="anspress" class="anspress">';
+
+		/**
+		 * Action triggered when shortcode content starts.
+		 *
+		 * @since 5.0.0
+		 */
+		do_action( 'ap_shortcode_start' );
 	}
 
 	/**

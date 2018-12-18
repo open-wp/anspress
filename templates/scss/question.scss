@@ -40,8 +40,9 @@
 		&-metas {
 			font-size: 13px;
 			padding: 12px;
-			border-bottom: solid 1px rgba(0, 0, 0, .1);
+			border-bottom: solid 1px var(--ap_border-color);
 			background: #fafafa;
+			margin: -10px -10px 10px;
 			a {
 				font-weight: 600;
 				text-decoration: none;
@@ -207,14 +208,6 @@
 		text-decoration: none;
 		color: #777;
 		font-weight: bold;
-	}
-	postactions {
-		margin-left: auto;
-		margin-right: 15px;
-		.ap-dropdown-menu{
-			right: 0;
-			left: auto;
-		}
 	}
 	.ap-btn {
 		font-size: 11px;

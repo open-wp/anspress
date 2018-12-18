@@ -990,13 +990,22 @@ function ap_user_can_change_status( $post_id, $user_id = false ) {
  * @param integer $user_id User ID.
  * @return boolean
  */
-function ap_user_can_close_question( $user_id = false ) {
+function ap_user_can_close_question( $post_id, $user_id = false ) {
+	$post = get_post( $post_id );
+
+	if ( 'question' !== $post->post_type ) {
+		return false;
+	}
 
 	if ( false === $user_id ) {
 		$user_id = get_current_user_id();
 	}
 
-	if ( is_super_admin( $user_id ) || user_can( $user_id, 'ap_close_question' ) ) {
+	if ( is_super_admin( $user_id ) ) {
+		return true;
+	}
+
+	if ( ap_user_can_edit_post( $post_id, $user_id ) && user_can( $user_id, 'ap_close_question' ) ) {
 		return true;
 	}
 

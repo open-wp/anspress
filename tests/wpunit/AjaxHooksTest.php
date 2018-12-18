@@ -87,28 +87,6 @@ class AjaxHooksTest extends \Codeception\TestCase\WPAjaxTestCase{
 	}
 
 	/**
-	 * @covers AnsPress_Comment_Hooks::load_comments
-	 */
-	public function testLoadComments() {
-		$this->_setRole( 'administrator' );
-
-		$this->factory->comment->create_many(
-			5, array(
-				'comment_type'    => 'anspress',
-				'comment_post_ID' => $this->current_post,
-			)
-		);
-		// Up vote.
-		$this->_set_post_data( 'post_id=' . $this->current_post . '&ap_ajax_action=load_comments' );
-		add_action( 'ap_ajax_load_comments', array( 'AnsPress_Comment_Hooks', 'load_comments' ) );
-
-		$this->handle( 'ap_ajax' );
-
-		$this->assertTrue( $this->ap_ajax_success( 'success' ) );
-		$this->assertContains( 'apcomment', $this->ap_ajax_success( 'html' ) );
-	}
-
-	/**
 	 * Test comment modal loading when user don't have permission.
 	 *
 	 * @covers AnsPress\Ajax\Comment_Modal
