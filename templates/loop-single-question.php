@@ -37,8 +37,6 @@ defined( 'ABSPATH' ) || exit;
 
 	<?php // Show recent activity. ?>
 	<span class='ap-display-meta-item last-activity'><i class="apicon-pulse"></i><?php $question->the_last_active_human_diff(); ?></span>
-
-	<?php //question_metas(); // xss ok. ?>
 </div>
 
 <?php

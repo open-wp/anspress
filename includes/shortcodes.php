@@ -84,7 +84,7 @@ class Shortcodes {
 	}
 
 	/**
-	 * Unset some globals in the $bbp object that hold query related info.
+	 * Unset some globals in the $ap object that hold query related info.
 	 */
 	private function unset_globals() {
 		$ap = anspress();
