@@ -2,7 +2,7 @@ name: Deploy
 
 on:
   push:
-    branches: [ master, dev ]
+    branches: [ master, dev, github-workflow-test ]
   release:
     types: [ published ]
 
@@ -15,6 +15,13 @@ jobs:
     - uses: actions/checkout@master
       with:
         fetch-depth: 2
+
+
+    - name: Find and Replace
+      uses: datamonsters/replace-action@v2
+      with:
+        files: 'readme.txt'
+        replacements: 'ANSPRESS_RELEASE_VERSION=9999'
 
     - name: Upload to development site
       uses: appleboy/scp-action@v0.1.1
