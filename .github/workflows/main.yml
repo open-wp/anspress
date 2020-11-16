@@ -20,7 +20,7 @@ jobs:
     - name: Find and Replace
       uses: datamonsters/replace-action@master
       with:
-        files: 'readme.txt'
+        files: 'readme.txt,anspress-question-answer.php'
         replacements: 'ANSPRESS_RELEASE_VERSION=9999'
 
     - name: Archive readme
