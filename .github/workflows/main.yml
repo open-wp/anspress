@@ -24,10 +24,10 @@ jobs:
         replacements: 'ANSPRESS_RELEASE_VERSION=9999'
 
     - name: Archive readme
-        uses: actions/upload-artifact@v2
-        with:
-          name: readme
-          path: readme.txt
+      uses: actions/upload-artifact@v2
+      with:
+        name: readme
+        path: readme.txt
 
     - name: Upload to development site
       uses: appleboy/scp-action@v0.1.1
