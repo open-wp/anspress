@@ -17,10 +17,16 @@ jobs:
         fetch-depth: 2
 
 
-    - name: Find and Replace
+    - name: Find and Replace version in plugin file
       uses: datamonsters/replace-action@master
       with:
-        files: 'anspress-question-answer.php,readme.txt,README.md'
+        files: 'anspress-question-answer.php'
+        replacements: 'ANSPRESS_RELEASE_VERSION=9999'
+
+    - name: Find and Replace version in readme.txt
+      uses: datamonsters/replace-action@master
+      with:
+        files: 'readme.txt'
         replacements: 'ANSPRESS_RELEASE_VERSION=9999'
 
     - name: Archive readme
