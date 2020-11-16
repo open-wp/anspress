@@ -122,18 +122,6 @@ $credits = ap_sanitize_unslash( 'credits', 'r', false );
 				<a class="web" href="https://profiles.wordpress.org/nerdaryan"><img alt="" class="gravatar" src="//www.gravatar.com/avatar/0c8cfd3bc56d97fe6bebc035fe9b8c80?s=60">Rahul Aryan</a>
 				<span class="title">Lead Developer</span>
 			</li>
-			<li class="wp-person" id="wp-person-campdoug">
-				<a class="web" href="https://campdoug.com/"><img alt="" class="gravatar" src="//anspress.net/wp-content/themes/site/images/contributors/barry.jpg">Barry Sevig</a>
-				<span class="title">Supporter &amp; Developer</span>
-			</li>
-			<li class="wp-person" id="wp-person-ravi">
-				<a class="web" href="#"><img alt="" class="gravatar" src="//anspress.net/wp-content/themes/site/images/contributors/ravi_kumar.jpg">Ravi Kumar</a>
-				<span class="title">Core Developer</span>
-			</li>
-			<li class="wp-person" id="wp-person-geetikaaryan">
-				<a class="web" href="https://anspress.net/"><img alt="" class="gravatar" src="//www.gravatar.com/avatar/ef5b41129a9a4c2573ef5daf05f03eb7?s=60">Geetika Aryan</a>
-				<span class="title">Core Developer</span>
-			</li>
 		</ul>
 
 		<h3 class="wp-people-group">Contributors</h3>

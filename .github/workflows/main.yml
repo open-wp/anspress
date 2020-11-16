@@ -20,13 +20,13 @@ jobs:
     - name: Find and Replace version in plugin file
       uses: datamonsters/replace-action@master
       with:
-        files: 'anspress-question-answer.php'
+        files: 'anspress-question-answer.php,readme.txt'
         replacements: 'ANSPRESS_RELEASE_VERSION=9999'
 
-    - name: Find and Replace version in readme.txt
+    - name: Another find and replace version in main file
       uses: datamonsters/replace-action@master
       with:
-        files: 'readme.txt'
+        files: 'ansress-question-answer.php'
         replacements: 'ANSPRESS_RELEASE_VERSION=9999'
 
     - name: Archive readme
